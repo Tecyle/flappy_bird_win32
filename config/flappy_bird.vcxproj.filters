@@ -18,6 +18,12 @@
     <ClInclude Include="..\src\stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\image_manager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\stdafx.cpp">
@@ -26,9 +32,15 @@
     <ClCompile Include="..\src\main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\image_manager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\assets\images\atlas.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\assets\images\atlas.bmp">
       <Filter>资源文件</Filter>
     </Image>
   </ItemGroup>
@@ -48,5 +60,10 @@
     <None Include="..\assets\sounds\sfx_wing.ogg">
       <Filter>资源文件</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\src\flappy_bird.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

@@ -28,7 +28,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	}
 
 	HWND hWnd = CreateWindow(L"FlappyBird", L"Flappy Bird", WS_OVERLAPPED | WS_SYSMENU, 
-		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, 
+		CW_USEDEFAULT, CW_USEDEFAULT, WINDOW_WIDTH, WINDOW_HEIGHT, 
 		NULL, NULL, hInstance, NULL);
 
 	if (!hWnd)
@@ -62,6 +62,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
+	case WM_CLOSE:
+		if (MessageBox(NULL, L"是否结束当前游戏？", L"Flappy Bird", MB_ICONQUESTION | MB_YESNO) == IDYES)
+			DestroyWindow(hWnd);
+		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;

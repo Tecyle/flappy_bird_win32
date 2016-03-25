@@ -81,9 +81,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\image_manager.h" />
+    <ClInclude Include="..\src\resource.h" />
     <ClInclude Include="..\src\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\image_manager.cpp" />
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -91,6 +94,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\assets\images\atlas.bmp" />
     <Image Include="..\assets\images\atlas.png" />
   </ItemGroup>
   <ItemGroup>
@@ -99,6 +103,9 @@
     <None Include="..\assets\sounds\sfx_point.ogg" />
     <None Include="..\assets\sounds\sfx_swooshing.ogg" />
     <None Include="..\assets\sounds\sfx_wing.ogg" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\src\flappy_bird.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

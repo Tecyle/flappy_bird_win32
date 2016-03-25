@@ -35,3 +35,4 @@ ipch
 *.user
 bin
 /public/lib
+/src/*.aps
