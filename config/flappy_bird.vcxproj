@@ -95,7 +95,6 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\assets\images\atlas.bmp" />
-    <Image Include="..\assets\images\atlas.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\assets\sounds\sfx_die.ogg" />

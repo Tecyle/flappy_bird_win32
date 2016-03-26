@@ -37,9 +37,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\assets\images\atlas.png">
-      <Filter>资源文件</Filter>
-    </Image>
     <Image Include="..\assets\images\atlas.bmp">
       <Filter>资源文件</Filter>
     </Image>

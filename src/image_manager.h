@@ -21,6 +21,19 @@ typedef struct Animation
 	size_t interval;
 } Animation;
 
+typedef struct ImageManager
+{
+	HINSTANCE hInstance;
+	HBITMAP imgScene;
+	HDC imgHdc;
+} ImageManager;
+
+void ImageManager_construct(ImageManager* o, HINSTANCE hInstance);
+
+void ImageManager_initAllSpirits(ImageManager* o, HDC hdc);
+bool ImageManager_loadScenes(ImageManager* o);
+void ImageManager_drawScene(ImageManager* o, HDC hdc);
+
 // 对于本游戏而言，可用的精灵总共就那么一些，所以就全
 // 都枚举出来了
 extern Spirit sp_dayBackground;
