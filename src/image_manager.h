@@ -57,7 +57,7 @@ extern Spirit sp_greenPipeUp;
 extern Spirit sp_greenPipeDown;
 extern Spirit sp_yellowBird[3];
 extern Spirit sp_redBird[3];
-extern Spirit sp_BlueBird[3];
+extern Spirit sp_blueBird[3];
 extern Spirit sp_btPlay;
 extern Spirit sp_btRank;
 extern Spirit sp_btRate;

@@ -1,18 +1,12 @@
 #include "stdafx.h"
 #include "scene_manager.h"
+#include "animation_manager.h"
 
 typedef enum DayNightMode
 {
 	DayNightMode_day,
 	DayNightMode_night
 } DayNightMode;
-
-typedef enum BirdColor
-{
-	BirdColor_blue,
-	BirdColor_red,
-	BirdColor_yellow
-} BirdColor;
 
 static DayNightMode g_dayNight;
 static BirdColor g_birdColor;
@@ -74,11 +68,26 @@ void SceneManager_construct(SceneManager* o, HINSTANCE hInstance, HDC hdc)
 	QueryPerformanceFrequency(&g_counterFrequency);
 }
 
+void _SceneManager_drawBird(SceneManager* o, bool alive, int cx, int cy)
+{
+	static int framePassed = 0;
+	Spirit* bird = NULL;
+	int interval = o->fps / 8;
+	if (!alive)
+		bird = BirdAnimation_step(g_birdColor, false);
+	else
+		bird = BirdAnimation_step(g_birdColor, framePassed % interval == 0);
+
+	ImageManager_drawSpiritToHdc(&g_imgMgr, bird, o->bufHdc, cx, cy);
+	framePassed = framePassed++ % interval;
+}
+
 void _SceneManager_drawMainMenu(SceneManager* o)
 {
 	Spirit* background = g_dayNight == DayNightMode_day ? &sp_dayBackground : &sp_nightBackground;
 	ImageManager_drawSpiritToHdc(&g_imgMgr, background, o->bufHdc, 0, 0);
-	ImageManager_drawSpiritToHdc(&g_imgMgr, &sp_txtFlappyBird, o->bufHdc, 50, 100);
+	ImageManager_drawSpiritToHdc(&g_imgMgr, &sp_txtFlappyBird, o->bufHdc, 50, 120);
+	_SceneManager_drawBird(o, true, 130, 200);
 }
 
 void SceneManager_render(SceneManager* o)
