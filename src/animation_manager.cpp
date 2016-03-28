@@ -18,3 +18,16 @@ Spirit* BirdAnimation_step(BirdColor color, bool inc)
 	}
 	return NULL;
 }
+
+void GroundAnimation_step(HDC srcHdc, HDC dstHdc, int fps)
+{
+	int interval = fps / 20;
+	static int step = 0;
+	static int x = 0;
+	static int y = SCENE_HEIGHT - sp_ground.height;
+	
+	if (step % interval == 0)
+		x = (x + 4) % (sp_ground.width - SCENE_WIDTH);
+	step = step++ % interval;
+	BitBlt(dstHdc, 0, y, SCENE_WIDTH, sp_ground.height, srcHdc, sp_ground.x + x, sp_ground.y, SRCCOPY);
+}

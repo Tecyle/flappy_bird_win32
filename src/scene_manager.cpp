@@ -88,6 +88,7 @@ void _SceneManager_drawMainMenu(SceneManager* o)
 	ImageManager_drawSpiritToHdc(&g_imgMgr, background, o->bufHdc, 0, 0);
 	ImageManager_drawSpiritToHdc(&g_imgMgr, &sp_txtFlappyBird, o->bufHdc, 50, 120);
 	_SceneManager_drawBird(o, true, 130, 200);
+	GroundAnimation_step(g_imgMgr.imgHdc, o->bufHdc, o->fps);
 }
 
 void SceneManager_render(SceneManager* o)
