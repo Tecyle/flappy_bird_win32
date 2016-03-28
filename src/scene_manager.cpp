@@ -18,6 +18,8 @@ static DayNightMode g_dayNight;
 static BirdColor g_birdColor;
 static ImageManager g_imgMgr;
 
+static LARGE_INTEGER g_counterFrequency;
+
 static void _SceneManager_randomBackAndBird()
 {
 	BirdColor bc[] = { BirdColor_blue, BirdColor_red, BirdColor_yellow };
@@ -37,10 +39,11 @@ static void _SceneManager_drawFps(SceneManager* o)
 
 static bool _SceneManager_needReDraw(SceneManager* o)
 {
-	static DWORD lastCount = 0;
-	DWORD frameInterval = 1000 / o->fps;
-	DWORD nowCount = GetTickCount();
-	if (nowCount - lastCount > frameInterval)
+	static LARGE_INTEGER lastCount = { 0, 0 };
+	long long frameInterval = g_counterFrequency.QuadPart / o->fps;
+	LARGE_INTEGER nowCount;
+	QueryPerformanceCounter(&nowCount);
+	if (nowCount.QuadPart - lastCount.QuadPart > frameInterval)
 	{
 		lastCount = nowCount;
 		return true;
@@ -58,7 +61,7 @@ void SceneManager_construct(SceneManager* o, HINSTANCE hInstance, HDC hdc)
 	SetTextColor(o->bufHdc, RGB(255, 0, 0));
 	SetBkColor(o->bufHdc, RGB(0, 0, 0));
 	SetBkMode(o->bufHdc, TRANSPARENT);
-	o->fps = 100;
+	o->fps = 60;
 
 	ImageManager_construct(&g_imgMgr, hInstance);
 	ImageManager_loadScenes(&g_imgMgr);
@@ -68,6 +71,7 @@ void SceneManager_construct(SceneManager* o, HINSTANCE hInstance, HDC hdc)
 
 	o->drawCounter = 0;
 	o->showFps = true;
+	QueryPerformanceFrequency(&g_counterFrequency);
 }
 
 void _SceneManager_drawMainMenu(SceneManager* o)
@@ -81,6 +85,8 @@ void SceneManager_render(SceneManager* o)
 {
 	if (!_SceneManager_needReDraw(o))
 		return;
+
+	o->drawCounter++;
 
 	switch (o->sceneType)
 	{
@@ -97,7 +103,6 @@ void SceneManager_render(SceneManager* o)
 
 	// 翻转缓存图像到前台显示
 	StretchBlt(o->scrHdc, 0, 0, o->windowWidth, o->windowHeight, o->bufHdc, 0, 0, SCENE_WIDTH, SCENE_HEIGHT, SRCCOPY);
-	o->drawCounter++;
 }
 
 void SceneManager_setViewSize(SceneManager* o, int width, int height)
