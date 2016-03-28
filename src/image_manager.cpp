@@ -38,7 +38,6 @@ Spirit sp_btOk;
 Spirit sp_new;
 
 static void Spirit_construct(Spirit* o, int x, int y, int width, int height);
-static void Spirit_drawToHdc(Spirit* o, HDC srcHdc, HDC dstHdc, int dx, int dy);
 
 bool ImageManager_loadScenes(ImageManager* o)
 {
@@ -127,18 +126,12 @@ void Spirit_construct(Spirit* o, int x, int y, int width, int height)
 	o->height = height;
 }
 
-void ImageManager_drawScene(ImageManager* o, HDC hdc)
-{
-	Spirit_drawToHdc(&sp_dayBackground, o->imgHdc, hdc, 0, 0);
-	Spirit_drawToHdc(&sp_txtFlappyBird, o->imgHdc, hdc, 50, 100);
-}
-
-void Spirit_drawToHdc(Spirit* o, HDC srcHdc, HDC dstHdc, int dx, int dy)
-{
-	TransparentBlt(dstHdc, dx, dy, o->width, o->height, srcHdc, o->x, o->y, o->width, o->height, TRANSPRENT_COLOR);
-}
-
 void ImageManager_construct(ImageManager* o, HINSTANCE hInstance)
 {
 	o->hInstance = hInstance;
+}
+
+void ImageManager_drawSpiritToHdc(ImageManager* o, Spirit* sp, HDC hdc, int dx, int dy)
+{
+	TransparentBlt(hdc, dx, dy, sp->width, sp->height, o->imgHdc, sp->x, sp->y, sp->width, sp->height, TRANSPRENT_COLOR);
 }

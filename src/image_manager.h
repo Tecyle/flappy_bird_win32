@@ -32,7 +32,7 @@ void ImageManager_construct(ImageManager* o, HINSTANCE hInstance);
 
 void ImageManager_initAllSpirits(ImageManager* o, HDC hdc);
 bool ImageManager_loadScenes(ImageManager* o);
-void ImageManager_drawScene(ImageManager* o, HDC hdc);
+void ImageManager_drawSpiritToHdc(ImageManager* o, Spirit* sp, HDC hdc, int dx, int dy);
 
 // 对于本游戏而言，可用的精灵总共就那么一些，所以就全
 // 都枚举出来了

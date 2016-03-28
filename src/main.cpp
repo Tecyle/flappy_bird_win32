@@ -1,7 +1,7 @@
 #include "stdafx.h"
-#include "image_manager.h"
+#include "scene_manager.h"
 
-ImageManager g_imgMgr;
+static SceneManager g_sceneMgr;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -41,10 +41,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	}
 
 	// 初始化绘图对象
-	HDC hdc = GetWindowDC(hWnd);
-	ImageManager_construct(&g_imgMgr, hInstance);
-	ImageManager_loadScenes(&g_imgMgr);
-	ImageManager_initAllSpirits(&g_imgMgr, hdc);
+	HDC hdc = GetDC(hWnd);
+	SceneManager_construct(&g_sceneMgr, hInstance, hdc);
 
 	ShowWindow(hWnd, SW_SHOW);
 	UpdateWindow(hWnd);
@@ -63,7 +61,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			continue;
 		}
 
-		ImageManager_drawScene(&g_imgMgr, hdc);
+		SceneManager_render(&g_sceneMgr);
 	}
 
 	return (int)msg.wParam;

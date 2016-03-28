@@ -24,6 +24,9 @@
     <ClInclude Include="..\src\resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\scene_manager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\stdafx.cpp">
@@ -33,6 +36,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\src\image_manager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\scene_manager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
