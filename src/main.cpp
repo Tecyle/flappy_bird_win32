@@ -30,8 +30,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		return -1;
 	}
 
+	int hCaption = GetSystemMetrics(SM_CYCAPTION);
+	int hBorder = GetSystemMetrics(SM_CYSIZEFRAME);
+	int wBorder = GetSystemMetrics(SM_CXSIZEFRAME);
+	int hScreen = GetSystemMetrics(SM_CYSCREEN);
+	int wScreen = GetSystemMetrics(SM_CXSCREEN);
+
+	int wWindow = 3 * (SCENE_WIDTH + 2 * wBorder) / 2;
+	int hWindow = 3 * (SCENE_HEIGHT + hCaption + 2 * hBorder) / 2;
+	int xWindow = (wScreen - wWindow) / 2;
+	int yWindow = (hScreen - hWindow) / 2;
+
 	HWND hWnd = CreateWindow(L"FlappyBird", L"Flappy Bird", WS_OVERLAPPED | WS_SYSMENU | WS_SIZEBOX | WS_MINIMIZEBOX, 
-		CW_USEDEFAULT, CW_USEDEFAULT, SCENE_WIDTH, SCENE_HEIGHT, 
+		xWindow, yWindow, wWindow, hWindow, 
 		NULL, NULL, hInstance, NULL);
 
 	if (!hWnd)
