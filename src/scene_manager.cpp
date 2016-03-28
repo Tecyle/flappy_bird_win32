@@ -33,7 +33,7 @@ void SceneManager_construct(SceneManager* o, HINSTANCE hInstance, HDC hdc)
 	o->sceneType = SceneType_mainMenu;
 	o->scrHdc = hdc;
 	o->bufHdc = CreateCompatibleDC(hdc);
-	o->drawingBoard = CreateCompatibleBitmap(hdc, WINDOW_WIDTH, WINDOW_HEIGHT);
+	o->drawingBoard = CreateCompatibleBitmap(hdc, SCENE_WIDTH, SCENE_HEIGHT);
 	SelectObject(o->bufHdc, o->drawingBoard);
 
 	ImageManager_construct(&g_imgMgr, hInstance);
@@ -61,5 +61,11 @@ void SceneManager_render(SceneManager* o)
 		break;
 	}
 	// 翻转缓存图像到前台显示
-	StretchBlt(o->scrHdc, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, o->bufHdc, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, SRCCOPY);
+	StretchBlt(o->scrHdc, 0, 0, o->windowWidth, o->windowHeight, o->bufHdc, 0, 0, SCENE_WIDTH, SCENE_HEIGHT, SRCCOPY);
+}
+
+void SceneManager_setViewSize(SceneManager* o, int width, int height)
+{
+	o->windowWidth = width;
+	o->windowHeight = height;
 }

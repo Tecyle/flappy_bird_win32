@@ -30,8 +30,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		return -1;
 	}
 
-	HWND hWnd = CreateWindow(L"FlappyBird", L"Flappy Bird", WS_OVERLAPPED | WS_SYSMENU, 
-		CW_USEDEFAULT, CW_USEDEFAULT, WINDOW_WIDTH, WINDOW_HEIGHT, 
+	HWND hWnd = CreateWindow(L"FlappyBird", L"Flappy Bird", WS_OVERLAPPED | WS_SYSMENU | WS_SIZEBOX | WS_MINIMIZEBOX, 
+		CW_USEDEFAULT, CW_USEDEFAULT, SCENE_WIDTH, SCENE_HEIGHT, 
 		NULL, NULL, hInstance, NULL);
 
 	if (!hWnd)
@@ -42,7 +42,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	// 初始化绘图对象
 	HDC hdc = GetDC(hWnd);
+	RECT windowRect;
+	GetClientRect(hWnd, &windowRect);
 	SceneManager_construct(&g_sceneMgr, hInstance, hdc);
+	SceneManager_setViewSize(&g_sceneMgr, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top);
 
 	ShowWindow(hWnd, SW_SHOW);
 	UpdateWindow(hWnd);
@@ -77,6 +80,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
+		break;
+	case WM_SIZE:
+	{
+		RECT windowRect;
+		GetClientRect(hWnd, &windowRect);
+		SceneManager_setViewSize(&g_sceneMgr, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top);
+		SceneManager_render(&g_sceneMgr);
+	}
 		break;
 	default:
 		return DefWindowProc(hWnd, msg, wParam, lParam);

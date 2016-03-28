@@ -15,7 +15,11 @@ typedef struct SceneManager
 	HDC scrHdc;
 	HDC bufHdc;
 	HBITMAP drawingBoard;
+
+	int windowWidth;
+	int windowHeight;
 } SceneManager;
 
 void SceneManager_construct(SceneManager* o, HINSTANCE hInstance, HDC hdc);
+void SceneManager_setViewSize(SceneManager* o, int width, int height);
 void SceneManager_render(SceneManager* o);

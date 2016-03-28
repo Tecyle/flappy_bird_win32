@@ -52,7 +52,7 @@ void ImageManager_initAllSpirits(ImageManager* o, HDC hdc)
 	o->imgHdc = CreateCompatibleDC(hdc);
 	SelectObject(o->imgHdc, o->imgScene);
 
-	Spirit_construct(&sp_dayBackground, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+	Spirit_construct(&sp_dayBackground, 0, 0, SCENE_WIDTH, SCENE_HEIGHT);
 	Spirit_construct(&sp_ground, 584, 0, 336, 112);
 	Spirit_construct(&sp_txtFlappyBird, 702, 182, 178, 48);
 	Spirit_construct(&sp_btRate, 930, 2, 62, 36);
@@ -65,7 +65,7 @@ void ImageManager_initAllSpirits(ImageManager* o, HDC hdc)
 	Spirit_construct(&sp_btContinue, 668, 284, 26, 28);
 	Spirit_construct(&sp_btPlay, 708, 236, 104, 58);
 	Spirit_construct(&sp_btRank, 828, 236, 104, 58);
-	Spirit_construct(&sp_nightBackground, 292, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+	Spirit_construct(&sp_nightBackground, 292, 0, SCENE_WIDTH, SCENE_HEIGHT);
 	Spirit_construct(&sp_scorePane, 6, 518, 226, 114);
 	Spirit_construct(&sp_sliverMedal, 242, 516, 44, 44);
 	Spirit_construct(&sp_goldenMedal, 242, 564, 44, 44);
