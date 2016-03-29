@@ -2,6 +2,7 @@
 
 typedef struct PEBirdObject
 {
+	double oy;
 	double cx;
 	double cy;
 	double angle;
@@ -12,6 +13,8 @@ typedef struct PEBirdObject
 	double vv;
 
 	bool isDead;
+	bool isStopped;
+	bool canBeHigher;
 } PEBirdObject;
 
 typedef struct PEPipeObject
@@ -29,3 +32,11 @@ typedef struct PEGroundObject
 } PEGroundObject;
 
 void PhysicEngine_tick(int tickCount);  // tick = 1/20 s
+void PhysicEngine_setBirdPos(int ox, int oy);
+void PhysicEngine_float(int tickCount);
+int PhysicEngine_realToPixelCoord(double x);
+double PhysicEngine_pixelToRealCoord(int x);
+
+extern PEBirdObject pe_bird;
+extern PEGroundObject pe_ground;
+extern PEPipeObject pe_pipes[4];

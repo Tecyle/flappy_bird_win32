@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "scene_manager.h"
 #include "animation_manager.h"
+#include "physic_engine.h"
 
 typedef enum DayNightMode
 {
@@ -66,20 +67,41 @@ void SceneManager_construct(SceneManager* o, HINSTANCE hInstance, HDC hdc)
 	o->drawCounter = 0;
 	o->showFps = true;
 	QueryPerformanceFrequency(&g_counterFrequency);
+
+	PhysicEngine_setBirdPos(PhysicEngine_pixelToRealCoord(130), PhysicEngine_pixelToRealCoord(210));
 }
 
-void _SceneManager_drawBird(SceneManager* o, bool alive, int cx, int cy)
+void _SceneManager_drawBird(SceneManager* o)
 {
 	static int framePassed = 0;
 	Spirit* bird = NULL;
 	int interval = o->fps / 8;
-	if (!alive)
+	if (pe_bird.isDead)
 		bird = BirdAnimation_step(g_birdColor, false);
 	else
 		bird = BirdAnimation_step(g_birdColor, framePassed % interval == 0);
 
-	ImageManager_drawSpiritToHdc(&g_imgMgr, bird, o->bufHdc, cx, cy);
+	ImageManager_drawSpiritToHdc(&g_imgMgr, bird, o->bufHdc, 
+		PhysicEngine_realToPixelCoord(pe_bird.cx - pe_bird.width),
+		PhysicEngine_realToPixelCoord(pe_bird.cy - pe_bird.height));
 	framePassed = framePassed++ % interval;
+}
+
+void _SceneManager_tick(SceneManager* o)
+{
+	static int lastCount = 0;
+	if (lastCount++ % o->fps / 20 == 0)
+	{
+		lastCount = 1;
+		switch (o->sceneType)
+		{
+		case SceneType_mainMenu:
+			PhysicEngine_float(1);
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 void _SceneManager_drawMainMenu(SceneManager* o)
@@ -87,7 +109,7 @@ void _SceneManager_drawMainMenu(SceneManager* o)
 	Spirit* background = g_dayNight == DayNightMode_day ? &sp_dayBackground : &sp_nightBackground;
 	ImageManager_drawSpiritToHdc(&g_imgMgr, background, o->bufHdc, 0, 0);
 	ImageManager_drawSpiritToHdc(&g_imgMgr, &sp_txtFlappyBird, o->bufHdc, 50, 120);
-	_SceneManager_drawBird(o, true, 130, 200);
+	_SceneManager_drawBird(o);
 	GroundAnimation_step(g_imgMgr.imgHdc, o->bufHdc, o->fps);
 }
 
@@ -97,6 +119,8 @@ void SceneManager_render(SceneManager* o)
 		return;
 
 	o->drawCounter++;
+
+	_SceneManager_tick(o);
 
 	switch (o->sceneType)
 	{
