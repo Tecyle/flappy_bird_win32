@@ -111,6 +111,10 @@ void _SceneManager_drawMainMenu(SceneManager* o)
 	ImageManager_drawSpiritToHdc(&g_imgMgr, &sp_txtFlappyBird, o->bufHdc, 50, 120);
 	_SceneManager_drawBird(o);
 	GroundAnimation_step(g_imgMgr.imgHdc, o->bufHdc, o->fps);
+	ImageManager_drawSpiritToHdc(&g_imgMgr, &sp_txtCopyright, o->bufHdc, 70, 425);
+	ImageManager_drawSpiritToHdc(&g_imgMgr, &sp_btPlay, o->bufHdc, 20, 342);
+	ImageManager_drawSpiritToHdc(&g_imgMgr, &sp_btRank, o->bufHdc, 160, 342);
+	ImageManager_drawSpiritToHdc(&g_imgMgr, &sp_btRate, o->bufHdc, 115, 260);
 }
 
 void SceneManager_render(SceneManager* o)
