@@ -30,6 +30,9 @@
     <ClInclude Include="..\src\animation_manager.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\physic_engine.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\stdafx.cpp">
@@ -45,6 +48,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\src\animation_manager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\physic_engine.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
