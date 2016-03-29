@@ -22,6 +22,9 @@ typedef struct SceneManager
 
 	size_t drawCounter;
 	bool showFps;
+	bool isFading;
+	int fadeAlpha;
+	int fadeStep;
 } SceneManager;
 
 void SceneManager_construct(SceneManager* o, HINSTANCE hInstance, HDC hdc);
@@ -29,3 +32,5 @@ void SceneManager_setViewSize(SceneManager* o, int width, int height);
 void SceneManager_setFps(SceneManager* o, int fps);
 int SceneManager_getFps(SceneManager* o);
 void SceneManager_render(SceneManager* o);
+void SceneManager_fadeOut(SceneManager* o);
+void SceneManager_fadeIn(SceneManager* o);

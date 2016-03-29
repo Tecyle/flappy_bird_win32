@@ -66,6 +66,7 @@ void SceneManager_construct(SceneManager* o, HINSTANCE hInstance, HDC hdc)
 
 	o->drawCounter = 0;
 	o->showFps = true;
+	o->isFading = false;
 	QueryPerformanceFrequency(&g_counterFrequency);
 
 	PhysicEngine_setBirdPos(PhysicEngine_pixelToRealCoord(130), PhysicEngine_pixelToRealCoord(210));
@@ -104,6 +105,28 @@ void _SceneManager_tick(SceneManager* o)
 	}
 }
 
+void SceneManager_fadeOut(SceneManager* o)
+{
+	o->isFading = true;
+	o->fadeAlpha = 0;
+	o->fadeStep = 255 / o->fps * 2;
+	while (o->fadeAlpha != 255)
+	{
+		SceneManager_render(o);
+	}
+}
+
+void SceneManager_fadeIn(SceneManager* o)
+{
+	o->isFading = true;
+	o->fadeAlpha = 255;
+	o->fadeStep = -255 / o->fps * 2;
+	while (o->fadeAlpha != 0)
+	{
+		SceneManager_render(o);
+	}
+}
+
 void _SceneManager_drawMainMenu(SceneManager* o)
 {
 	Spirit* background = g_dayNight == DayNightMode_day ? &sp_dayBackground : &sp_nightBackground;
@@ -138,6 +161,17 @@ void SceneManager_render(SceneManager* o)
 	// 绘制帧速率
 	if (o->showFps)
 		_SceneManager_drawFps(o);
+
+	// 处理渐变动画
+	if (o->isFading)
+	{
+		o->fadeAlpha += o->fadeStep;
+		if (o->fadeAlpha < 0)
+			o->fadeAlpha = 0;
+		if (o->fadeAlpha > 255)
+			o->fadeAlpha = 255;
+		ImageManager_alphaBlend(&g_imgMgr, &sp_black, o->bufHdc, 0, 0, SCENE_WIDTH, SCENE_HEIGHT, o->fadeAlpha);
+	}
 
 	// 翻转缓存图像到前台显示
 	StretchBlt(o->scrHdc, 0, 0, o->windowWidth, o->windowHeight, o->bufHdc, 0, 0, SCENE_WIDTH, SCENE_HEIGHT, SRCCOPY);

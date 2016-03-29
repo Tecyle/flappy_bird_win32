@@ -36,6 +36,8 @@ Spirit sp_btShare;
 Spirit sp_btMenu;
 Spirit sp_btOk;
 Spirit sp_new;
+Spirit sp_black;
+Spirit sp_white;
 
 static void Spirit_construct(Spirit* o, int x, int y, int width, int height);
 
@@ -116,6 +118,8 @@ void ImageManager_initAllSpirits(ImageManager* o, HDC hdc)
 	Spirit_construct(&sp_smallNum[8], 276, 854, 12, 14);
 	Spirit_construct(&sp_smallNum[9], 276, 872, 12, 14);
 	Spirit_construct(&sp_txtCopyright, 886, 184, 134, 10);
+	Spirit_construct(&sp_black, 584, 412, 32, 32);
+	Spirit_construct(&sp_white, 584, 448, 32, 32);
 }
 
 void Spirit_construct(Spirit* o, int x, int y, int width, int height)
@@ -134,4 +138,14 @@ void ImageManager_construct(ImageManager* o, HINSTANCE hInstance)
 void ImageManager_drawSpiritToHdc(ImageManager* o, Spirit* sp, HDC hdc, int dx, int dy)
 {
 	TransparentBlt(hdc, dx, dy, sp->width, sp->height, o->imgHdc, sp->x, sp->y, sp->width, sp->height, TRANSPRENT_COLOR);
+}
+
+void ImageManager_alphaBlend(ImageManager* o, Spirit* sp, HDC hdc, int dx, int dy, int width, int height, BYTE alpha)
+{
+	BLENDFUNCTION blend;
+	blend.AlphaFormat = 0;
+	blend.BlendOp = AC_SRC_OVER;
+	blend.BlendFlags = 0;
+	blend.SourceConstantAlpha = alpha;
+	AlphaBlend(hdc, dx, dy, width, height, o->imgHdc, sp->x, sp->y, sp->width, sp->height, blend);
 }

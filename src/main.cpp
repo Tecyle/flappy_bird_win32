@@ -81,6 +81,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	return (int)msg.wParam;
 }
 
+void ClearMessageQueue()
+{
+	MSG msg;
+	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE));
+}
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
@@ -99,6 +105,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		SceneManager_setViewSize(&g_sceneMgr, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top);
 		SceneManager_render(&g_sceneMgr);
 	}
+		break;
+	case WM_LBUTTONUP:
+		SceneManager_fadeOut(&g_sceneMgr);
+		SceneManager_fadeIn(&g_sceneMgr);
+		ClearMessageQueue();
+		g_sceneMgr.isFading = false;
 		break;
 	default:
 		return DefWindowProc(hWnd, msg, wParam, lParam);
