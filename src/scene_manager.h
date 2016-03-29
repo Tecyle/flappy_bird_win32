@@ -32,5 +32,4 @@ void SceneManager_setViewSize(SceneManager* o, int width, int height);
 void SceneManager_setFps(SceneManager* o, int fps);
 int SceneManager_getFps(SceneManager* o);
 void SceneManager_render(SceneManager* o);
-void SceneManager_fadeOut(SceneManager* o);
-void SceneManager_fadeIn(SceneManager* o);
+void SceneManager_onClick(SceneManager* o, int x, int y);

@@ -149,3 +149,11 @@ void ImageManager_alphaBlend(ImageManager* o, Spirit* sp, HDC hdc, int dx, int d
 	blend.SourceConstantAlpha = alpha;
 	AlphaBlend(hdc, dx, dy, width, height, o->imgHdc, sp->x, sp->y, sp->width, sp->height, blend);
 }
+
+bool Spirit_isPointInMe(Spirit* o, int x, int y, int dx, int dy)
+{
+	if (x > dx && x < dx + o->width)
+		if (y > dy && y < dy + o->height)
+			return true;
+	return false;
+}

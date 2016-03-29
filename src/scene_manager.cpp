@@ -105,7 +105,7 @@ void _SceneManager_tick(SceneManager* o)
 	}
 }
 
-void SceneManager_fadeOut(SceneManager* o)
+static void _SceneManager_fadeOut(SceneManager* o)
 {
 	o->isFading = true;
 	o->fadeAlpha = 0;
@@ -116,7 +116,7 @@ void SceneManager_fadeOut(SceneManager* o)
 	}
 }
 
-void SceneManager_fadeIn(SceneManager* o)
+static void _SceneManager_fadeIn(SceneManager* o)
 {
 	o->isFading = true;
 	o->fadeAlpha = 255;
@@ -204,4 +204,27 @@ int SceneManager_getFps(SceneManager* o)
 		o->drawCounter = 0;
 	}
 	return lastFps;
+}
+
+static void _MainMenu_onClick(SceneManager* o, int x, int y)
+{
+	if (Spirit_isPointInMe(&sp_btPlay, x, y, 20, 342))
+	{
+		_SceneManager_fadeOut(o);
+		o->sceneType = SceneType_prepare;
+		_SceneManager_fadeIn(o);
+		o->isFading = false;
+	}
+}
+
+void SceneManager_onClick(SceneManager* o, int x, int y)
+{
+	switch (o->sceneType)
+	{
+	case SceneType_mainMenu:
+		_MainMenu_onClick(o, x, y);
+		break;
+	default:
+		break;
+	}
 }

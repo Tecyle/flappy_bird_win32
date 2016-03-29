@@ -107,10 +107,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	}
 		break;
 	case WM_LBUTTONUP:
-		SceneManager_fadeOut(&g_sceneMgr);
-		SceneManager_fadeIn(&g_sceneMgr);
+	{
+		RECT windowRect;
+		GetClientRect(hWnd, &windowRect);
+		int rx = (int)((double)LOWORD(lParam) * (double)SCENE_WIDTH / (double)(windowRect.right - windowRect.left));
+		int ry = (int)((double)HIWORD(lParam) * (double)SCENE_HEIGHT / (double)(windowRect.bottom - windowRect.top));
+		SceneManager_onClick(&g_sceneMgr, rx, ry);
 		ClearMessageQueue();
-		g_sceneMgr.isFading = false;
+	}
 		break;
 	default:
 		return DefWindowProc(hWnd, msg, wParam, lParam);

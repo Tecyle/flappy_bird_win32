@@ -34,6 +34,7 @@ void ImageManager_initAllSpirits(ImageManager* o, HDC hdc);
 bool ImageManager_loadScenes(ImageManager* o);
 void ImageManager_drawSpiritToHdc(ImageManager* o, Spirit* sp, HDC hdc, int dx, int dy);
 void ImageManager_alphaBlend(ImageManager* o, Spirit* sp, HDC hdc, int dx, int dy, int width, int height, BYTE alpha);
+bool Spirit_isPointInMe(Spirit* o, int x, int y, int dx, int dy);
 
 // 对于本游戏而言，可用的精灵总共就那么一些，所以就全
 // 都枚举出来了
