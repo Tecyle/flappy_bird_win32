@@ -253,6 +253,7 @@ static void _Prepare_onClick(SceneManager* o, int x, int y)
 {
 	PhysicEngine_reset();
 	o->sceneType = SceneType_playing;
+	PhysicEngine_BirdFly();
 }
 
 void SceneManager_onClick(SceneManager* o, int x, int y)

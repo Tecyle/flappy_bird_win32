@@ -131,7 +131,7 @@ static void _PhysicEngine_checkHit()
 
 void PhysicEngine_tick(int tickCount)
 {
-	double t = tickCount * 0.2;
+	double t = tickCount * 0.15;
 	_PhysicEngine_birdTick(t);
 	_PhysicEngine_pipeTick(t);
 	_PhysicEngine_checkHit();
@@ -156,4 +156,9 @@ int PhysicEngine_realToPixelCoord(double x)
 double PhysicEngine_pixelToRealCoord(int x)
 {
 	return x * 10.0;
+}
+
+void PhysicEngine_BirdFly()
+{
+	pe_bird.vv = -300.0;
 }
