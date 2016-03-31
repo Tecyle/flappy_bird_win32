@@ -147,7 +147,9 @@ void _SceneManager_drawPrepare(SceneManager* o)
 {
 	Spirit* background = g_dayNight == DayNightMode_day ? &sp_dayBackground : &sp_nightBackground;
 	ImageManager_drawSpiritToHdc(&g_imgMgr, background, o->bufHdc, 0, 0);
-	ImageManager_drawNumber(&g_imgMgr, 0, o->bufHdc, 144, 100, DrawNumberSize_large);
+	ImageManager_drawNumber(&g_imgMgr, 0, o->bufHdc, 144, 80, DrawNumberSize_large);
+	ImageManager_drawSpiritToHdc(&g_imgMgr, &sp_txtGetReady, o->bufHdc, 45, 120);
+	ImageManager_drawSpiritToHdc(&g_imgMgr, &sp_help, o->bufHdc, 80, 200);
 	_SceneManager_drawBird(o);
 	GroundAnimation_step(g_imgMgr.imgHdc, o->bufHdc, o->fps);
 }
