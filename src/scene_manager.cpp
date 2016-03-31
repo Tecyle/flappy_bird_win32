@@ -99,6 +99,9 @@ void _SceneManager_tick(SceneManager* o)
 		case SceneType_mainMenu:
 			PhysicEngine_float(1);
 			break;
+		case SceneType_prepare:
+			PhysicEngine_float(1);
+			break;
 		default:
 			break;
 		}
@@ -140,6 +143,14 @@ void _SceneManager_drawMainMenu(SceneManager* o)
 	ImageManager_drawSpiritToHdc(&g_imgMgr, &sp_btRate, o->bufHdc, 115, 260);
 }
 
+void _SceneManager_drawPrepare(SceneManager* o)
+{
+	Spirit* background = g_dayNight == DayNightMode_day ? &sp_dayBackground : &sp_nightBackground;
+	ImageManager_drawSpiritToHdc(&g_imgMgr, background, o->bufHdc, 0, 0);
+	_SceneManager_drawBird(o);
+	GroundAnimation_step(g_imgMgr.imgHdc, o->bufHdc, o->fps);
+}
+
 void SceneManager_render(SceneManager* o)
 {
 	if (!_SceneManager_needReDraw(o))
@@ -153,6 +164,9 @@ void SceneManager_render(SceneManager* o)
 	{
 	case SceneType_mainMenu:
 		_SceneManager_drawMainMenu(o);
+		break;
+	case SceneType_prepare:
+		_SceneManager_drawPrepare(o);
 		break;
 	default:
 		break;
@@ -212,6 +226,8 @@ static void _MainMenu_onClick(SceneManager* o, int x, int y)
 	{
 		_SceneManager_fadeOut(o);
 		o->sceneType = SceneType_prepare;
+		_SceneManager_randomBackAndBird();
+		PhysicEngine_setBirdPos(PhysicEngine_pixelToRealCoord(80), PhysicEngine_pixelToRealCoord(220));
 		_SceneManager_fadeIn(o);
 		o->isFading = false;
 	}
