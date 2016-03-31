@@ -97,10 +97,11 @@ void _SceneManager_tick(SceneManager* o)
 		switch (o->sceneType)
 		{
 		case SceneType_mainMenu:
-			PhysicEngine_float(1);
-			break;
 		case SceneType_prepare:
 			PhysicEngine_float(1);
+			break;
+		case SceneType_playing:
+			PhysicEngine_tick(1);
 			break;
 		default:
 			break;
@@ -154,6 +155,15 @@ void _SceneManager_drawPrepare(SceneManager* o)
 	GroundAnimation_step(g_imgMgr.imgHdc, o->bufHdc, o->fps);
 }
 
+void _SceneManager_drawPlaying(SceneManager* o)
+{
+	Spirit* background = g_dayNight == DayNightMode_day ? &sp_dayBackground : &sp_nightBackground;
+	ImageManager_drawSpiritToHdc(&g_imgMgr, background, o->bufHdc, 0, 0);
+	ImageManager_drawNumber(&g_imgMgr, o->nowScore, o->bufHdc, 144, 80, DrawNumberSize_large);
+	_SceneManager_drawBird(o);
+	GroundAnimation_step(g_imgMgr.imgHdc, o->bufHdc, o->fps);
+}
+
 void SceneManager_render(SceneManager* o)
 {
 	if (!_SceneManager_needReDraw(o))
@@ -170,6 +180,9 @@ void SceneManager_render(SceneManager* o)
 		break;
 	case SceneType_prepare:
 		_SceneManager_drawPrepare(o);
+		break;
+	case SceneType_playing:
+		_SceneManager_drawPlaying(o);
 		break;
 	default:
 		break;
@@ -236,12 +249,21 @@ static void _MainMenu_onClick(SceneManager* o, int x, int y)
 	}
 }
 
+static void _Prepare_onClick(SceneManager* o, int x, int y)
+{
+	PhysicEngine_reset();
+	o->sceneType = SceneType_playing;
+}
+
 void SceneManager_onClick(SceneManager* o, int x, int y)
 {
 	switch (o->sceneType)
 	{
 	case SceneType_mainMenu:
 		_MainMenu_onClick(o, x, y);
+		break;
+	case SceneType_prepare:
+		_Prepare_onClick(o, x, y);
 		break;
 	default:
 		break;

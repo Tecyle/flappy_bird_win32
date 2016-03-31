@@ -25,6 +25,9 @@ typedef struct SceneManager
 	bool isFading;
 	int fadeAlpha;
 	int fadeStep;
+
+	size_t nowScore;
+	size_t highScore;
 } SceneManager;
 
 void SceneManager_construct(SceneManager* o, HINSTANCE hInstance, HDC hdc);

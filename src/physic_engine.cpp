@@ -59,6 +59,7 @@ void PhysicEngine_setBirdPos(int ox, int oy)
 	pe_bird.cx = ox;
 	pe_bird.cy = pe_bird.oy = oy;
 	pe_bird.hv = 50.0;
+	pe_bird.vv = 0.0;
 	pe_bird.width = 120.0;
 	pe_bird.height = 120.0;
 	pe_bird.isDead = false;
@@ -66,7 +67,7 @@ void PhysicEngine_setBirdPos(int ox, int oy)
 
 void PhysicEngine_reset()
 {
-
+	pe_ground.cy = PhysicEngine_pixelToRealCoord(SCENE_HEIGHT - 112);
 }
 
 static void _PhysicEngine_birdTick(double t)
@@ -80,8 +81,8 @@ static void _PhysicEngine_birdTick(double t)
 	double vs = 0.5 * (vvPre + pe_bird.vv) * t;	// s = 1/2 * (v0 + v1) * t
 	pe_bird.cy += vs;
 	// 如果小鸟落地，则不再掉落
-	if (pe_bird.cy >= pe_ground.cy)
-		pe_bird.cy = pe_ground.cy;
+	if (pe_bird.cy + pe_bird.height >= pe_ground.cy)
+		pe_bird.cy = pe_ground.cy - pe_bird.height;
 
 	// 小鸟的朝向就是合成速度的朝向
 	pe_bird.angle = _arctan(pe_bird.vv / pe_bird.hv);
@@ -101,7 +102,7 @@ static void _PhysicEngine_checkHit()
 	if (pe_bird.isStopped)
 		return;
 	// 检查小鸟有没有撞到地面
-	if (pe_bird.cy >= pe_ground.cy)
+	if (pe_bird.cy + pe_bird.height >= pe_ground.cy)
 	{
 		pe_bird.isDead = true;
 		pe_bird.isStopped = true;
@@ -130,7 +131,7 @@ static void _PhysicEngine_checkHit()
 
 void PhysicEngine_tick(int tickCount)
 {
-	double t = tickCount;
+	double t = tickCount * 0.2;
 	_PhysicEngine_birdTick(t);
 	_PhysicEngine_pipeTick(t);
 	_PhysicEngine_checkHit();

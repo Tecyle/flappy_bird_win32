@@ -36,6 +36,7 @@ void PhysicEngine_setBirdPos(int ox, int oy);
 void PhysicEngine_float(int tickCount);
 int PhysicEngine_realToPixelCoord(double x);
 double PhysicEngine_pixelToRealCoord(int x);
+void PhysicEngine_reset();
 
 extern PEBirdObject pe_bird;
 extern PEGroundObject pe_ground;
