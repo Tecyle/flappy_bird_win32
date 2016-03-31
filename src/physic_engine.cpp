@@ -6,7 +6,7 @@ PEBirdObject pe_bird;
 PEGroundObject pe_ground;
 PEPipeObject pe_pipes[4];
 
-static double g_gravity = 100.0;
+static double g_gravity = 80.0;
 
 #define PI 3.1415926
 
@@ -63,6 +63,7 @@ void PhysicEngine_setBirdPos(int ox, int oy)
 	pe_bird.width = 120.0;
 	pe_bird.height = 120.0;
 	pe_bird.isDead = false;
+	pe_bird.canBeHigher = true;
 }
 
 void PhysicEngine_reset()
@@ -78,6 +79,7 @@ static void _PhysicEngine_birdTick(double t)
 	
 	double vvPre = pe_bird.vv;
 	pe_bird.vv += g_gravity * t;	// v1 = v0 + gt
+	pe_bird.vv = pe_bird.vv > 500.0 ? 500.0 : pe_bird.vv;
 	double vs = 0.5 * (vvPre + pe_bird.vv) * t;	// s = 1/2 * (v0 + v1) * t
 	pe_bird.cy += vs;
 	// 如果小鸟落地，则不再掉落
@@ -126,7 +128,7 @@ static void _PhysicEngine_checkHit()
 		}
 	}
 	// 检查小鸟有没有飞到最高
-	pe_bird.canBeHigher = pe_bird.cy > 20;
+	pe_bird.canBeHigher = pe_bird.cy > 40;
 }
 
 void PhysicEngine_tick(int tickCount)
@@ -160,5 +162,6 @@ double PhysicEngine_pixelToRealCoord(int x)
 
 void PhysicEngine_BirdFly()
 {
-	pe_bird.vv = -300.0;
+	if (pe_bird.canBeHigher)
+		pe_bird.vv = -300.0;
 }

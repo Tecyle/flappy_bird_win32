@@ -106,7 +106,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		SceneManager_render(&g_sceneMgr);
 	}
 		break;
-	case WM_LBUTTONUP:
+	case WM_LBUTTONDOWN:
 	{
 		RECT windowRect;
 		GetClientRect(hWnd, &windowRect);

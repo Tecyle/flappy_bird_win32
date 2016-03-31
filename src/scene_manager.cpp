@@ -256,6 +256,11 @@ static void _Prepare_onClick(SceneManager* o, int x, int y)
 	PhysicEngine_BirdFly();
 }
 
+static void _Playing_onClick(SceneManager* o, int x, int y)
+{
+	PhysicEngine_BirdFly();
+}
+
 void SceneManager_onClick(SceneManager* o, int x, int y)
 {
 	switch (o->sceneType)
@@ -265,6 +270,9 @@ void SceneManager_onClick(SceneManager* o, int x, int y)
 		break;
 	case SceneType_prepare:
 		_Prepare_onClick(o, x, y);
+		break;
+	case SceneType_playing:
+		_Playing_onClick(o, x, y);
 		break;
 	default:
 		break;
