@@ -157,3 +157,66 @@ bool Spirit_isPointInMe(Spirit* o, int x, int y, int dx, int dy)
 			return true;
 	return false;
 }
+
+size_t _getDigitNum(size_t num)
+{
+	size_t digitNum = 1;
+	while ((num = num / 10) != 0)
+	{
+		digitNum++;
+	}
+	return digitNum;
+}
+
+size_t _pow(size_t num, size_t power)
+{
+	size_t res = 1;
+	for (size_t i = 0; i < power; ++i)
+	{
+		res *= num;
+	}
+	return res;
+}
+
+size_t _getDigit(size_t num, size_t index)
+{
+	size_t sn = _pow(10, index);
+	sn = num / sn;
+	sn = sn % 10;
+	return sn;
+}
+
+void ImageManager_drawNumber(ImageManager* o, size_t num, HDC hdcDst, int cx, int cy, DrawNumberSize numberSize)
+{
+	size_t digitNum = _getDigitNum(num);
+	Spirit* spNum = NULL;
+	switch (numberSize)
+	{
+	case DrawNumberSize_large:
+		spNum = sp_largeNum;
+		break;
+	case DrawNumberSize_middle:
+		spNum = sp_middleNum;
+		break;
+	case DrawNumberSize_small:
+		spNum = sp_smallNum;
+		break;
+	}
+	// 计算绘制位置
+	int halfHeight = spNum->height / 2;
+	int halfWidth = 0;
+	for (size_t i = 0; i < digitNum; ++i)
+	{
+		halfWidth += spNum[_getDigit(num, i)].width;
+	}
+	halfWidth /= 2;
+	int startX = cx + halfWidth;
+	int startY = cy - halfHeight;
+	// 绘制数字
+	for (size_t i = 0; i < digitNum; ++i)
+	{
+		Spirit* spn = &spNum[_getDigit(num, i)];
+		startX -= spn->width;
+		ImageManager_drawSpiritToHdc(o, spn, hdcDst, startX, startY);
+	}
+}
