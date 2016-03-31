@@ -1,56 +1,36 @@
 #include "stdafx.h"
 #include "physic_engine.h"
 #include <math.h>
+#include <time.h>
 
 PEBirdObject pe_bird;
 PEGroundObject pe_ground;
 PEPipeObject pe_pipes[4];
 
-static double g_gravity = 80.0;
-
 #define PI 3.1415926
 
-static double _pow(double x, int n)
+static double g_gravity = 80.0;
+
+const int g_pipeInterval = 1400.0;
+
+static double _getRandPipeUp()
 {
-	double res = 1.0;
-	while (n--)
-		res *= x;
-	return res;
+	// 上端管子的开口坐标应该是 40 ~ ground - 40
+	return (double)(rand() % (300 - 40 - 40) + 40) * 10.0;
 }
 
-static double _arctan(double x)
+static void _PhysicEngine_initPipes()
 {
-	double res = 0.0;
-
-	for (int i = 1; i <= 5; ++i)
+	int cxPipe = SCENE_WIDTH * 10.0 + g_pipeInterval;
+	for (size_t i = 0; i < sizeof(pe_pipes) / sizeof(PEPipeObject); ++i)
 	{
-		res += (i % 2 == 1 ? 1.0 : -1.0) * _pow(x, i) / i;
+		PEPipeObject* pipe = &pe_pipes[i];
+		pipe->cx = cxPipe;
+		cxPipe += g_pipeInterval;
+		pipe->width = 260.0;
+		pipe->cyUp = _getRandPipeUp();
+		pipe->cyDown = pipe->cyUp + 1000.0;
 	}
-
-	return res;
-}
-
-#define abs(x) ((x) > 0 ? (x) : (-(x)))
-
-double _sin(double x)
-{
-	const double B = 1.2732395447;
-	const double C = -0.4052847346;
-	const double P = 0.2310792853;//0.225;
-	while (x > 0.5 * PI)
-		x -= 2.0 * PI;
-	float y = B * x + C * x * abs(x);
-	y = P * (y * abs(y) - y) + y;
-	return y;
-}
-
-static double _cos(double x)
-{
-	double res =
-		1.0 - _pow(x, 2) / 2.0 + _pow(x, 4) / 24.0 - _pow(x, 6) / 720.0
-		+ _pow(x, 8) / 40320.0 - _pow(x, 10) / 3628800.0;
-	assert(res < 1 && res > -1);
-	return res;
 }
 
 void PhysicEngine_setBirdPos(int ox, int oy)
@@ -69,6 +49,8 @@ void PhysicEngine_setBirdPos(int ox, int oy)
 void PhysicEngine_reset()
 {
 	pe_ground.cy = PhysicEngine_pixelToRealCoord(SCENE_HEIGHT - 112);
+	srand(time(NULL));
+	_PhysicEngine_initPipes();
 }
 
 static void _PhysicEngine_birdTick(double t)
@@ -87,7 +69,7 @@ static void _PhysicEngine_birdTick(double t)
 		pe_bird.cy = pe_ground.cy - pe_bird.height;
 
 	// 小鸟的朝向就是合成速度的朝向
-	pe_bird.angle = _arctan(pe_bird.vv / pe_bird.hv);
+	//pe_bird.angle = _arctan(pe_bird.vv / pe_bird.hv);
 }
 
 static void _PhysicEngine_pipeTick(double t)
@@ -95,7 +77,22 @@ static void _PhysicEngine_pipeTick(double t)
 	for (size_t idxPipe = 0; idxPipe < sizeof(pe_pipes) / sizeof(PEPipeObject); ++idxPipe)
 	{
 		PEPipeObject* pipe = &pe_pipes[idxPipe];
-		pipe->cx -= pe_bird.hv * t;
+		pipe->cx -= 30 * 20 / 60;
+	}
+}
+
+static void _PhysicEngine_circlePipe()
+{
+	for (size_t i = 0; i < sizeof(pe_pipes) / sizeof(PEPipeObject); ++i)
+	{
+		PEPipeObject* pipe = &pe_pipes[i];
+		if (pipe->cx + pipe->width < 0.0)
+		{
+			pipe->cx += 4.0 * g_pipeInterval;
+			pipe->cyUp = _getRandPipeUp();
+			pipe->cyDown = pipe->cyUp + 1000.0;
+			break;
+		}
 	}
 }
 
@@ -116,8 +113,8 @@ static void _PhysicEngine_checkHit()
 	{
 		PEPipeObject* pipe = &pe_pipes[idxPipe];
 		// 垂直高度，是否在两个管道之间
-		if (pe_bird.cy + pe_bird.height <= pe_ground.cy - pipe->downLength
-			&& pe_bird.cy - pe_bird.height >= pipe->upLength)
+		if (pe_bird.cy + pe_bird.height <= pipe->cyDown
+			&& pe_bird.cy - pe_bird.height >= pipe->cyUp)
 			continue;
 		// 水平检查，是否碰到管道
 		if (pe_bird.cx + pe_bird.width >= pipe->cx - pipe->width
@@ -137,6 +134,7 @@ void PhysicEngine_tick(int tickCount)
 	_PhysicEngine_birdTick(t);
 	_PhysicEngine_pipeTick(t);
 	_PhysicEngine_checkHit();
+	_PhysicEngine_circlePipe();
 }
 
 void PhysicEngine_float(int tickCount)
@@ -165,3 +163,4 @@ void PhysicEngine_BirdFly()
 	if (pe_bird.canBeHigher)
 		pe_bird.vv = -300.0;
 }
+

@@ -159,6 +159,17 @@ void _SceneManager_drawPlaying(SceneManager* o)
 {
 	Spirit* background = g_dayNight == DayNightMode_day ? &sp_dayBackground : &sp_nightBackground;
 	ImageManager_drawSpiritToHdc(&g_imgMgr, background, o->bufHdc, 0, 0);
+	// ªÊ÷∆π‹µ¿
+	for (size_t i = 0; i < sizeof(pe_pipes) / sizeof(PEPipeObject); ++i)
+	{
+		PEPipeObject* pipe = &pe_pipes[i];
+		ImageManager_drawSpiritToHdc(&g_imgMgr, &sp_greenPipeUp, o->bufHdc,
+			PhysicEngine_realToPixelCoord(pipe->cx) - sp_greenPipeUp.width / 2, 
+			PhysicEngine_realToPixelCoord(pipe->cyUp) - sp_greenPipeUp.height);
+		ImageManager_drawSpiritToHdc(&g_imgMgr, &sp_greenPipeDown, o->bufHdc,
+			PhysicEngine_realToPixelCoord(pipe->cx) - sp_greenPipeDown.width / 2,
+			PhysicEngine_realToPixelCoord(pipe->cyDown));
+	}
 	ImageManager_drawNumber(&g_imgMgr, o->nowScore, o->bufHdc, 144, 80, DrawNumberSize_large);
 	_SceneManager_drawBird(o);
 	GroundAnimation_step(g_imgMgr.imgHdc, o->bufHdc, o->fps);

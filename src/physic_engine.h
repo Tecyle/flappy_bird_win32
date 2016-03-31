@@ -19,8 +19,8 @@ typedef struct PEBirdObject
 
 typedef struct PEPipeObject
 {
-	double upLength;
-	double downLength;
+	double cyUp;
+	double cyDown;
 	double cx;
 	double width;
 } PEPipeObject;
