@@ -16,7 +16,7 @@ const int g_pipeInterval = 1400.0;
 static double _getRandPipeUp()
 {
 	// 上端管子的开口坐标应该是 40 ~ ground - 40
-	return (double)(rand() % (300 - 40 - 40) + 40) * 10.0;
+	return (double)(rand() % (280 - 40 - 40) + 40) * 10.0;
 }
 
 static void _PhysicEngine_initPipes()
@@ -29,7 +29,7 @@ static void _PhysicEngine_initPipes()
 		cxPipe += g_pipeInterval;
 		pipe->width = 260.0;
 		pipe->cyUp = _getRandPipeUp();
-		pipe->cyDown = pipe->cyUp + 1000.0;
+		pipe->cyDown = pipe->cyUp + 1200.0;
 	}
 }
 
@@ -90,7 +90,7 @@ static void _PhysicEngine_circlePipe()
 		{
 			pipe->cx += 4.0 * g_pipeInterval;
 			pipe->cyUp = _getRandPipeUp();
-			pipe->cyDown = pipe->cyUp + 1000.0;
+			pipe->cyDown = pipe->cyUp + 1200.0;
 			break;
 		}
 	}
