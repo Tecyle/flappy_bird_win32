@@ -134,6 +134,7 @@ void _SceneManager_tick(SceneManager* o)
 			break;
 		case SceneType_playing:
 			PhysicEngine_tick(1);
+			o->nowScore += PhysicEngine_passedPipe() ? 1 : 0;
 			if (pe_bird.isDead)
 			{
 				o->sceneType = SceneType_gameOver;

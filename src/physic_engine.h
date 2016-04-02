@@ -23,6 +23,7 @@ typedef struct PEPipeObject
 	double cyDown;
 	double cx;
 	double width;
+	bool pipePassed;
 } PEPipeObject;
 
 typedef struct PEGroundObject
@@ -39,6 +40,7 @@ double PhysicEngine_pixelToRealCoord(int x);
 void PhysicEngine_reset();
 void PhysicEngine_BirdFly();
 void PhysicEngine_dieTick(int tickCount);
+bool PhysicEngine_passedPipe();
 
 extern PEBirdObject pe_bird;
 extern PEGroundObject pe_ground;

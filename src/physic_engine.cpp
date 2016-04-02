@@ -30,6 +30,7 @@ static void _PhysicEngine_initPipes()
 		pipe->width = 260.0;
 		pipe->cyUp = _getRandPipeUp();
 		pipe->cyDown = pipe->cyUp + 1200.0;
+		pipe->pipePassed = false;
 	}
 }
 
@@ -91,6 +92,7 @@ static void _PhysicEngine_circlePipe()
 			pipe->cx += 4.0 * g_pipeInterval;
 			pipe->cyUp = _getRandPipeUp();
 			pipe->cyDown = pipe->cyUp + 1200.0;
+			pipe->pipePassed = false;
 			break;
 		}
 	}
@@ -169,5 +171,23 @@ void PhysicEngine_BirdFly()
 {
 	if (pe_bird.canBeHigher)
 		pe_bird.vv = -300.0;
+}
+
+bool PhysicEngine_passedPipe()
+{
+	for (size_t i = 0; i < sizeof(pe_pipes) / sizeof(PEPipeObject); ++i)
+	{
+		PEPipeObject* pipe = &pe_pipes[i];
+		// 如果某个 pipe 已经通过小鸟的位置，但是没有标记，则说明是刚通过的
+		if (!pipe->pipePassed)
+		{
+			if (pipe->cx < pe_bird.cx)
+			{
+				pipe->pipePassed = true;
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
