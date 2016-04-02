@@ -36,7 +36,7 @@ static void _PhysicEngine_initPipes()
 
 void PhysicEngine_setBirdPos(int ox, int oy)
 {
-	pe_bird.angle = 0;
+	pe_bird.angle = 0.0;
 	pe_bird.cx = ox;
 	pe_bird.cy = pe_bird.oy = oy;
 	pe_bird.hv = 50.0;
@@ -71,7 +71,7 @@ static void _PhysicEngine_birdTick(double t)
 		pe_bird.cy = pe_ground.cy - pe_bird.height;
 
 	// 小鸟的朝向就是合成速度的朝向
-	//pe_bird.angle = _arctan(pe_bird.vv / pe_bird.hv);
+	pe_bird.angle = atan(pe_bird.vv / pe_bird.hv);
 }
 
 static void _PhysicEngine_pipeTick(double t)

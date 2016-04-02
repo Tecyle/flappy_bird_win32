@@ -3,6 +3,7 @@
 #include "animation_manager.h"
 #include "physic_engine.h"
 #include "button.h"
+#include <math.h>
 
 typedef enum DayNightMode
 {
@@ -26,6 +27,33 @@ static void _SceneManager_randomBackAndBird()
 	DWORD rnd = GetTickCount();
 	g_dayNight = rnd % 2 ? DayNightMode_day : DayNightMode_night;
 	g_birdColor = bc[rnd % 3];
+}
+
+static void _rotateHdc(HDC hdc, double angle, int cx, int cy)
+{
+	SetGraphicsMode(hdc, GM_ADVANCED);
+	XFORM xform;
+	xform.eM11 = (float)cos(angle);
+    xform.eM12 = (float)sin(angle);
+    xform.eM21 = (float)-sin(angle);
+    xform.eM22 = (float)cos(angle);
+    xform.eDx = (float)(cx - cos(angle) * cx + sin(angle) * cy);
+    xform.eDy = (float)(cy - cos(angle) * cy - sin(angle) * cx);
+    SetWorldTransform(hdc, &xform);
+}
+
+static void _restoreHdc(HDC hdc)
+{
+	XFORM xform;
+	xform.eM11 = (float)1.0;
+	xform.eM12 = (float)0;
+	xform.eM21 = (float)0;
+	xform.eM22 = (float)1.0;
+	xform.eDx = (float)0;
+	xform.eDy = (float)0;
+
+	SetWorldTransform(hdc, &xform);
+	SetGraphicsMode(hdc, GM_COMPATIBLE);
 }
 
 static void _SceneManager_drawMainMenu(SceneManager* o);
@@ -116,9 +144,7 @@ void _SceneManager_drawBird(SceneManager* o)
 	else
 		bird = BirdAnimation_step(g_birdColor, framePassed % interval == 0);
 
-	ImageManager_drawSpiritToHdc(&g_imgMgr, bird, o->bufHdc, 
-		PhysicEngine_realToPixelCoord(pe_bird.cx - pe_bird.width),
-		PhysicEngine_realToPixelCoord(pe_bird.cy - pe_bird.height));
+	SceneManager_rotateBird(o, bird);
 	framePassed = framePassed++ % interval;
 }
 
@@ -445,4 +471,15 @@ void SceneManager_onClick(SceneManager* o, int x, int y)
 	default:
 		break;
 	}
+}
+
+void SceneManager_rotateBird(SceneManager* o, Spirit* bird)
+{
+	_rotateHdc(o->bufHdc, pe_bird.angle, 
+		PhysicEngine_realToPixelCoord(pe_bird.cx), 
+		PhysicEngine_realToPixelCoord(pe_bird.cy));
+	ImageManager_drawSpiritToHdc(&g_imgMgr, bird, o->bufHdc,
+		PhysicEngine_realToPixelCoord(pe_bird.cx),
+		PhysicEngine_realToPixelCoord(pe_bird.cy));
+	_restoreHdc(o->bufHdc);
 }

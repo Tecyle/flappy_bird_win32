@@ -37,3 +37,4 @@ void SceneManager_setFps(SceneManager* o, int fps);
 int SceneManager_getFps(SceneManager* o);
 bool SceneManager_render(SceneManager* o);
 void SceneManager_onClick(SceneManager* o, int x, int y);
+void SceneManager_rotateBird(SceneManager* o, Spirit* bird);
