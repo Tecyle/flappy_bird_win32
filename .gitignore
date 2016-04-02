@@ -36,3 +36,4 @@ ipch
 bin
 /public/lib
 /src/*.aps
+/flappy_bird.VC.db
