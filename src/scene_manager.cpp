@@ -2,6 +2,7 @@
 #include "scene_manager.h"
 #include "animation_manager.h"
 #include "physic_engine.h"
+#include "button.h"
 
 typedef enum DayNightMode
 {
@@ -12,6 +13,9 @@ typedef enum DayNightMode
 static DayNightMode g_dayNight;
 static BirdColor g_birdColor;
 static ImageManager g_imgMgr;
+static Button btGameOver;
+static Button btReplay;
+static Button btRank;
 
 static LARGE_INTEGER g_counterFrequency;
 
@@ -69,6 +73,8 @@ void SceneManager_construct(SceneManager* o, HINSTANCE hInstance, HDC hdc)
 	o->isFading = false;
 	QueryPerformanceFrequency(&g_counterFrequency);
 
+	Button_construct(&btGameOver, &sp_txtGameOver);
+
 	PhysicEngine_setBirdPos(PhysicEngine_pixelToRealCoord(130), PhysicEngine_pixelToRealCoord(210));
 }
 
@@ -114,10 +120,40 @@ void _SceneManager_drawBird(SceneManager* o)
 
 void _SceneManager_changeToGameOver(SceneManager* o)
 {
+	// 初始化按钮
+	btGameOver.alpha = 0;
 	// 首先播放小鸟被撞的特效
 	_SceneManager_fadeOut(o, false, 5);
 	_SceneManager_fadeIn(o, false, 5);
 	o->isFading = false;
+	// 等待小鸟落地
+	while (!pe_bird.isStopped)
+		SceneManager_render(o);
+	// 显示 Game Over
+	btGameOver.cx = 144;
+	btGameOver.cy = 110;
+	btGameOver.alpha = 255;
+	while (btGameOver.cy < 150)
+	{
+		if (SceneManager_render(o))
+		{
+			btGameOver.cy += 10;
+		}
+	}
+	while (btGameOver.cy > 140)
+	{
+		if (SceneManager_render(o))
+		{
+			btGameOver.cy -= 2;
+		}
+	}
+	while (btGameOver.cy < 150)
+	{
+		if (SceneManager_render(o))
+		{
+			btGameOver.cy += 2;
+		}
+	}
 }
 
 void _SceneManager_tick(SceneManager* o)
@@ -209,15 +245,24 @@ void _SceneManager_drawGameOver(SceneManager* o)
 			PhysicEngine_realToPixelCoord(pipe->cx) - sp_greenPipeDown.width / 2,
 			PhysicEngine_realToPixelCoord(pipe->cyDown));
 	}
-	ImageManager_drawNumber(&g_imgMgr, o->nowScore, o->bufHdc, 144, 80, DrawNumberSize_large);
+	if (btGameOver.alpha == 0)
+	{
+		ImageManager_drawNumber(&g_imgMgr, o->nowScore, o->bufHdc, 144, 80, DrawNumberSize_large);
+	}
+	else
+	{
+		ImageManager_drawSpiritToHdc(&g_imgMgr, btGameOver.btImage, o->bufHdc,
+			btGameOver.cx - btGameOver.btImage->width / 2,
+			btGameOver.cy - btGameOver.btImage->height / 2);
+	}
 	_SceneManager_drawBird(o);
 	GroundAnimation_step(g_imgMgr.imgHdc, o->bufHdc, o->fps, false);
 }
 
-void SceneManager_render(SceneManager* o)
+bool SceneManager_render(SceneManager* o)
 {
 	if (!_SceneManager_needReDraw(o))
-		return;
+		return false;
 
 	o->drawCounter++;
 
@@ -258,6 +303,7 @@ void SceneManager_render(SceneManager* o)
 
 	// 翻转缓存图像到前台显示
 	StretchBlt(o->scrHdc, 0, 0, o->windowWidth, o->windowHeight, o->bufHdc, 0, 0, SCENE_WIDTH, SCENE_HEIGHT, SRCCOPY);
+	return true;
 }
 
 void SceneManager_setViewSize(SceneManager* o, int width, int height)

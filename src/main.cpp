@@ -36,8 +36,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	int hScreen = GetSystemMetrics(SM_CYSCREEN);
 	int wScreen = GetSystemMetrics(SM_CXSCREEN);
 
-	int wWindow = 3 * (SCENE_WIDTH + 2 * wBorder) / 2;
-	int hWindow = 3 * (SCENE_HEIGHT + hCaption + 2 * hBorder) / 2;
+	int wWindow = 3 * (SCENE_WIDTH + 2 * wBorder) / 3;
+	int hWindow = 3 * (SCENE_HEIGHT + hCaption + 2 * hBorder) / 3;
 	int xWindow = (wScreen - wWindow) / 2;
 	int yWindow = (hScreen - hWindow) / 2;
 
