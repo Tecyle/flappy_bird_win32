@@ -40,7 +40,13 @@ typedef enum DrawNumberSize
 	DrawNumberSize_middle,
 	DrawNumberSize_small
 } DrawNumberSize;
-void ImageManager_drawNumber(ImageManager* o, size_t num, HDC hdcDst, int cx, int cy, DrawNumberSize numberSize);
+typedef enum DrawNumberAlign
+{
+	DrawNumberAlign_left,
+	DrawNumberAlign_center,
+	DrawNumberAlign_right
+};
+void ImageManager_drawNumber(ImageManager* o, size_t num, HDC hdcDst, int cx, int cy, DrawNumberSize numberSize, DrawNumberAlign align);
 
 bool Spirit_isPointInMe(Spirit* o, int x, int y, int dx, int dy);
 

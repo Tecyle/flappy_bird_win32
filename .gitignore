@@ -37,3 +37,4 @@ bin
 /public/lib
 /src/*.aps
 /flappy_bird.VC.db
+/flappy_bird.VC.VC.opendb

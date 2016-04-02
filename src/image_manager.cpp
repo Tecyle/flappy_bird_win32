@@ -186,7 +186,7 @@ size_t _getDigit(size_t num, size_t index)
 	return sn;
 }
 
-void ImageManager_drawNumber(ImageManager* o, size_t num, HDC hdcDst, int cx, int cy, DrawNumberSize numberSize)
+void ImageManager_drawNumber(ImageManager* o, size_t num, HDC hdcDst, int cx, int cy, DrawNumberSize numberSize, DrawNumberAlign align)
 {
 	size_t digitNum = _getDigitNum(num);
 	Spirit* spNum = NULL;
@@ -203,20 +203,39 @@ void ImageManager_drawNumber(ImageManager* o, size_t num, HDC hdcDst, int cx, in
 		break;
 	}
 	// 计算绘制位置
+	int grap = numberSize == DrawNumberSize_large ? 0 : 2;
 	int halfHeight = spNum->height / 2;
 	int halfWidth = 0;
 	for (size_t i = 0; i < digitNum; ++i)
 	{
-		halfWidth += spNum[_getDigit(num, i)].width;
+		halfWidth += spNum[_getDigit(num, i)].width + grap;
+		if (numberSize != DrawNumberSize_large && _getDigit(num, i) == 1)
+			halfWidth += spNum[2].width - spNum[1].width;
 	}
 	halfWidth /= 2;
-	int startX = cx + halfWidth;
+	halfWidth -= grap;
+	int startX;
 	int startY = cy - halfHeight;
+	switch (align)
+	{
+	case DrawNumberAlign_left:
+		startX = cx + 2 * halfWidth;
+		break;
+	case DrawNumberAlign_center:
+		startX = cx + halfWidth;
+		break;
+	case DrawNumberAlign_right:
+		startX = cx;
+		break;
+	}
 	// 绘制数字
 	for (size_t i = 0; i < digitNum; ++i)
 	{
 		Spirit* spn = &spNum[_getDigit(num, i)];
-		startX -= spn->width;
+		startX -=spn->width;
+		startX -= numberSize != DrawNumberSize_large && i > 0 ? grap : 0;
 		ImageManager_drawSpiritToHdc(o, spn, hdcDst, startX, startY);
+		if (numberSize != DrawNumberSize_large && _getDigit(num, i) == 1)
+			startX -= spNum[2].width - spNum[1].width;
 	}
 }

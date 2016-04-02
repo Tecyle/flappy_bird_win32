@@ -16,6 +16,7 @@ static ImageManager g_imgMgr;
 static Button btGameOver;
 static Button btReplay;
 static Button btRank;
+static Button btRankBoard;
 
 static LARGE_INTEGER g_counterFrequency;
 
@@ -74,6 +75,7 @@ void SceneManager_construct(SceneManager* o, HINSTANCE hInstance, HDC hdc)
 	QueryPerformanceFrequency(&g_counterFrequency);
 
 	Button_construct(&btGameOver, &sp_txtGameOver);
+	Button_construct(&btRankBoard, &sp_scorePane);
 
 	PhysicEngine_setBirdPos(PhysicEngine_pixelToRealCoord(130), PhysicEngine_pixelToRealCoord(210));
 }
@@ -122,6 +124,7 @@ void _SceneManager_changeToGameOver(SceneManager* o)
 {
 	// 初始化按钮
 	btGameOver.alpha = 0;
+	btRankBoard.alpha = 0;
 	// 首先播放小鸟被撞的特效
 	_SceneManager_fadeOut(o, false, 5);
 	_SceneManager_fadeIn(o, false, 5);
@@ -152,6 +155,17 @@ void _SceneManager_changeToGameOver(SceneManager* o)
 		if (SceneManager_render(o))
 		{
 			btGameOver.cy += 2;
+		}
+	}
+	// 绘制排分榜
+	btRankBoard.alpha = 255;
+	btRankBoard.cx = 144;
+	btRankBoard.cy = SCENE_HEIGHT + btRankBoard.btImage->height / 2 + 2;
+	while (btRankBoard.cy > 270)
+	{
+		if (SceneManager_render(o))
+		{
+			btRankBoard.cy -= 20;
 		}
 	}
 }
@@ -203,7 +217,7 @@ void _SceneManager_drawPrepare(SceneManager* o)
 {
 	Spirit* background = g_dayNight == DayNightMode_day ? &sp_dayBackground : &sp_nightBackground;
 	ImageManager_drawSpiritToHdc(&g_imgMgr, background, o->bufHdc, 0, 0);
-	ImageManager_drawNumber(&g_imgMgr, 0, o->bufHdc, 144, 80, DrawNumberSize_large);
+	ImageManager_drawNumber(&g_imgMgr, 0, o->bufHdc, 144, 80, DrawNumberSize_large, DrawNumberAlign_center);
 	ImageManager_drawSpiritToHdc(&g_imgMgr, &sp_txtGetReady, o->bufHdc, 45, 120);
 	ImageManager_drawSpiritToHdc(&g_imgMgr, &sp_help, o->bufHdc, 80, 200);
 	_SceneManager_drawBird(o);
@@ -225,7 +239,7 @@ void _SceneManager_drawPlaying(SceneManager* o)
 			PhysicEngine_realToPixelCoord(pipe->cx) - sp_greenPipeDown.width / 2,
 			PhysicEngine_realToPixelCoord(pipe->cyDown));
 	}
-	ImageManager_drawNumber(&g_imgMgr, o->nowScore, o->bufHdc, 144, 80, DrawNumberSize_large);
+	ImageManager_drawNumber(&g_imgMgr, o->nowScore, o->bufHdc, 144, 80, DrawNumberSize_large, DrawNumberAlign_center);
 	_SceneManager_drawBird(o);
 	GroundAnimation_step(g_imgMgr.imgHdc, o->bufHdc, o->fps, true);
 }
@@ -247,7 +261,7 @@ void _SceneManager_drawGameOver(SceneManager* o)
 	}
 	if (btGameOver.alpha == 0)
 	{
-		ImageManager_drawNumber(&g_imgMgr, o->nowScore, o->bufHdc, 144, 80, DrawNumberSize_large);
+		ImageManager_drawNumber(&g_imgMgr, o->nowScore, o->bufHdc, 144, 80, DrawNumberSize_large, DrawNumberAlign_center);
 	}
 	else
 	{
@@ -255,8 +269,22 @@ void _SceneManager_drawGameOver(SceneManager* o)
 			btGameOver.cx - btGameOver.btImage->width / 2,
 			btGameOver.cy - btGameOver.btImage->height / 2);
 	}
-	_SceneManager_drawBird(o);
 	GroundAnimation_step(g_imgMgr.imgHdc, o->bufHdc, o->fps, false);
+	if (btRankBoard.alpha > 0)
+	{
+		ImageManager_drawSpiritToHdc(&g_imgMgr, btRankBoard.btImage, o->bufHdc,
+			btRankBoard.cx - btRankBoard.btImage->width / 2,
+			btRankBoard.cy - btRankBoard.btImage->height / 2);
+		ImageManager_drawNumber(&g_imgMgr, o->nowScore, o->bufHdc,
+			btRankBoard.cx + 90, btRankBoard.cy - 15,
+			DrawNumberSize_middle, DrawNumberAlign_right);
+		ImageManager_drawNumber(&g_imgMgr, 1213, o->bufHdc,
+			btRankBoard.cx + 90, btRankBoard.cy + 28,
+			DrawNumberSize_middle, DrawNumberAlign_right);
+		ImageManager_drawSpiritToHdc(&g_imgMgr, &sp_goldenMedal, o->bufHdc,
+			btRankBoard.cx - 88, btRankBoard.cy - 14);
+	}
+	_SceneManager_drawBird(o);
 }
 
 bool SceneManager_render(SceneManager* o)
