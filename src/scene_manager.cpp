@@ -76,6 +76,8 @@ void SceneManager_construct(SceneManager* o, HINSTANCE hInstance, HDC hdc)
 
 	Button_construct(&btGameOver, &sp_txtGameOver);
 	Button_construct(&btRankBoard, &sp_scorePane);
+	Button_construct(&btReplay, &sp_btPlay);
+	Button_construct(&btRank, &sp_btRank);
 
 	PhysicEngine_setBirdPos(PhysicEngine_pixelToRealCoord(130), PhysicEngine_pixelToRealCoord(210));
 }
@@ -125,6 +127,8 @@ void _SceneManager_changeToGameOver(SceneManager* o)
 	// 初始化按钮
 	btGameOver.alpha = 0;
 	btRankBoard.alpha = 0;
+	btReplay.alpha = 0;
+	btRank.alpha = 0;
 	// 首先播放小鸟被撞的特效
 	_SceneManager_fadeOut(o, false, 5);
 	_SceneManager_fadeIn(o, false, 5);
@@ -168,6 +172,13 @@ void _SceneManager_changeToGameOver(SceneManager* o)
 			btRankBoard.cy -= 20;
 		}
 	}
+	// 最后显示按钮
+	btReplay.alpha = 255;
+	btReplay.cx = 144 - btReplay.btImage->width / 2 - 10;
+	btReplay.cy = 371;
+	btRank.alpha = 255;
+	btRank.cx = 144 + btReplay.btImage->width / 2 + 10;
+	btRank.cy = 371;
 }
 
 void _SceneManager_tick(SceneManager* o)
@@ -278,11 +289,20 @@ void _SceneManager_drawGameOver(SceneManager* o)
 		ImageManager_drawNumber(&g_imgMgr, o->nowScore, o->bufHdc,
 			btRankBoard.cx + 90, btRankBoard.cy - 15,
 			DrawNumberSize_middle, DrawNumberAlign_right);
-		ImageManager_drawNumber(&g_imgMgr, 1213, o->bufHdc,
+		ImageManager_drawNumber(&g_imgMgr, o->highScore, o->bufHdc,
 			btRankBoard.cx + 90, btRankBoard.cy + 28,
 			DrawNumberSize_middle, DrawNumberAlign_right);
 		ImageManager_drawSpiritToHdc(&g_imgMgr, &sp_goldenMedal, o->bufHdc,
 			btRankBoard.cx - 88, btRankBoard.cy - 14);
+	}
+	if (btReplay.alpha != 0)
+	{
+		ImageManager_drawSpiritToHdc(&g_imgMgr, btReplay.btImage, o->bufHdc,
+			btReplay.cx - btReplay.btImage->width / 2,
+			btReplay.cy - btReplay.btImage->height / 2);
+		ImageManager_drawSpiritToHdc(&g_imgMgr, btRank.btImage, o->bufHdc,
+			btRank.cx - btRank.btImage->width / 2,
+			btRank.cy - btRank.btImage->height / 2);
 	}
 	_SceneManager_drawBird(o);
 }
