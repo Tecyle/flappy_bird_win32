@@ -296,6 +296,7 @@ void _SceneManager_drawGameOver(SceneManager* o)
 		ImageManager_drawSpiritToHdc(&g_imgMgr, &sp_goldenMedal, o->bufHdc,
 			btRankBoard.cx - 88, btRankBoard.cy - 14);
 	}
+	_SceneManager_drawBird(o);
 	if (btReplay.alpha != 0)
 	{
 		ImageManager_drawSpiritToHdc(&g_imgMgr, btReplay.btImage, o->bufHdc,
@@ -305,7 +306,6 @@ void _SceneManager_drawGameOver(SceneManager* o)
 			btRank.cx - btRank.btImage->width / 2,
 			btRank.cy - btRank.btImage->height / 2);
 	}
-	_SceneManager_drawBird(o);
 }
 
 bool SceneManager_render(SceneManager* o)
