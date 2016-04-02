@@ -44,6 +44,7 @@ void PhysicEngine_setBirdPos(int ox, int oy)
 	pe_bird.width = 120.0;
 	pe_bird.height = 120.0;
 	pe_bird.isDead = false;
+	pe_bird.isStopped = false;
 	pe_bird.canBeHigher = true;
 }
 

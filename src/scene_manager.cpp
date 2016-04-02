@@ -199,6 +199,7 @@ void _SceneManager_tick(SceneManager* o)
 			if (pe_bird.isDead)
 			{
 				o->sceneType = SceneType_gameOver;
+				o->highScore = o->highScore > o->nowScore ? o->highScore : o->nowScore;
 				_SceneManager_changeToGameOver(o);
 			}
 			break;
@@ -408,6 +409,23 @@ static void _Playing_onClick(SceneManager* o, int x, int y)
 	PhysicEngine_BirdFly();
 }
 
+static void _GameOver_onClick(SceneManager* o, int x, int y)
+{
+	if (btReplay.alpha == 0)
+		return;
+
+	if (Button_isHit(&btReplay, x, y))
+	{
+		_SceneManager_fadeOut(o, true, 2);
+		o->sceneType = SceneType_prepare;
+		o->nowScore = 0;
+		_SceneManager_randomBackAndBird();
+		PhysicEngine_setBirdPos(PhysicEngine_pixelToRealCoord(80), PhysicEngine_pixelToRealCoord(220));
+		_SceneManager_fadeIn(o, true, 2);
+		o->isFading = false;
+	}
+}
+
 void SceneManager_onClick(SceneManager* o, int x, int y)
 {
 	switch (o->sceneType)
@@ -420,6 +438,9 @@ void SceneManager_onClick(SceneManager* o, int x, int y)
 		break;
 	case SceneType_playing:
 		_Playing_onClick(o, x, y);
+		break;
+	case SceneType_gameOver:
+		_GameOver_onClick(o, x, y);
 		break;
 	default:
 		break;
