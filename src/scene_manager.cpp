@@ -72,6 +72,30 @@ void SceneManager_construct(SceneManager* o, HINSTANCE hInstance, HDC hdc)
 	PhysicEngine_setBirdPos(PhysicEngine_pixelToRealCoord(130), PhysicEngine_pixelToRealCoord(210));
 }
 
+static void _SceneManager_fadeOut(SceneManager* o, bool isBlack, int speed)
+{
+	o->isFading = true;
+	o->fadeAlpha = 0;
+	o->fadeStep = 255 / o->fps * speed;
+	o->fadeColor = isBlack ? &sp_black : &sp_white;
+	while (o->fadeAlpha != 255)
+	{
+		SceneManager_render(o);
+	}
+}
+
+static void _SceneManager_fadeIn(SceneManager* o, bool isBlack, int speed)
+{
+	o->isFading = true;
+	o->fadeAlpha = 255;
+	o->fadeStep = -255 / o->fps * speed;
+	o->fadeColor = isBlack ? &sp_black : &sp_white;
+	while (o->fadeAlpha != 0)
+	{
+		SceneManager_render(o);
+	}
+}
+
 void _SceneManager_drawBird(SceneManager* o)
 {
 	static int framePassed = 0;
@@ -88,6 +112,14 @@ void _SceneManager_drawBird(SceneManager* o)
 	framePassed = framePassed++ % interval;
 }
 
+void _SceneManager_changeToGameOver(SceneManager* o)
+{
+	// 首先播放小鸟被撞的特效
+	_SceneManager_fadeOut(o, false, 5);
+	_SceneManager_fadeIn(o, false, 5);
+	o->isFading = false;
+}
+
 void _SceneManager_tick(SceneManager* o)
 {
 	static int lastCount = 0;
@@ -102,32 +134,18 @@ void _SceneManager_tick(SceneManager* o)
 			break;
 		case SceneType_playing:
 			PhysicEngine_tick(1);
+			if (pe_bird.isDead)
+			{
+				o->sceneType = SceneType_gameOver;
+				_SceneManager_changeToGameOver(o);
+			}
+			break;
+		case SceneType_gameOver:
+			PhysicEngine_dieTick(1);
 			break;
 		default:
 			break;
 		}
-	}
-}
-
-static void _SceneManager_fadeOut(SceneManager* o)
-{
-	o->isFading = true;
-	o->fadeAlpha = 0;
-	o->fadeStep = 255 / o->fps * 2;
-	while (o->fadeAlpha != 255)
-	{
-		SceneManager_render(o);
-	}
-}
-
-static void _SceneManager_fadeIn(SceneManager* o)
-{
-	o->isFading = true;
-	o->fadeAlpha = 255;
-	o->fadeStep = -255 / o->fps * 2;
-	while (o->fadeAlpha != 0)
-	{
-		SceneManager_render(o);
 	}
 }
 
@@ -137,7 +155,7 @@ void _SceneManager_drawMainMenu(SceneManager* o)
 	ImageManager_drawSpiritToHdc(&g_imgMgr, background, o->bufHdc, 0, 0);
 	ImageManager_drawSpiritToHdc(&g_imgMgr, &sp_txtFlappyBird, o->bufHdc, 50, 120);
 	_SceneManager_drawBird(o);
-	GroundAnimation_step(g_imgMgr.imgHdc, o->bufHdc, o->fps);
+	GroundAnimation_step(g_imgMgr.imgHdc, o->bufHdc, o->fps, true);
 	ImageManager_drawSpiritToHdc(&g_imgMgr, &sp_txtCopyright, o->bufHdc, 70, 425);
 	ImageManager_drawSpiritToHdc(&g_imgMgr, &sp_btPlay, o->bufHdc, 20, 342);
 	ImageManager_drawSpiritToHdc(&g_imgMgr, &sp_btRank, o->bufHdc, 160, 342);
@@ -152,7 +170,7 @@ void _SceneManager_drawPrepare(SceneManager* o)
 	ImageManager_drawSpiritToHdc(&g_imgMgr, &sp_txtGetReady, o->bufHdc, 45, 120);
 	ImageManager_drawSpiritToHdc(&g_imgMgr, &sp_help, o->bufHdc, 80, 200);
 	_SceneManager_drawBird(o);
-	GroundAnimation_step(g_imgMgr.imgHdc, o->bufHdc, o->fps);
+	GroundAnimation_step(g_imgMgr.imgHdc, o->bufHdc, o->fps, true);
 }
 
 void _SceneManager_drawPlaying(SceneManager* o)
@@ -172,7 +190,27 @@ void _SceneManager_drawPlaying(SceneManager* o)
 	}
 	ImageManager_drawNumber(&g_imgMgr, o->nowScore, o->bufHdc, 144, 80, DrawNumberSize_large);
 	_SceneManager_drawBird(o);
-	GroundAnimation_step(g_imgMgr.imgHdc, o->bufHdc, o->fps);
+	GroundAnimation_step(g_imgMgr.imgHdc, o->bufHdc, o->fps, true);
+}
+
+void _SceneManager_drawGameOver(SceneManager* o)
+{
+	Spirit* background = g_dayNight == DayNightMode_day ? &sp_dayBackground : &sp_nightBackground;
+	ImageManager_drawSpiritToHdc(&g_imgMgr, background, o->bufHdc, 0, 0);
+	// 绘制管道
+	for (size_t i = 0; i < sizeof(pe_pipes) / sizeof(PEPipeObject); ++i)
+	{
+		PEPipeObject* pipe = &pe_pipes[i];
+		ImageManager_drawSpiritToHdc(&g_imgMgr, &sp_greenPipeUp, o->bufHdc,
+			PhysicEngine_realToPixelCoord(pipe->cx) - sp_greenPipeUp.width / 2,
+			PhysicEngine_realToPixelCoord(pipe->cyUp) - sp_greenPipeUp.height);
+		ImageManager_drawSpiritToHdc(&g_imgMgr, &sp_greenPipeDown, o->bufHdc,
+			PhysicEngine_realToPixelCoord(pipe->cx) - sp_greenPipeDown.width / 2,
+			PhysicEngine_realToPixelCoord(pipe->cyDown));
+	}
+	ImageManager_drawNumber(&g_imgMgr, o->nowScore, o->bufHdc, 144, 80, DrawNumberSize_large);
+	_SceneManager_drawBird(o);
+	GroundAnimation_step(g_imgMgr.imgHdc, o->bufHdc, o->fps, false);
 }
 
 void SceneManager_render(SceneManager* o)
@@ -195,6 +233,9 @@ void SceneManager_render(SceneManager* o)
 	case SceneType_playing:
 		_SceneManager_drawPlaying(o);
 		break;
+	case SceneType_gameOver:
+		_SceneManager_drawGameOver(o);
+		break;
 	default:
 		break;
 	}
@@ -211,7 +252,7 @@ void SceneManager_render(SceneManager* o)
 			o->fadeAlpha = 0;
 		if (o->fadeAlpha > 255)
 			o->fadeAlpha = 255;
-		ImageManager_alphaBlend(&g_imgMgr, &sp_black, o->bufHdc, 0, 0, SCENE_WIDTH, SCENE_HEIGHT, o->fadeAlpha);
+		ImageManager_alphaBlend(&g_imgMgr, o->fadeColor, o->bufHdc, 0, 0, SCENE_WIDTH, SCENE_HEIGHT, o->fadeAlpha);
 	}
 
 	// 翻转缓存图像到前台显示
@@ -251,11 +292,11 @@ static void _MainMenu_onClick(SceneManager* o, int x, int y)
 {
 	if (Spirit_isPointInMe(&sp_btPlay, x, y, 20, 342))
 	{
-		_SceneManager_fadeOut(o);
+		_SceneManager_fadeOut(o, true, 2);
 		o->sceneType = SceneType_prepare;
 		_SceneManager_randomBackAndBird();
 		PhysicEngine_setBirdPos(PhysicEngine_pixelToRealCoord(80), PhysicEngine_pixelToRealCoord(220));
-		_SceneManager_fadeIn(o);
+		_SceneManager_fadeIn(o, true, 2);
 		o->isFading = false;
 	}
 }

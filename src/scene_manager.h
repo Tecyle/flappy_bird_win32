@@ -25,6 +25,7 @@ typedef struct SceneManager
 	bool isFading;
 	int fadeAlpha;
 	int fadeStep;
+	Spirit* fadeColor;
 
 	size_t nowScore;
 	size_t highScore;

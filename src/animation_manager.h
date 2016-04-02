@@ -9,4 +9,4 @@ typedef enum BirdColor
 } BirdColor;
 
 Spirit* BirdAnimation_step(BirdColor color, bool inc);
-void GroundAnimation_step(HDC srcHdc, HDC dstHdc, int fps);
+void GroundAnimation_step(HDC srcHdc, HDC dstHdc, int fps, bool moving);

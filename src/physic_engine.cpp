@@ -137,6 +137,13 @@ void PhysicEngine_tick(int tickCount)
 	_PhysicEngine_circlePipe();
 }
 
+void PhysicEngine_dieTick(int tickCount)
+{
+	double t = tickCount * 0.15;
+	_PhysicEngine_birdTick(t);
+	_PhysicEngine_checkHit();
+}
+
 void PhysicEngine_float(int tickCount)
 {
 	// 浮动是一个简谐运动，其公式为： x = Acos(wt+p)

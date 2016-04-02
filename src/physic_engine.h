@@ -38,6 +38,7 @@ int PhysicEngine_realToPixelCoord(double x);
 double PhysicEngine_pixelToRealCoord(int x);
 void PhysicEngine_reset();
 void PhysicEngine_BirdFly();
+void PhysicEngine_dieTick(int tickCount);
 
 extern PEBirdObject pe_bird;
 extern PEGroundObject pe_ground;
