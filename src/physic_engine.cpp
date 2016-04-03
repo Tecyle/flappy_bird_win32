@@ -39,10 +39,10 @@ void PhysicEngine_setBirdPos(int ox, int oy)
 	pe_bird.angle = 0.0;
 	pe_bird.cx = ox;
 	pe_bird.cy = pe_bird.oy = oy;
-	pe_bird.hv = 50.0;
+	pe_bird.hv = 200.0;
 	pe_bird.vv = 0.0;
-	pe_bird.width = 120.0;
-	pe_bird.height = 120.0;
+	pe_bird.width = 150.0;
+	pe_bird.height = 150.0;
 	pe_bird.isDead = false;
 	pe_bird.isStopped = false;
 	pe_bird.canBeHigher = true;
@@ -63,7 +63,7 @@ static void _PhysicEngine_birdTick(double t)
 	
 	double vvPre = pe_bird.vv;
 	pe_bird.vv += g_gravity * t;	// v1 = v0 + gt
-	pe_bird.vv = pe_bird.vv > 500.0 ? 500.0 : pe_bird.vv;
+	pe_bird.vv = pe_bird.vv > 700.0 ? 700.0 : pe_bird.vv;
 	double vs = 0.5 * (vvPre + pe_bird.vv) * t;	// s = 1/2 * (v0 + v1) * t
 	pe_bird.cy += vs;
 	// 如果小鸟落地，则不再掉落

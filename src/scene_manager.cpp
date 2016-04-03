@@ -479,7 +479,7 @@ void SceneManager_rotateBird(SceneManager* o, Spirit* bird)
 		PhysicEngine_realToPixelCoord(pe_bird.cx), 
 		PhysicEngine_realToPixelCoord(pe_bird.cy));
 	ImageManager_drawSpiritToHdc(&g_imgMgr, bird, o->bufHdc,
-		PhysicEngine_realToPixelCoord(pe_bird.cx),
-		PhysicEngine_realToPixelCoord(pe_bird.cy));
+		PhysicEngine_realToPixelCoord(pe_bird.cx - pe_bird.width),
+		PhysicEngine_realToPixelCoord(pe_bird.cy - pe_bird.height));
 	_restoreHdc(o->bufHdc);
 }
