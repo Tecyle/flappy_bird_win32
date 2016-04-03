@@ -13,7 +13,7 @@ bool Button_isHit(Button * o, int x, int y)
 	return false;
 }
 
-void Button_construct(Button * o, Spirit * spirit)
+void Button_construct(Button * o, Image * spirit)
 {
 	o->btImage = spirit;
 	o->cx = o->cy = 0;

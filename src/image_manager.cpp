@@ -1,45 +1,56 @@
 #include "stdafx.h"
 #include "image_manager.h"
+#pragma comment(lib, "msimg32.lib")			// AlphaBlend 函数需要用到这个库
 
-#pragma comment(lib, "msimg32.lib")
+#define TRANSPRENT_COLOR RGB(186, 0, 255)	// 定义透明色，紫色
 
-#define TRANSPRENT_COLOR RGB(186, 0, 255)
+// 全局变量
+Image sp_dayBackground;
+Image sp_nightBackground;
+Image sp_ground;
+Image sp_txtGetReady;
+Image sp_txtGameOver;
+Image sp_txtFlappyBird;
+Image sp_txtCopyright;
+Image sp_smallNum[10];
+Image sp_middleNum[10];
+Image sp_largeNum[10];
+Image sp_scorePane;
+Image sp_sliverMedal;
+Image sp_goldenMedal;
+Image sp_copperMedal;
+Image sp_help;
+Image sp_orangePipeUp;
+Image sp_orangePipeDown;
+Image sp_greenPipeUp;
+Image sp_greenPipeDown;
+Image sp_yellowBird[3];
+Image sp_redBird[3];
+Image sp_blueBird[3];
+Image sp_btPlay;
+Image sp_btRank;
+Image sp_btRate;
+Image sp_btContinue;
+Image sp_btPause;
+Image sp_btShare;
+Image sp_btMenu;
+Image sp_btOk;
+Image sp_new;
+Image sp_black;
+Image sp_white;
 
-Spirit sp_dayBackground;
-Spirit sp_nightBackground;
-Spirit sp_ground;
-Spirit sp_txtGetReady;
-Spirit sp_txtGameOver;
-Spirit sp_txtFlappyBird;
-Spirit sp_txtCopyright;
-Spirit sp_smallNum[10];
-Spirit sp_middleNum[10];
-Spirit sp_largeNum[10];
-Spirit sp_scorePane;
-Spirit sp_sliverMedal;
-Spirit sp_goldenMedal;
-Spirit sp_copperMedal;
-Spirit sp_help;
-Spirit sp_orangePipeUp;
-Spirit sp_orangePipeDown;
-Spirit sp_greenPipeUp;
-Spirit sp_greenPipeDown;
-Spirit sp_yellowBird[3];
-Spirit sp_redBird[3];
-Spirit sp_blueBird[3];
-Spirit sp_btPlay;
-Spirit sp_btRank;
-Spirit sp_btRate;
-Spirit sp_btContinue;
-Spirit sp_btPause;
-Spirit sp_btShare;
-Spirit sp_btMenu;
-Spirit sp_btOk;
-Spirit sp_new;
-Spirit sp_black;
-Spirit sp_white;
+//////////////////////////////////////////////////////////////////////////
+// Image 对象相关方法
 
-static void Spirit_construct(Spirit* o, int x, int y, int width, int height);
+inline void Image_construct(Image* o, int x, int y, int width, int height)
+{
+	o->x = x;
+	o->y = y;
+	o->width = width;
+	o->height = height;
+}
+
+static void Spirit_construct(Image* o, int x, int y, int width, int height);
 
 bool ImageManager_loadScenes(ImageManager* o)
 {
@@ -122,7 +133,7 @@ void ImageManager_initAllSpirits(ImageManager* o, HDC hdc)
 	Spirit_construct(&sp_white, 584, 448, 32, 32);
 }
 
-void Spirit_construct(Spirit* o, int x, int y, int width, int height)
+void Spirit_construct(Image* o, int x, int y, int width, int height)
 {
 	o->x = x;
 	o->y = y;
@@ -135,12 +146,12 @@ void ImageManager_construct(ImageManager* o, HINSTANCE hInstance)
 	o->hInstance = hInstance;
 }
 
-void ImageManager_drawSpiritToHdc(ImageManager* o, Spirit* sp, HDC hdc, int dx, int dy)
+void ImageManager_drawSpiritToHdc(ImageManager* o, Image* sp, HDC hdc, int dx, int dy)
 {
 	TransparentBlt(hdc, dx, dy, sp->width, sp->height, o->imgHdc, sp->x, sp->y, sp->width, sp->height, TRANSPRENT_COLOR);
 }
 
-void ImageManager_alphaBlend(ImageManager* o, Spirit* sp, HDC hdc, int dx, int dy, int width, int height, BYTE alpha)
+void ImageManager_alphaBlend(ImageManager* o, Image* sp, HDC hdc, int dx, int dy, int width, int height, BYTE alpha)
 {
 	BLENDFUNCTION blend;
 	blend.AlphaFormat = 0;
@@ -150,7 +161,7 @@ void ImageManager_alphaBlend(ImageManager* o, Spirit* sp, HDC hdc, int dx, int d
 	AlphaBlend(hdc, dx, dy, width, height, o->imgHdc, sp->x, sp->y, sp->width, sp->height, blend);
 }
 
-bool Spirit_isPointInMe(Spirit* o, int x, int y, int dx, int dy)
+bool Spirit_isPointInMe(Image* o, int x, int y, int dx, int dy)
 {
 	if (x > dx && x < dx + o->width)
 		if (y > dy && y < dy + o->height)
@@ -189,7 +200,7 @@ size_t _getDigit(size_t num, size_t index)
 void ImageManager_drawNumber(ImageManager* o, size_t num, HDC hdcDst, int cx, int cy, DrawNumberSize numberSize, DrawNumberAlign align)
 {
 	size_t digitNum = _getDigitNum(num);
-	Spirit* spNum = NULL;
+	Image* spNum = NULL;
 	switch (numberSize)
 	{
 	case DrawNumberSize_large:
@@ -231,7 +242,7 @@ void ImageManager_drawNumber(ImageManager* o, size_t num, HDC hdcDst, int cx, in
 	// 绘制数字
 	for (size_t i = 0; i < digitNum; ++i)
 	{
-		Spirit* spn = &spNum[_getDigit(num, i)];
+		Image* spn = &spNum[_getDigit(num, i)];
 		startX -=spn->width;
 		startX -= numberSize != DrawNumberSize_large && i > 0 ? grap : 0;
 		ImageManager_drawSpiritToHdc(o, spn, hdcDst, startX, startY);

@@ -3,11 +3,11 @@
 
 typedef struct Button 
 {
-	Spirit* btImage;
+	Image* btImage;
 	int cx;
 	int cy;
 	int alpha;
 } Button;
 
 bool Button_isHit(Button* o, int x, int y);
-void Button_construct(Button* o, Spirit* spirit);
+void Button_construct(Button* o, Image* spirit);

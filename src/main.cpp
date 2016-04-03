@@ -1,14 +1,20 @@
 #include "stdafx.h"
 #include "scene_manager.h"
 
-static SceneManager g_sceneMgr;
-
+// 消息回调函数，具体参见实现部分
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 // 就好像命令行程序是从 main 函数开始的一样，Windows 程序是从 WinMain 函数开始的
 // 一旦 WinMain 函数退出了，那么 Windows 程序也就结束了
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
+	// WinMain 函数的四个参数含义分别如下：
+	// hInstance : 标识自己程序的一个类似ID的句柄，很多 API 函数需要这个参数作为参数
+	// hPrevInstance : 这个参数已经被后续的 Windows 废弃了，所以用不到这个参数
+	UNREFERENCED_PARAMETER(hPrevInstance);
+	// lpCmdLine : 程序启动时的命令行内容
+	UNREFERENCED_PARAMETER(lpCmdLine);
+	UNREFERENCED_PARAMETER(nShowCmd);
 	// 创建一个窗口，首先需要填写一些关于这个窗口的样式信息
 	WNDCLASSEX wndClass;
 	ZeroMemory(&wndClass, sizeof(wndClass));

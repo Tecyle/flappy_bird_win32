@@ -8,5 +8,5 @@ typedef enum BirdColor
 	BirdColor_yellow
 } BirdColor;
 
-Spirit* BirdAnimation_step(BirdColor color, bool inc);
+Image* BirdAnimation_step(BirdColor color, bool inc);
 void GroundAnimation_step(HDC srcHdc, HDC dstHdc, int fps, bool moving);

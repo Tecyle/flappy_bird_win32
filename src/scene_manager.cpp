@@ -137,7 +137,7 @@ static void _SceneManager_fadeIn(SceneManager* o, bool isBlack, int speed)
 void _SceneManager_drawBird(SceneManager* o)
 {
 	static int framePassed = 0;
-	Spirit* bird = NULL;
+	Image* bird = NULL;
 	int interval = o->fps / 8;
 	if (pe_bird.isDead)
 		bird = BirdAnimation_step(g_birdColor, false);
@@ -240,7 +240,7 @@ void _SceneManager_tick(SceneManager* o)
 
 void _SceneManager_drawMainMenu(SceneManager* o)
 {
-	Spirit* background = g_dayNight == DayNightMode_day ? &sp_dayBackground : &sp_nightBackground;
+	Image* background = g_dayNight == DayNightMode_day ? &sp_dayBackground : &sp_nightBackground;
 	ImageManager_drawSpiritToHdc(&g_imgMgr, background, o->bufHdc, 0, 0);
 	ImageManager_drawSpiritToHdc(&g_imgMgr, &sp_txtFlappyBird, o->bufHdc, 50, 120);
 	_SceneManager_drawBird(o);
@@ -253,7 +253,7 @@ void _SceneManager_drawMainMenu(SceneManager* o)
 
 void _SceneManager_drawPrepare(SceneManager* o)
 {
-	Spirit* background = g_dayNight == DayNightMode_day ? &sp_dayBackground : &sp_nightBackground;
+	Image* background = g_dayNight == DayNightMode_day ? &sp_dayBackground : &sp_nightBackground;
 	ImageManager_drawSpiritToHdc(&g_imgMgr, background, o->bufHdc, 0, 0);
 	ImageManager_drawNumber(&g_imgMgr, 0, o->bufHdc, 144, 80, DrawNumberSize_large, DrawNumberAlign_center);
 	ImageManager_drawSpiritToHdc(&g_imgMgr, &sp_txtGetReady, o->bufHdc, 45, 120);
@@ -264,7 +264,7 @@ void _SceneManager_drawPrepare(SceneManager* o)
 
 void _SceneManager_drawPlaying(SceneManager* o)
 {
-	Spirit* background = g_dayNight == DayNightMode_day ? &sp_dayBackground : &sp_nightBackground;
+	Image* background = g_dayNight == DayNightMode_day ? &sp_dayBackground : &sp_nightBackground;
 	ImageManager_drawSpiritToHdc(&g_imgMgr, background, o->bufHdc, 0, 0);
 	// 绘制管道
 	for (size_t i = 0; i < sizeof(pe_pipes) / sizeof(PEPipeObject); ++i)
@@ -284,7 +284,7 @@ void _SceneManager_drawPlaying(SceneManager* o)
 
 void _SceneManager_drawGameOver(SceneManager* o)
 {
-	Spirit* background = g_dayNight == DayNightMode_day ? &sp_dayBackground : &sp_nightBackground;
+	Image* background = g_dayNight == DayNightMode_day ? &sp_dayBackground : &sp_nightBackground;
 	ImageManager_drawSpiritToHdc(&g_imgMgr, background, o->bufHdc, 0, 0);
 	// 绘制管道
 	for (size_t i = 0; i < sizeof(pe_pipes) / sizeof(PEPipeObject); ++i)
@@ -473,7 +473,7 @@ void SceneManager_onClick(SceneManager* o, int x, int y)
 	}
 }
 
-void SceneManager_rotateBird(SceneManager* o, Spirit* bird)
+void SceneManager_rotateBird(SceneManager* o, Image* bird)
 {
 	_rotateHdc(o->bufHdc, pe_bird.angle, 
 		PhysicEngine_realToPixelCoord(pe_bird.cx), 

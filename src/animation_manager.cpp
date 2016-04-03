@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "animation_manager.h"
 
-Spirit* BirdAnimation_step(BirdColor color, bool inc)
+Image* BirdAnimation_step(BirdColor color, bool inc)
 {
 	static const int g_baStepIndex[] = { 0, 1, 2, 1 };
 	static size_t step = 0;
