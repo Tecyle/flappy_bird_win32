@@ -42,14 +42,13 @@ typedef enum SpiritType
 // 某块矩形区域，这个结构体就是用来保存这个信息的
 typedef struct Image
 {
-	HDC imgHdc;		///< 绘图用的句柄
 	int x;			///< 图像矩形区域的 x 坐标
 	int y;			///< 图像矩形区域的 y 坐标
 	int width;		///< 图像矩形区域的宽度
 	int height;		///< 图像矩形区域的高度
 } Image;
 // 初始化 Image 对象
-void Image_construct(Image* o, int x, int y, int width, int height);
+void Image_construct(Image* o, int x, int y, int width, int height, HDC srcHdc);
 
 // 游戏的角色
 // 除了定义了图像以外，还定义了在游戏中的位置信息
@@ -58,10 +57,13 @@ typedef struct Spirit
 	Image* image;		///< 精灵的绘制图像
 	int cx;				///< 精灵的中心 x 坐标
 	int cy;				///< 精灵的中心 y 坐标
-	int width;			///< 精灵的宽度
-	int height;			///< 精灵的高度
+	int halfWidth;		///< 精灵的宽度的一半
+	int halfHeight;		///< 精灵的高度的一半
 	bool visiable;		///< 精灵是否可见
 } Spirit;
+
+void Spirit_construct(Spirit* o, Image* img, int cx, int cy);
+void Spirit_draw(Spirit* o, HDC dstHdc);
 
 // 定义游戏中的按钮
 typedef struct Button
@@ -73,58 +75,21 @@ typedef struct Button
 typedef struct ImageManager
 {
 	HINSTANCE hInstance;	///< 应用程序的实例句柄
+	HDC dstHdc;
 	HBITMAP imgScene;		///< 图片资源句柄，存放整张 BMP
 	HDC imgHdc;				///< 图像绘制句柄
 } ImageManager;
 
 // 初始化 ImageManager
-void ImageManager_construct(HINSTANCE hInstance);
+void ImageManager_construct(HINSTANCE hInstance, HDC dstHdc);
 // 释放 ImageManager 资源
 void ImageManager_destruct();
 
 // 初始化所有用到的图像资源
-void ImageManager_initAllImages(HDC hdc);
-// 加载那张全局的大图片
-bool ImageManager_loadScenes();
-void ImageManager_drawSpiritToHdc(ImageManager* o, Image* sp, HDC hdc, int dx, int dy);
-void ImageManager_alphaBlend(ImageManager* o, Image* sp, HDC hdc, int dx, int dy, int width, int height, BYTE alpha);
+bool ImageManager_initAll(HDC hdc);
+void ImageManager_randomSkyAndBird();
+void ImageManager_drawSpirit(SpiritType spirit);
+void ImageManager_drawFadeCover(bool isBlack, BYTE alpha);
+void ImageManager_drawNumber(size_t num, int cx, int cy, NumberSize size, NumberAlign align);
 
-void ImageManager_drawNumber(ImageManager* o, size_t num, HDC hdcDst, int cx, int cy, DrawNumberSize numberSize, DrawNumberAlign align);
 
-bool Spirit_isPointInMe(Image* o, int x, int y, int dx, int dy);
-
-// 对于本游戏而言，可用的精灵总共就那么一些，所以就全
-// 都枚举出来了
-extern Image sp_dayBackground;
-extern Image sp_nightBackground;
-extern Image sp_ground;
-extern Image sp_txtGetReady;
-extern Image sp_txtGameOver;
-extern Image sp_txtFlappyBird;
-extern Image sp_txtCopyright;
-extern Image sp_smallNum[10];
-extern Image sp_middleNum[10];
-extern Image sp_largeNum[10];
-extern Image sp_scorePane;
-extern Image sp_sliverMedal;
-extern Image sp_goldenMedal;
-extern Image sp_copperMedal;
-extern Image sp_help;
-extern Image sp_orangePipeUp;
-extern Image sp_orangePipeDown;
-extern Image sp_greenPipeUp;
-extern Image sp_greenPipeDown;
-extern Image sp_yellowBird[3];
-extern Image sp_redBird[3];
-extern Image sp_blueBird[3];
-extern Image sp_btPlay;
-extern Image sp_btRank;
-extern Image sp_btRate;
-extern Image sp_btContinue;
-extern Image sp_btPause;
-extern Image sp_btShare;
-extern Image sp_btMenu;
-extern Image sp_btOk;
-extern Image sp_new;
-extern Image sp_black;
-extern Image sp_white;
