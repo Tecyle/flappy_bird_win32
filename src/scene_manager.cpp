@@ -5,6 +5,153 @@
 #include "button.h"
 #include <math.h>
 
+//////////////////////////////////////////////////////////////////////////
+// 全局变量
+Scene sce_mainMenu;
+Scene sce_prepare;
+Scene sce_playing;
+Scene sce_gameOver;
+
+SceneManager g_sceMgr;
+
+// MainScene 里面需要绘制的内容
+SpiritType sptMainMenu[9] = {
+	SpiritType_sky,
+	SpiritType_ground,
+	SpiritType_txtFlappyBird,
+	SpiritType_bird,
+	SpiritType_btRate,
+	SpiritType_btPlay,
+	SpiritType_btRank,
+	SpiritType_txtCopyRight,
+	SpiritType_blackFade
+};
+
+// PrepareScene 里面需要绘制的内容
+SpiritType sptPrepare[7] = {
+	SpiritType_sky,
+	SpiritType_ground,
+	SpiritType_txtGetReady,
+	SpiritType_helpInfo,
+	SpiritType_bird,
+	SpiritType_largeScore,
+	SpiritType_blackFade
+};
+
+// PlayingScene 里面需要绘制的内容
+SpiritType sptPlaying[7] = {
+	SpiritType_sky,
+	SpiritType_ground,
+	SpiritType_upPipes,
+	SpiritType_downPipes,
+	SpiritType_largeScore,
+	SpiritType_bird,
+	SpiritType_whiteFade
+};
+
+// GameOverScene 里面需要绘制的内容
+SpiritType sptGameOver[11] = {
+	SpiritType_sky,
+	SpiritType_ground,
+	SpiritType_upPipes,
+	SpiritType_downPipes,
+	SpiritType_bird,
+	SpiritType_txtGameOver,
+	SpiritType_scoreBoard,
+	SpiritType_btPlay,
+	SpiritType_btRank,
+	SpiritType_whiteFade,
+	SpiritType_blackFade
+};
+
+//////////////////////////////////////////////////////////////////////////
+// Scene
+void Scene_draw(Scene* o)
+{
+	for (int i = 0; i < o->spiritCount; ++i)
+	{
+		ImageManager_drawSpirit(o->spirits[i]);
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////
+// SceneManager
+
+bool _SceneManager_needRedraw()
+{
+	SceneManager* o = &g_sceMgr;
+	static LARGE_INTEGER lastCount = { 0, 0 };
+	long long frameInterval = g_counterFrequency.QuadPart / o->fps;
+	LARGE_INTEGER nowCount;
+	QueryPerformanceCounter(&nowCount);
+	if (nowCount.QuadPart - lastCount.QuadPart > frameInterval)
+	{
+		lastCount = nowCount;
+		return true;
+	}
+	return false;
+}
+
+void _SceneManager_drawScene()
+{
+	SceneManager* o = &g_sceMgr;
+	Scene* scene[] = { &sce_mainMenu, &sce_prepare, &sce_playing, &sce_gameOver };
+	Scene_draw(scene[(int)o->currentScene]);
+}
+
+void _SceneManager_drawFps(SceneManager* o)
+{
+	char strFps[64] = { "FPS: " };
+	itoa(SceneManager_getFps(o), &strFps[5], 10);
+	TextOutA(o->bufHdc, 5, 5, strFps, strlen(strFps));
+}
+
+void SceneManager_initAllScene()
+{
+	Scene* scenes[4] = { &sce_mainMenu, &sce_prepare, &sce_playing, &sce_gameOver };
+	SpiritType* spiritTypes[4] = { sptMainMenu, sptPrepare, sptPlaying, sptGameOver };
+	size_t spiritNum[4] = { 9, 7, 7, 11 };
+
+	for (int i = 0; i < 4; ++i)
+	{
+		scenes[i]->spirits = spiritTypes[i];
+		scenes[i]->spiritCount = spiritNum[i];
+	}
+}
+
+bool SceneManager_render()
+{
+	SceneManager* o = &g_sceMgr;
+
+	// 判断是否需要重绘，如果没有到达绘制时间，则不进行绘制
+	// 这样可以保证帧速率稳定
+	if (!_SceneManager_needRedraw())
+		return false;
+
+	o->drawCounter++;
+
+	// 执行游戏逻辑，主要包括更新游戏的物理引擎，从而计算所
+	// 有物体的新位置
+	_SceneManager_tick();
+
+	// 绘制计算完后的画面
+	_SceneManager_drawScene();
+
+	// 绘制帧速率
+	if (o->showFps)
+		_SceneManager_drawFps();
+
+	// 翻转缓存图像到前台显示
+	StretchBlt(o->scrHdc, 0, 0, o->windowWidth, o->windowHeight, o->bufHdc, 0, 0, SCENE_WIDTH, SCENE_HEIGHT, SRCCOPY);
+	return true;
+}
+
+
+
+
+
+
+
 typedef enum DayNightMode
 {
 	DayNightMode_day,
@@ -29,41 +176,7 @@ static void _SceneManager_randomBackAndBird()
 	g_birdColor = bc[rnd % 3];
 }
 
-static void _rotateHdc(HDC hdc, double angle, int cx, int cy)
-{
-	SetGraphicsMode(hdc, GM_ADVANCED);
-	XFORM xform;
-	xform.eM11 = (float)cos(angle);
-    xform.eM12 = (float)sin(angle);
-    xform.eM21 = (float)-sin(angle);
-    xform.eM22 = (float)cos(angle);
-    xform.eDx = (float)(cx - cos(angle) * cx + sin(angle) * cy);
-    xform.eDy = (float)(cy - cos(angle) * cy - sin(angle) * cx);
-    SetWorldTransform(hdc, &xform);
-}
-
-static void _restoreHdc(HDC hdc)
-{
-	XFORM xform;
-	xform.eM11 = (float)1.0;
-	xform.eM12 = (float)0;
-	xform.eM21 = (float)0;
-	xform.eM22 = (float)1.0;
-	xform.eDx = (float)0;
-	xform.eDy = (float)0;
-
-	SetWorldTransform(hdc, &xform);
-	SetGraphicsMode(hdc, GM_COMPATIBLE);
-}
-
 static void _SceneManager_drawMainMenu(SceneManager* o);
-
-static void _SceneManager_drawFps(SceneManager* o)
-{
-	char strFps[64] = { "FPS: " };
-	itoa(SceneManager_getFps(o), &strFps[5], 10);
-	TextOutA(o->bufHdc, 5, 5, strFps, strlen(strFps));
-}
 
 static bool _SceneManager_needReDraw(SceneManager* o)
 {

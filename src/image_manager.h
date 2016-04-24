@@ -23,18 +23,23 @@ typedef enum NumberAlign
 // 定义游戏中的角色代号
 typedef enum SpiritType
 {
-	SpiritType_ground,			///< 地面
-	SpiritType_sky,				///< 背景天空
-	SpiritType_bird,			///< 小鸟
-	SpiritType_upPipe,			///< 上面的管道
-	SpiritType_downPipe,		///< 下面的管道
-	SpiritType_txtGetReady,		///< GetReady 文字
-	SpiritType_txtGameOver,		///< GameOver 文字
-	SpiritType_helpInfo,		///< 帮助信息
-	SpiritType_btPlay,			///< 开始游戏按钮
-	SpiritType_btRank,			///< 排名按钮
-	SpiritType_btRate,			///< Rate 按钮
-	SpiritType_scoreBoard		///< 记分牌
+	SpiritType_ground = 0,			///< 地面
+	SpiritType_sky = 1,				///< 背景天空
+	SpiritType_bird = 2,			///< 小鸟
+	SpiritType_upPipes = 3,			///< 上层管道组
+	SpiritType_downPipes = 4,		///< 下层管道组
+	SpiritType_txtGetReady = 5,		///< GetReady 文字
+	SpiritType_txtGameOver = 6,		///< GameOver 文字
+	SpiritType_txtCopyRight = 7,	///< 版权文字信息
+	SpiritType_txtFlappyBird = 8,	///< FlappyBird 文字
+	SpiritType_largeScore = 9,		///< 当前得分数字
+	SpiritType_helpInfo = 10,		///< 帮助信息
+	SpiritType_btPlay = 11,			///< 开始游戏按钮
+	SpiritType_btRank = 12,			///< 排名按钮
+	SpiritType_btRate = 13,			///< Rate 按钮
+	SpiritType_scoreBoard = 14,		///< 记分牌
+	SpiritType_blackFade = 15,		///< 黑色渐变遮罩
+	SpiritType_whiteFade = 16		///< 白色渐变遮罩
 } SpiritType;
 
 // 定义资源图片
@@ -57,9 +62,11 @@ typedef struct Spirit
 	Image* image;		///< 精灵的绘制图像
 	int cx;				///< 精灵的中心 x 坐标
 	int cy;				///< 精灵的中心 y 坐标
+	double angle;		///< 精灵的旋转角度，目前仅小鸟有效
 	int halfWidth;		///< 精灵的宽度的一半
 	int halfHeight;		///< 精灵的高度的一半
 	bool visiable;		///< 精灵是否可见
+	Animation* ani;		///< 控制精灵的动画
 } Spirit;
 
 void Spirit_construct(Spirit* o, Image* img, int cx, int cy);
@@ -89,7 +96,7 @@ void ImageManager_destruct();
 bool ImageManager_initAll(HDC hdc);
 void ImageManager_randomSkyAndBird();
 void ImageManager_drawSpirit(SpiritType spirit);
-void ImageManager_drawFadeCover(bool isBlack, BYTE alpha);
+void ImageManager_drawFadeCover(Image* img, BYTE alpha);
 void ImageManager_drawNumber(size_t num, int cx, int cy, NumberSize size, NumberAlign align);
 
 

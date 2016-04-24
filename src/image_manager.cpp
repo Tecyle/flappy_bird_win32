@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "image_manager.h"
+#include <math.h>
 #pragma comment(lib, "msimg32.lib")			// AlphaBlend 函数需要用到这个库
 
 #define TRANSPRENT_COLOR RGB(186, 0, 255)	// 定义透明色，紫色
@@ -42,8 +43,99 @@ Image img_white;
 Spirit sp_ground;
 Spirit sp_bird;
 Spirit sp_sky;
+Spirit sp_upPipes[4];
+Spirit sp_downPipes[4];
+Spirit sp_txtGetReady;
+Spirit sp_txtGameOver;
+Spirit sp_txtCopyright;
+Spirit sp_txtFlappyBird;
+Spirit sp_largeScore;
+Spirit sp_helpInfo;
+Spirit sp_btPlay;
+Spirit sp_btRank;
+Spirit sp_btRate;
+Spirit sp_scoreBoard;
+Spirit sp_balckFade;
+Spirit sp_whiteFade;
 
 ImageManager g_imgMgr;
+
+Spirit* g_spirits[] = {
+	&sp_ground,			///< SpiritType_ground
+	&sp_sky,			///< SpiritType_sky
+	&sp_bird,			///< SpiritType_bird
+	sp_upPipes,			///< SpiritType_upPipes
+	sp_downPipes,		///< SpiritType_downPipes
+	&sp_txtGetReady,	///< SpiritType_txtGetReady
+	&sp_txtGameOver,	///< SpiritType_txtGameOver
+	&sp_txtCopyright,	///< SpiritType_txtCopyRight
+	&sp_txtFlappyBird,	///< SpiritType_txtFlappyBird
+	&sp_largeScore,		///< SpiritType_largeScore
+	&sp_helpInfo,		///< SpiritType_helpInfo
+	&sp_btPlay,			///< SpiritType_btPlay
+	&sp_btRank,			///< SpiritType_btRank
+	&sp_btRate,			///< SpiritType_btRate
+	&sp_scoreBoard,		///< SpiritType_scoreBoard
+	&sp_balckFade,		///< SpiritType_blackFade
+	&sp_whiteFade		///< SpiritType_whiteFade
+};
+
+//////////////////////////////////////////////////////////////////////////
+// 全局函数方法
+static void _rotateHdc(HDC hdc, double angle, int cx, int cy)
+{
+	SetGraphicsMode(hdc, GM_ADVANCED);
+	XFORM xform;
+	xform.eM11 = (float)cos(angle);
+	xform.eM12 = (float)sin(angle);
+	xform.eM21 = (float)-sin(angle);
+	xform.eM22 = (float)cos(angle);
+	xform.eDx = (float)(cx - cos(angle) * cx + sin(angle) * cy);
+	xform.eDy = (float)(cy - cos(angle) * cy - sin(angle) * cx);
+	SetWorldTransform(hdc, &xform);
+}
+
+static void _restoreHdc(HDC hdc)
+{
+	XFORM xform;
+	xform.eM11 = (float)1.0;
+	xform.eM12 = (float)0;
+	xform.eM21 = (float)0;
+	xform.eM22 = (float)1.0;
+	xform.eDx = (float)0;
+	xform.eDy = (float)0;
+
+	SetWorldTransform(hdc, &xform);
+	SetGraphicsMode(hdc, GM_COMPATIBLE);
+}
+
+size_t _getDigitNum(size_t num)
+{
+	size_t digitNum = 1;
+	while ((num = num / 10) != 0)
+	{
+		digitNum++;
+	}
+	return digitNum;
+}
+
+size_t _pow(size_t num, size_t power)
+{
+	size_t res = 1;
+	for (size_t i = 0; i < power; ++i)
+	{
+		res *= num;
+	}
+	return res;
+}
+
+size_t _getDigit(size_t num, size_t index)
+{
+	size_t sn = _pow(10, index);
+	sn = num / sn;
+	sn = sn % 10;
+	return sn;
+}
 
 //////////////////////////////////////////////////////////////////////////
 // Image 对象相关方法
@@ -67,14 +159,98 @@ void Spirit_construct(Spirit* o, Image* img, int cx, int cy)
 	o->visiable = true;
 }
 
-void Spirit_draw(Spirit* o, HDC dstHdc)
+void Spirit_draw(Spirit* o)
 {
 	HDC srcHdc = g_imgMgr.imgHdc;
+	HDC dstHdc = g_imgMgr.dstHdc;
 	Image* imgSrc = o->image;
 	if (!o->visiable)
 		return;
 	TransparentBlt(dstHdc, o->cx - o->halfWidth, o->cy - o->halfHeight, imgSrc->width, imgSrc->height,
 		srcHdc, imgSrc->x, imgSrc->y, imgSrc->width, imgSrc->height, TRANSPRENT_COLOR);
+}
+
+void Spirit_drawBird(Spirit* o)
+{
+	HDC srcHdc = g_imgMgr.imgHdc;
+	HDC dstHdc = g_imgMgr.dstHdc;
+	if (!o->visiable)
+		return;
+
+	// 小鸟的扇动翅膀动画
+	Image* imgSrc = &o->image[FrameAnimation_getFrameIndex(o->ani)];
+	// 旋转小鸟
+	_rotateHdc(dstHdc, o->angle, o->cx, o->cy);
+	TransparentBlt(dstHdc, o->cx - o->halfWidth, o->cy - o->halfHeight, imgSrc->width, imgSrc->height,
+		srcHdc, imgSrc->x, imgSrc->y, imgSrc->width, imgSrc->height, TRANSPRENT_COLOR);
+	_restoreHdc(dstHdc);
+}
+
+void Spirit_drawPipes(Spirit* o)
+{
+	HDC srcHdc = g_imgMgr.imgHdc;
+	HDC dstHdc = g_imgMgr.dstHdc;
+	
+	for (int i = 0; i < 4; ++i)
+	{
+		Spirit* sp = &o[i];
+		Image* imgSrc = sp->image;
+		if (!o->visiable)
+			continue;
+		TransparentBlt(dstHdc, o->cx - o->halfWidth, o->cy - o->halfHeight, imgSrc->width, imgSrc->height,
+			srcHdc, imgSrc->x, imgSrc->y, imgSrc->width, imgSrc->height, TRANSPRENT_COLOR);
+	}
+}
+
+void Spirit_drawLargeScore(Spirit* o)
+{
+	HDC srcHdc = g_imgMgr.imgHdc;
+	HDC dstHdc = g_imgMgr.dstHdc;
+	if (!o->visiable)
+		return;
+
+	size_t score = ScoreManager_getCurrentScore();
+	ImageManager_drawNumber(score, o->cx, o->cy, NumberSize_large, NumberAlign_center);
+}
+
+void Spirit_drawScoreBorad(Spirit* o)
+{
+	HDC srcHdc = g_imgMgr.imgHdc;
+	HDC dstHdc = g_imgMgr.dstHdc;
+	if (!o->visiable)
+		return;
+
+	// 先绘制底板
+	Image* imgSrc = &img_scorePane;
+	TransparentBlt(dstHdc, o->cx - o->halfWidth, o->cy - o->halfHeight, imgSrc->width, imgSrc->height,
+		srcHdc, imgSrc->x, imgSrc->y, imgSrc->width, imgSrc->height, TRANSPRENT_COLOR);
+	// 再绘制当前得分
+	ImageManager_drawNumber(ScoreManager_getCurrentScore(),
+		o->cx + 90, o->cy - 15,
+		NumberSize_middle, NumberAlign_right);
+	// 再绘制最高得分
+	ImageManager_drawNumber(ScoreManager_getHighScore(),
+		o->cx + 90, o->cy + 28,
+		NumberSize_middle, NumberAlign_right);
+	// 再决定绘制什么奖牌
+	Image* imgMedal[] = { &img_goldenMedal, &img_sliverMedal, &img_copperMedal, NULL };
+	imgSrc = imgMedal[(int)ScoreManager_getMedalType()];
+	if (imgSrc != NULL)
+	{
+		TransparentBlt(dstHdc, o->cx - 88, o->cy - 14, imgSrc->width, imgSrc->height,
+			srcHdc, imgSrc->x, imgSrc->y, imgSrc->width, imgSrc->height, TRANSPRENT_COLOR);
+	}
+}
+
+void Spirit_drawFade(Spirit* o)
+{
+	HDC srcHdc = g_imgMgr.imgHdc;
+	HDC dstHdc = g_imgMgr.dstHdc;
+	Image* imgSrc = o->image;
+	if (!o->visiable)
+		return;
+
+	ImageManager_drawFadeCover(imgSrc, FadeAnimation_getAlpha(o->ani));
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -95,6 +271,48 @@ void ImageManager_construct(HINSTANCE hInstance, HDC dstHdc)
 void ImageManager_destruct()
 {
 	ImageManager* o = &g_imgMgr;
+}
+
+void ImageManager_drawSpirit(SpiritType spiritType)
+{
+	// 绘制的精灵一共分为以下几种不同的类型
+	// 1. 小鸟
+	// 小鸟不一样的地方在于它需要旋转
+	// 2. 淡入淡出效果
+	// 淡入淡出效果不一样的地方在于它需要绘制半透明效果
+	// 3. 管道
+	// 管道是因为其包含上下管道且循环出现
+	// 4. 得分面板
+	// 得分面板是因为有很多东西组合在上面
+	// 5. 得分
+	// 得分是因为其要绘制数字
+	// 3. 其他精灵
+	// 剩下的直接绘制即可
+	ImageManager* o = &g_imgMgr;
+	Spirit* spirit = g_spirits[(int)spiritType];
+	switch (spiritType)
+	{
+	case SpiritType_bird:
+		Spirit_drawBird(spirit);
+		break;
+	case SpiritType_upPipes:
+	case SpiritType_downPipes:
+		Spirit_drawPipes(spirit);
+		break;
+	case SpiritType_largeScore:
+		Spirit_drawLargeScore(spirit);
+		break;
+	case SpiritType_scoreBoard:
+		Spirit_drawScoreBorad(spirit);
+		break;
+	case SpiritType_blackFade:
+	case SpiritType_whiteFade:
+		Spirit_drawFade(spirit);
+		break;
+	default:
+		Spirit_draw(spirit);
+		break;
+	}
 }
 
 void ImageManager_randomSkyAndBird()
@@ -191,44 +409,15 @@ bool ImageManager_initAll(HDC hdc)
 	return true;
 }
 
-void ImageManager_drawFadeCover(bool isBlack, BYTE alpha)
+void ImageManager_drawFadeCover(Image* img, BYTE alpha)
 {
 	ImageManager* o = &g_imgMgr;
-	Image* img = isBlack ? &img_black : &img_white;
 	BLENDFUNCTION blend;
 	blend.AlphaFormat = 0;
 	blend.BlendOp = AC_SRC_OVER;
 	blend.BlendFlags = 0;
 	blend.SourceConstantAlpha = alpha;
 	AlphaBlend(o->dstHdc, 0, 0, 288, 512, o->imgHdc, img->x, img->y, img->width, img->height, blend);
-}
-
-size_t _getDigitNum(size_t num)
-{
-	size_t digitNum = 1;
-	while ((num = num / 10) != 0)
-	{
-		digitNum++;
-	}
-	return digitNum;
-}
-
-size_t _pow(size_t num, size_t power)
-{
-	size_t res = 1;
-	for (size_t i = 0; i < power; ++i)
-	{
-		res *= num;
-	}
-	return res;
-}
-
-size_t _getDigit(size_t num, size_t index)
-{
-	size_t sn = _pow(10, index);
-	sn = num / sn;
-	sn = sn % 10;
-	return sn;
 }
 
 void ImageManager_drawNumber(size_t num, int cx, int cy, NumberSize size, NumberAlign align)
