@@ -4,15 +4,16 @@
 typedef struct Animation
 {
 	// 淡入淡出动画参数
-	BYTE alphaStart;
-	BYTE alphaEnd;
-	BYTE nowAlpha;
-	int fadeTickCount;
+	int alphaStart;
+	int alphaEnd;
+	int nowAlpha;
+	int fadeStep;			///< 记录的是每个 tick 要增长多少 alpha
 	bool fadeLoop;
 	bool fadeEnable;
 	// 逐帧动画动画参数
 	int frameCount;
 	int frameIndex;
+	int frameStep;			///< 记录的是每个 frame 停留多少个 tick
 	int frameTickCount;
 	bool frameLoop;
 	bool frameEnable;
@@ -20,7 +21,8 @@ typedef struct Animation
 	int sx, sy;
 	int ex, ey;
 	int nx, ny;
-	int transTickCount;
+	int transXStep;			///< 记录的是每个 tick 后 x 的增长值
+	int transYStep;			///< 记录的是每个 tick 后 y 的增长值
 	bool transLoop;
 	bool transEnable;
 } Animation;
@@ -49,6 +51,7 @@ typedef struct AnimationManager
 	size_t aniCount;
 } AnimationManager;
 
+void AnimationManager_init();
 Animation* AnimationManager_allocAnimation();
 void AnimationManager_tick();
 
