@@ -189,6 +189,21 @@ Animation* AnimationManager_allocAnimation()
 	return ani;
 }
 
+void AnimationManager_tick()
+{
+	AnimationManager* o = &g_aniMgr;
+	for (int i = 0; i < o->aniCount; ++i)
+	{
+		Animation* ani;
+		FadeAnimation_tick(ani);
+		FrameAnimation_tick(ani);
+		TransAnimation_tick(ani);
+	}
+}
+
+
+
+
 Image* BirdAnimation_step(BirdColor color, bool inc)
 {
 	static const int g_baStepIndex[] = { 0, 1, 2, 1 };

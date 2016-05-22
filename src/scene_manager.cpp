@@ -106,6 +106,11 @@ void _SceneManager_drawFps(SceneManager* o)
 	TextOutA(o->bufHdc, 5, 5, strFps, strlen(strFps));
 }
 
+void _SceneManager_tick()
+{
+
+}
+
 void SceneManager_initAllScene()
 {
 	Scene* scenes[4] = { &sce_mainMenu, &sce_prepare, &sce_playing, &sce_gameOver };

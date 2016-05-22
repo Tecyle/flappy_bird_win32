@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "image_manager.h"
+#include "animation_manager.h"
 #include <math.h>
 #pragma comment(lib, "msimg32.lib")			// AlphaBlend 函数需要用到这个库
 
@@ -154,6 +155,8 @@ void Spirit_construct(Spirit* o, Image* img, int cx, int cy)
 	o->image = img;
 	o->cx = cx;
 	o->cy = cy;
+	o->ox = cx;
+	o->oy = cy;
 	o->halfWidth = img->width / 2;
 	o->halfHeight = img->height / 2;
 	o->visiable = true;
@@ -313,6 +316,11 @@ void ImageManager_drawSpirit(SpiritType spiritType)
 		Spirit_draw(spirit);
 		break;
 	}
+}
+
+Spirit* ImageManager_getSpirit(SpiritType spirit)
+{
+	return g_spirits[(int)spirit];
 }
 
 void ImageManager_randomSkyAndBird()

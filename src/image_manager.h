@@ -62,6 +62,8 @@ typedef struct Spirit
 	Image* image;		///< 精灵的绘制图像
 	int cx;				///< 精灵的中心 x 坐标
 	int cy;				///< 精灵的中心 y 坐标
+	int ox;				///< 精灵的原始中心 x 坐标，在物理引擎中用到
+	int oy;				///< 精灵的原始中心 y 坐标，在屋里引擎中用到
 	double angle;		///< 精灵的旋转角度，目前仅小鸟有效
 	int halfWidth;		///< 精灵的宽度的一半
 	int halfHeight;		///< 精灵的高度的一半
@@ -99,4 +101,4 @@ void ImageManager_drawSpirit(SpiritType spirit);
 void ImageManager_drawFadeCover(Image* img, BYTE alpha);
 void ImageManager_drawNumber(size_t num, int cx, int cy, NumberSize size, NumberAlign align);
 
-
+Spirit* ImageManager_getSpirit(SpiritType spirit);

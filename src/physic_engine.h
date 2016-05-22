@@ -1,5 +1,11 @@
 #pragma once
 
+void PhysicEngine_init();
+void PhysicEngine_tick();
+void PhysicEngine_movingGround(bool moving);
+void PhysicEngine_movingPipes(bool moving);
+void PhysicEngine_floatingBird();
+
 typedef struct PEBirdObject
 {
 	double oy;
