@@ -46,6 +46,7 @@ typedef struct PhysicEngine
 
 	double birdTickCount;		///< 小鸟的计时器
 	bool isBirdDropped;			///< 小鸟是否已经死在地板上了
+	bool canBeHigher;
 	double birdVSpeed;			///< 小鸟的横向速度
 	double birdHSpeed;			///< 小鸟的纵向速度
 
@@ -202,6 +203,54 @@ void _PhysicEngine_pipesTick()
 		break;
 	}
 }
+
+// 检查游戏中的精灵状态，主要有：
+// * 判断是不是小鸟撞到东西死掉了
+// * 判断小鸟是不是飞到最高处了
+// * 判断小鸟是不是刚刚通过一个管子
+void _PhysicEngine_checkSpiritState()
+{
+	PhysicEngine* o = &g_physicEngine;
+	Spirit* bird = ImageManager_getSpirit(SpiritType_bird);
+	Spirit* ground = ImageManager_getSpirit(SpiritType_ground);
+	Spirit* upPipes = ImageManager_getSpirit(SpiritType_upPipes);
+	Spirit* downPipes = ImageManager_getSpirit(SpiritType_downPipes);
+
+	if (o->birdState == BirdState_floating)
+		return;
+	if (o->birdState == BirdState_dead && o->isBirdDropped)
+		return;
+
+	// 检查小鸟有没有撞到地面
+	if (bird->cy + bird->halfHeight >= ground->cy - ground->halfHeight)
+	{
+		o->birdState = BirdState_dead;
+		o->isBirdDropped = true;
+	}
+	if (o->birdState == BirdState_dead)
+		return;
+	// 检测小鸟有没有撞到水管
+	for (size_t idxPipe = 0; idxPipe < 4; ++idxPipe)
+	{
+		Spirit* upPipe = upPipes + idxPipe;
+		Spirit* downPipe = downPipes + idxPipe;
+		// 垂直高度，是否在两个管道之间
+		if (bird->cy + bird->halfHeight <= downPipe->cy - downPipe->halfHeight
+			&& bird->cy - bird->halfHeight >= upPipe->cy + upPipe->halfHeight)
+			continue;
+		// 水平检查，是否碰到管道
+		if (bird->cx + bird->halfWidth >= upPipe->cx - upPipe->halfWidth
+			&& bird->cx - bird->halfWidth <= upPipe->cx + upPipe->halfWidth)
+		{
+			o->birdState = BirdState_dead;
+			break;
+		}
+	}
+	// 检查小鸟有没有飞到最高
+	o->canBeHigher = bird->cy > 40;
+}
+
+// 计算游戏中的
 // 重新计算游戏中的位置逻辑
 // 游戏的帧速率是 60 fps，所以每一次 tick 的时间间隔是 1/60 秒
 // 游戏中可以运动的物体主要有三个：
