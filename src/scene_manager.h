@@ -37,10 +37,12 @@ typedef struct SceneManager
 
 	size_t nowScore;
 	size_t highScore;
+
+	PhysicEngine physicEngine;
 } SceneManager;
 
 void SceneManager_initAllScene();
-void SceneManager_render();
+bool SceneManager_render();
 
 
 

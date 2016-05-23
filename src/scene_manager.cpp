@@ -108,7 +108,11 @@ void _SceneManager_drawFps(SceneManager* o)
 
 void _SceneManager_tick()
 {
+	// Ö´ÐÐÓÎÏ·Âß¼­
+	SceneManager* o = &g_sceMgr;
+	PhysicEngine* pe = &o->physicEngine;
 
+	PhysicEngine_tick(pe);
 }
 
 void SceneManager_initAllScene()
