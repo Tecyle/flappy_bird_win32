@@ -208,7 +208,7 @@ void _PhysicEngine_pipesTick()
 // * 判断是不是小鸟撞到东西死掉了
 // * 判断小鸟是不是飞到最高处了
 // * 判断小鸟是不是刚刚通过一个管子
-void _PhysicEngine_checkSpiritState()
+void _PhysicEngine_checkBirdState()
 {
 	PhysicEngine* o = &g_physicEngine;
 	Spirit* bird = ImageManager_getSpirit(SpiritType_bird);
@@ -262,7 +262,46 @@ void PhysicEngine_tick()
 	_PhysicEngine_birdTick();
 	_PhysicEngine_groundTick();
 	_PhysicEngine_pipesTick();
+	_PhysicEngine_checkBirdState();
 }
+
+
+void PhysicEngine_birdFly()
+{
+	PhysicEngine* o = &g_physicEngine;
+	if (o->birdState != BirdState_free)
+		return;
+	if (o->canBeHigher)
+		o->birdVSpeed = -300.0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void PhysicEngine_setBirdPos(int ox, int oy)
 {

@@ -5,6 +5,7 @@ void PhysicEngine_tick();
 void PhysicEngine_movingGround(bool moving);
 void PhysicEngine_movingPipes(bool moving);
 void PhysicEngine_floatingBird();
+void PhysicEngine_birdFly();
 
 typedef struct PEBirdObject
 {

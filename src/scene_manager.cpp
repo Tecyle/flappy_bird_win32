@@ -64,6 +64,38 @@ SpiritType sptGameOver[11] = {
 	SpiritType_blackFade
 };
 
+// 所有的按钮
+Button btMainMenuRate;
+Button btMainMenuPlay;
+Button btMainMenuRank;
+
+Button btPrepareStart;
+
+Button btPlayFly;
+
+Button btGameOverReplay;
+Button btGameOverRank;
+
+// 为了便于管理按钮创建的按钮指针数组
+Button* btInMainMenu[3] = {
+	&btMainMenuRate,
+	&btMainMenuPlay,
+	&btMainMenuRank
+};
+
+Button* btInPrepare[1] = {
+	&btPrepareStart
+};
+
+Button* btInPlay[1] = {
+	&btPlayFly
+};
+
+Button* btInGameOver[2] = {
+	&btGameOverReplay,
+	&btGameOverRank
+};
+
 //////////////////////////////////////////////////////////////////////////
 // Scene
 void Scene_draw(Scene* o)
@@ -72,6 +104,43 @@ void Scene_draw(Scene* o)
 	{
 		ImageManager_drawSpirit(o->spirits[i]);
 	}
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Button onClick Functions
+void MainMenuRate_click()
+{
+
+}
+
+void MainMenuPlay_click()
+{
+
+}
+
+void MainMenuRank_click()
+{
+
+}
+
+void PrepareStart_click()
+{
+
+}
+
+void PlayFly_click()
+{
+
+}
+
+void GameOverReplay_click()
+{
+
+}
+
+void GameOverRank_click()
+{
+
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -109,13 +178,10 @@ void _SceneManager_drawFps(SceneManager* o)
 void _SceneManager_tick()
 {
 	// 执行游戏逻辑
-	SceneManager* o = &g_sceMgr;
-	PhysicEngine* pe = &o->physicEngine;
-
-	PhysicEngine_tick(pe);
+	PhysicEngine_tick();
 }
 
-void SceneManager_initAllScene()
+void _SceneManager_initAllScene()
 {
 	Scene* scenes[4] = { &sce_mainMenu, &sce_prepare, &sce_playing, &sce_gameOver };
 	SpiritType* spiritTypes[4] = { sptMainMenu, sptPrepare, sptPlaying, sptGameOver };
@@ -126,6 +192,54 @@ void SceneManager_initAllScene()
 		scenes[i]->spirits = spiritTypes[i];
 		scenes[i]->spiritCount = spiritNum[i];
 	}
+}
+
+void _SceneManager_checkOnClickButtons(Button** buttons, size_t btNum, int x, int y)
+{
+	for (size_t i = 0; i < btNum; ++i)
+	{
+		Button* bt = buttons[i];
+		if (bt->enabled && Button_isHit(bt, x, y))
+		{
+			bt->onClick();
+			return;
+		}
+	}
+}
+
+void SceneManager_init(HDC hdc)
+{
+	// 初始化 SceneManager 对象
+	SceneManager* o = &g_sceMgr;
+	o->currentScene = SceneType_mainMenu;
+	o->scrHdc = hdc;
+	o->bufHdc = CreateCompatibleDC(hdc);
+	o->drawingBoard = CreateCompatibleBitmap(hdc, SCENE_WIDTH, SCENE_HEIGHT);
+	SelectObject(o->bufHdc, o->drawingBoard);
+	SetTextColor(o->bufHdc, RGB(255, 0, 0));
+	SetBkColor(o->bufHdc, RGB(0, 0, 0));
+	SetBkMode(o->bufHdc, TRANSPARENT);
+	o->fps = 60;
+	o->drawCounter = 0;
+	o->showFps = true;
+	o->isFading = false;
+	QueryPerformanceFrequency(&g_counterFrequency);
+	// 初始化游戏需要的各个部件，包括：
+	ImageManager_initAll(hdc);			///< 初始化图像资源管理器
+	PhysicEngine_init();				///< 初始化物理引擎
+	AnimationManager_init();			///< 初始化动画引擎
+	ScoreManager_init();				///< 初始化计分管理器
+	// 初始化按钮
+	Button_construct(&btMainMenuRate, 0, 0, 0, 0, MainMenuRate_click);
+	Button_construct(&btMainMenuPlay, 0, 0, 0, 0, MainMenuPlay_click);
+	Button_construct(&btMainMenuRank, 0, 0, 0, 0, MainMenuRank_click);
+
+	Button_construct(&btPrepareStart, 0, 0, 0, 0, PrepareStart_click);
+	
+	Button_construct(&btPlayFly, 0, 0, 0, 0, PlayFly_click);
+	
+	Button_construct(&btGameOverReplay, 0, 0, 0, 0, GameOverReplay_click);
+	Button_construct(&btGameOverRank, 0, 0, 0, 0, GameOverRank_click);
 }
 
 bool SceneManager_render()
@@ -155,7 +269,32 @@ bool SceneManager_render()
 	return true;
 }
 
+void SceneManager_setViewSize(int width, int height)
+{
+	SceneManager* o = &g_sceMgr;
+	o->windowWidth = width;
+	o->windowHeight = height;
+}
 
+void SceneManager_onClick(int x, int y)
+{
+	SceneManager* o = &g_sceMgr;
+	switch (o->currentScene)
+	{
+	case SceneType_mainMenu:
+		_SceneManager_checkOnClickButtons(btInMainMenu, 3, x, y);
+		break;
+	case SceneType_prepare:
+		_SceneManager_checkOnClickButtons(btInPrepare, 1, x, y);
+		break;
+	case SceneType_playing:
+		_SceneManager_checkOnClickButtons(btInPlay, 1, x, y);
+		break;
+	case SceneType_gameOver:
+		_SceneManager_checkOnClickButtons(btInGameOver, 2, x, y);
+		break;
+	}
+}
 
 
 

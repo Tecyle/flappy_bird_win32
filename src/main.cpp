@@ -61,8 +61,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	HDC hdc = GetDC(hWnd);
 	RECT windowRect;
 	GetClientRect(hWnd, &windowRect);
-	SceneManager_construct(&g_sceneMgr, hInstance, hdc);
-	SceneManager_setViewSize(&g_sceneMgr, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top);
+	SceneManager_init();
+	SceneManager_setViewSize(windowRect.right - windowRect.left, windowRect.bottom - windowRect.top);
 
 	ShowWindow(hWnd, SW_SHOW);
 	UpdateWindow(hWnd);
@@ -81,7 +81,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			continue;
 		}
 
-		SceneManager_render(&g_sceneMgr);
+		SceneManager_render();
 	}
 
 	return (int)msg.wParam;
@@ -108,8 +108,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		RECT windowRect;
 		GetClientRect(hWnd, &windowRect);
-		SceneManager_setViewSize(&g_sceneMgr, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top);
-		SceneManager_render(&g_sceneMgr);
+		SceneManager_setViewSize(windowRect.right - windowRect.left, windowRect.bottom - windowRect.top);
+		SceneManager_render();
 	}
 		break;
 	case WM_LBUTTONDOWN:
@@ -118,7 +118,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		GetClientRect(hWnd, &windowRect);
 		int rx = (int)((double)LOWORD(lParam) * (double)SCENE_WIDTH / (double)(windowRect.right - windowRect.left));
 		int ry = (int)((double)HIWORD(lParam) * (double)SCENE_HEIGHT / (double)(windowRect.bottom - windowRect.top));
-		SceneManager_onClick(&g_sceneMgr, rx, ry);
+		SceneManager_onClick(rx, ry);
 		ClearMessageQueue();
 	}
 		break;

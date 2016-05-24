@@ -36,6 +36,9 @@
     <ClInclude Include="..\src\button.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\score_manager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\stdafx.cpp">
@@ -57,6 +60,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\src\button.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\score_manager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

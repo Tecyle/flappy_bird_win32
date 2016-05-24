@@ -1,11 +1,11 @@
 #include "stdafx.h"
 #include "button.h"
 
-bool Button_isHit(Button * o, int x, int y)
+bool Button_isHit(Button* o, int x, int y)
 {
-	if (x > o->cx - o->btImage->width / 2 && x < o->cx + o->btImage->width / 2)
+	if (x > o->left && x < o->right)
 	{
-		if (y > o->cy - o->btImage->height / 2 && y < o->cy + o->btImage->height / 2)
+		if (y > o->top && y < o->bottom)
 		{
 			return true;
 		}
@@ -13,9 +13,13 @@ bool Button_isHit(Button * o, int x, int y)
 	return false;
 }
 
-void Button_construct(Button * o, Image * spirit)
+void Button_construct(Button* o, int left, int right, int top, int bottom, FuncOnClick onClickFunction)
 {
-	o->btImage = spirit;
-	o->cx = o->cy = 0;
-	o->alpha = 255;
+	o->left = left;
+	o->right = right;
+	o->top = top;
+	o->bottom = bottom;
+	o->onClick = onClickFunction;
+	o->enabled = true;
 }
+
