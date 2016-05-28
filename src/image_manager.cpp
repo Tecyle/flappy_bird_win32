@@ -160,6 +160,7 @@ void Spirit_construct(Spirit* o, Image* img, int cx, int cy)
 	o->halfWidth = img->width / 2;
 	o->halfHeight = img->height / 2;
 	o->visiable = true;
+	o->ani = AnimationManager_allocAnimation();
 }
 
 void Spirit_draw(Spirit* o)
@@ -181,7 +182,9 @@ void Spirit_drawBird(Spirit* o)
 		return;
 
 	// 小鸟的扇动翅膀动画
-	Image* imgSrc = &o->image[FrameAnimation_getFrameIndex(o->ani)];
+	int frameIndex = FrameAnimation_getFrameIndex(o->ani);
+	frameIndex = frameIndex == 3 ? 1 : frameIndex;
+	Image* imgSrc = &o->image[frameIndex];
 	// 旋转小鸟
 	_rotateHdc(dstHdc, o->angle, o->cx, o->cy);
 	TransparentBlt(dstHdc, o->cx - o->halfWidth, o->cy - o->halfHeight, imgSrc->width, imgSrc->height,

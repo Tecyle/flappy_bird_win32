@@ -96,8 +96,46 @@ Button* btInGameOver[2] = {
 	&btGameOverRank
 };
 
+void _SceneManager_fadeOut(bool isBlack, long during);
+void _SceneManager_fadeIn(bool isBlack, long during);
+
 //////////////////////////////////////////////////////////////////////////
 // Scene
+void _Scene_initMainMenu()
+{
+	// 当切换到主界面时，需要进行下面的初始化
+	// 1. 随机选择天空和小鸟
+	// 2. 设置小鸟的位置和动画
+	// 3. 更新物理引擎设置
+	ImageManager_randomSkyAndBird();
+	PhysicEngine_floatingBird();
+	PhysicEngine_showPipes(false);
+	PhysicEngine_movingPipes(false);
+	PhysicEngine_movingGround(true);
+}
+
+void _Scene_initPrepare()
+{
+	ImageManager_randomSkyAndBird();
+	PhysicEngine_fixBird();
+	PhysicEngine_movingPipes(false);
+	PhysicEngine_showPipes(false);
+	PhysicEngine_movingGround(true);
+}
+
+void _Scene_initPlaying()
+{
+	PhysicEngine_freeBird();
+	PhysicEngine_showPipes(true);
+	PhysicEngine_movingPipes(true);
+}
+
+void _Scene_initGameOver()
+{
+	PhysicEngine_movingPipes(false);
+	PhysicEngine_movingGround(false);
+}
+
 void Scene_draw(Scene* o)
 {
 	for (int i = 0; i < o->spiritCount; ++i)
@@ -106,41 +144,67 @@ void Scene_draw(Scene* o)
 	}
 }
 
+void Scene_init(SceneType scene)
+{
+	switch (scene)
+	{
+	case SceneType_mainMenu:
+		_Scene_initMainMenu();
+		break;
+	case SceneType_prepare:
+		_Scene_initPrepare();
+		break;
+	case SceneType_playing:
+		_Scene_initPlaying();
+		break;
+	case SceneType_gameOver:
+		_Scene_initGameOver();
+		break;
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Button onClick Functions
 void MainMenuRate_click()
 {
-
+	// undefined
 }
 
 void MainMenuPlay_click()
 {
-
+	_SceneManager_fadeOut(true, 500);
+	g_sceMgr.currentScene = SceneType_prepare;
+	Scene_init(SceneType_prepare);
+	_SceneManager_fadeIn(true, 500);
 }
 
 void MainMenuRank_click()
 {
-
+	// undefined
 }
 
 void PrepareStart_click()
 {
-
+	g_sceMgr.currentScene = SceneType_playing;
+	Scene_init(SceneType_playing);
 }
 
 void PlayFly_click()
 {
-
+	PhysicEngine_birdFly();
 }
 
 void GameOverReplay_click()
 {
-
+	_SceneManager_fadeOut(true, 500);
+	g_sceMgr.currentScene = SceneType_prepare;
+	Scene_init(SceneType_prepare);
+	_SceneManager_fadeIn(true, 500);
 }
 
 void GameOverRank_click()
 {
-
+	// undefined
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -179,6 +243,14 @@ void _SceneManager_tick()
 {
 	// 执行游戏逻辑
 	PhysicEngine_tick();
+	// 更新动画
+	AnimationManager_tick();
+	// 执行游戏结束判断
+	if (PhysicEngine_isBirdDead())
+	{
+		_SceneManager_switchToGameOver();
+		// TODO From here
+	}
 }
 
 void _SceneManager_initAllScene()
@@ -204,6 +276,32 @@ void _SceneManager_checkOnClickButtons(Button** buttons, size_t btNum, int x, in
 			bt->onClick();
 			return;
 		}
+	}
+}
+
+void _SceneManager_fadeOut(bool isBlack, long during)
+{
+	Spirit* fadeCover = ImageManager_getSpirit(isBlack ? SpiritType_blackFade : SpiritType_whiteFade);
+	Animation* fadeAnimation = fadeCover->ani;
+	
+	FadeAnimation_init(fadeAnimation, 0, 255, during, false);
+
+	while (!FadeAnimation_finished(fadeAnimation))
+	{
+		SceneManager_render();
+	}
+}
+
+void _SceneManager_fadeIn(bool isBlack, long during)
+{
+	Spirit* fadeCover = ImageManager_getSpirit(isBlack ? SpiritType_blackFade : SpiritType_whiteFade);
+	Animation* fadeAnimation = fadeCover->ani;
+
+	FadeAnimation_init(fadeAnimation, 255, 0, during, false);
+
+	while (!FadeAnimation_finished(fadeAnimation))
+	{
+		SceneManager_render();
 	}
 }
 
@@ -234,9 +332,9 @@ void SceneManager_init(HDC hdc)
 	Button_construct(&btMainMenuPlay, 0, 0, 0, 0, MainMenuPlay_click);
 	Button_construct(&btMainMenuRank, 0, 0, 0, 0, MainMenuRank_click);
 
-	Button_construct(&btPrepareStart, 0, 0, 0, 0, PrepareStart_click);
+	Button_construct(&btPrepareStart, 0, SCENE_WIDTH, 0, SCENE_HEIGHT, PrepareStart_click);
 	
-	Button_construct(&btPlayFly, 0, 0, 0, 0, PlayFly_click);
+	Button_construct(&btPlayFly, 0, SCENE_WIDTH, 0, SCENE_HEIGHT, PlayFly_click);
 	
 	Button_construct(&btGameOverReplay, 0, 0, 0, 0, GameOverReplay_click);
 	Button_construct(&btGameOverRank, 0, 0, 0, 0, GameOverRank_click);
@@ -254,7 +352,7 @@ bool SceneManager_render()
 	o->drawCounter++;
 
 	// 执行游戏逻辑，主要包括更新游戏的物理引擎，从而计算所
-	// 有物体的新位置
+	// 有物体的新位置，更新动画引擎，更新所有动画
 	_SceneManager_tick();
 
 	// 绘制计算完后的画面
@@ -369,30 +467,6 @@ void SceneManager_construct(SceneManager* o, HINSTANCE hInstance, HDC hdc)
 	Button_construct(&btRank, &sp_btRank);
 
 	PhysicEngine_setBirdPos(PhysicEngine_pixelToRealCoord(130), PhysicEngine_pixelToRealCoord(210));
-}
-
-static void _SceneManager_fadeOut(SceneManager* o, bool isBlack, int speed)
-{
-	o->isFading = true;
-	o->fadeAlpha = 0;
-	o->fadeStep = 255 / o->fps * speed;
-	o->fadeColor = isBlack ? &sp_black : &sp_white;
-	while (o->fadeAlpha != 255)
-	{
-		SceneManager_render(o);
-	}
-}
-
-static void _SceneManager_fadeIn(SceneManager* o, bool isBlack, int speed)
-{
-	o->isFading = true;
-	o->fadeAlpha = 255;
-	o->fadeStep = -255 / o->fps * speed;
-	o->fadeColor = isBlack ? &sp_black : &sp_white;
-	while (o->fadeAlpha != 0)
-	{
-		SceneManager_render(o);
-	}
 }
 
 void _SceneManager_drawBird(SceneManager* o)

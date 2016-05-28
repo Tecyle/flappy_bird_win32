@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "physic_engine.h"
 #include "image_manager.h"
+#include "animation_manager.h"
 #include <math.h>
 #include <time.h>
 
@@ -22,6 +23,7 @@ typedef enum BirdState
 {
 	BirdState_floating,
 	BirdState_free,
+	BirdState_fixed,
 	BirdState_dead
 } BirdState;
 
@@ -107,6 +109,8 @@ void _PhysicEngine_birdTick()
 	case BirdState_free:
 	case BirdState_dead:
 		_PhysicEngine_birdFree();
+		break;
+	case BirdState_fixed:
 		break;
 	}
 }
@@ -216,7 +220,7 @@ void _PhysicEngine_checkBirdState()
 	Spirit* upPipes = ImageManager_getSpirit(SpiritType_upPipes);
 	Spirit* downPipes = ImageManager_getSpirit(SpiritType_downPipes);
 
-	if (o->birdState == BirdState_floating)
+	if (o->birdState == BirdState_floating || o->birdState == BirdState_fixed)
 		return;
 	if (o->birdState == BirdState_dead && o->isBirdDropped)
 		return;
@@ -275,9 +279,35 @@ void PhysicEngine_birdFly()
 		o->birdVSpeed = -300.0;
 }
 
+void PhysicEngine_floatingBird()
+{
+	PhysicEngine* o = &g_physicEngine;
+	Spirit* bird = ImageManager_getSpirit(SpiritType_bird);
+	Animation* frameAnimation = bird->ani;
 
+	bird->cx = 130;
+	bird->cy = 210;
+	bird->ox = 130;
+	bird->oy = 210;
+	bird->angle = 0.0;
+	o->birdState = BirdState_floating;
+	FrameAnimation_init(frameAnimation, 4, 1000, true);
+}
 
+void PhysicEngine_fixBird()
+{
+	PhysicEngine* o = &g_physicEngine;
+	Spirit* bird = ImageManager_getSpirit(SpiritType_bird);
+	Animation* frameAnimation = bird->ani;
 
+	bird->cx = 80;
+	bird->cy = 220;
+	bird->ox = 80;
+	bird->oy = 220;
+	bird->angle = 0.0;
+	o->birdState = BirdState_fixed;
+	FrameAnimation_init(frameAnimation, 4, 1000, true);
+}
 
 
 
