@@ -119,8 +119,8 @@ void _PhysicEngine_groundTick()
 		return;
 
 	Spirit* ground = ImageManager_getSpirit(SpiritType_ground);
-	o->groundMovingLength = (o->groundMovingLength + 1) % (ground->halfWidth * 2 - SCENE_WIDTH);
-	ground->cx += o->groundMovingLength;
+	o->groundMovingLength = (o->groundMovingLength + 1) % (ground->halfWidth * 2 - SCENE_WIDTH); // TODO here
+	ground->cx = ground->ox - o->groundMovingLength;
 }
 
 // ÒÆ¶¯¹ÜµÀ
@@ -278,7 +278,7 @@ void PhysicEngine_init()
 	Spirit* ground = ImageManager_getSpirit(SpiritType_ground);
 
 	ground->cx = 144;
-	ground->cy = SCENE_HEIGHT - 112;
+	ground->cy = 456;
 	srand((unsigned int)time(NULL));
 	for (size_t i = 0; i < 4; ++i)
 	{

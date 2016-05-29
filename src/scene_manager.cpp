@@ -379,7 +379,7 @@ void _SceneManager_fadeIn(bool isBlack, long during)
 	}
 }
 
-void SceneManager_init(HDC hdc)
+void SceneManager_init(HINSTANCE hInstance, HDC hdc)
 {
 	// 初始化 SceneManager 对象
 	SceneManager* o = &g_sceMgr;
@@ -398,10 +398,12 @@ void SceneManager_init(HDC hdc)
 	o->onSwitching = false;
 	QueryPerformanceFrequency(&g_counterFrequency);
 	// 初始化游戏需要的各个部件，包括：
-	ImageManager_initAll(hdc);			///< 初始化图像资源管理器
-	PhysicEngine_init();				///< 初始化物理引擎
-	AnimationManager_init();			///< 初始化动画引擎
-	ScoreManager_init();				///< 初始化计分管理器
+	ScoreManager_init();							///< 初始化计分管理器
+	AnimationManager_init();						///< 初始化动画引擎
+	ImageManager_initAll(hInstance, o->bufHdc);		///< 初始化图像资源管理器
+	PhysicEngine_init();							///< 初始化物理引擎
+	// 初始化场景
+	_SceneManager_initAllScene();
 	// 初始化按钮
 	Button_construct(&btMainMenuRate, 0, 0, 0, 0, MainMenuRate_click);
 	Button_construct(&btMainMenuPlay, 0, 0, 0, 0, MainMenuPlay_click);
@@ -413,6 +415,8 @@ void SceneManager_init(HDC hdc)
 	
 	Button_construct(&btGameOverReplay, 0, 0, 0, 0, GameOverReplay_click);
 	Button_construct(&btGameOverRank, 0, 0, 0, 0, GameOverRank_click);
+	// 初始化需要显示的第一个场景
+	_Scene_initMainMenu();
 }
 
 bool SceneManager_render()

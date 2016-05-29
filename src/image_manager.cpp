@@ -264,10 +264,7 @@ void Spirit_drawFade(Spirit* o)
 void ImageManager_construct(HINSTANCE hInstance, HDC dstHdc)
 {
 	ImageManager* o = &g_imgMgr;
-	o->hInstance = hInstance;
-	o->dstHdc = dstHdc;
-	o->imgHdc = NULL;
-	o->imgScene = NULL;
+
 }
 
 void ImageManager_drawSpirit(SpiritType spiritType)
@@ -325,13 +322,15 @@ void ImageManager_randomSkyAndBird()
 	sp_bird.image = pBird[rnd % 3];
 }
 
-bool ImageManager_initAll(HDC hdc)
+bool ImageManager_initAll(HINSTANCE hInstance, HDC hdc)
 {
 	ImageManager* o = &g_imgMgr;
+
+	o->hInstance = hInstance;
+	o->dstHdc = hdc;
 	o->imgScene = LoadBitmap(o->hInstance, MAKEINTRESOURCE(IDB_SCENE));
 	if (!o->imgScene)
 		return false;
-	return true;
 
 	o->imgHdc = CreateCompatibleDC(hdc);
 	SelectObject(o->imgHdc, o->imgScene);
@@ -406,7 +405,7 @@ bool ImageManager_initAll(HDC hdc)
 	Spirit_construct(&sp_bird, img_yellowBird, 0, 0);
 	sp_bird.ani = AnimationManager_allocAnimation();
 	Spirit_construct(&sp_sky, &img_dayBackground, 144, 256);
-	Spirit_construct(&sp_ground, &img_ground, 0, 456);
+	Spirit_construct(&sp_ground, &img_ground, 144, 456);
 	Spirit_construct(&sp_txtGetReady, &img_txtGetReady, 137, 145);
 	Spirit_construct(&sp_txtGameOver, &img_txtGameOver, 0, 0);
 	sp_txtGameOver.ani = AnimationManager_allocAnimation();

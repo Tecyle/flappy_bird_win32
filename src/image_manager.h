@@ -85,13 +85,8 @@ typedef struct ImageManager
 	HDC imgHdc;				///< 图像绘制句柄
 } ImageManager;
 
-// 初始化 ImageManager
-void ImageManager_construct(HINSTANCE hInstance, HDC dstHdc);
-// 释放 ImageManager 资源
-void ImageManager_destruct();
-
 // 初始化所有用到的图像资源
-bool ImageManager_initAll(HDC hdc);
+bool ImageManager_initAll(HINSTANCE hInstance, HDC hdc);
 void ImageManager_randomSkyAndBird();
 void ImageManager_drawSpirit(SpiritType spirit);
 void ImageManager_drawFadeCover(Image* img, BYTE alpha);

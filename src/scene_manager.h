@@ -54,7 +54,7 @@ typedef struct SceneManager
 	为了避免动态内存的使用，本程序使用的内容全是静态数组，
 	所以没有类似 CleanUp 的功能。
 */
-void SceneManager_init(HDC hdc);
+void SceneManager_init(HINSTANCE hInstance, HDC hdc);
 
 /*
 	绘制游戏画面
