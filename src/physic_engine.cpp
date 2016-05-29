@@ -119,7 +119,7 @@ void _PhysicEngine_groundTick()
 		return;
 
 	Spirit* ground = ImageManager_getSpirit(SpiritType_ground);
-	o->groundMovingLength = (o->groundMovingLength + 1) % (ground->halfWidth * 2 - SCENE_WIDTH); // TODO here
+	o->groundMovingLength = (o->groundMovingLength + 1) % 24;
 	ground->cx = ground->ox - o->groundMovingLength;
 }
 
@@ -131,7 +131,7 @@ void _PhysicEngine_movingPipes()
 	for (size_t idxPipe = 0; idxPipe < 4; ++idxPipe)
 	{
 		upPipes[idxPipe].cx -= 1;
-		downPipes[idxPipe].cy -= 1;
+		downPipes[idxPipe].cx -= 1;
 	}
 }
 

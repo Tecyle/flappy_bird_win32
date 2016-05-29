@@ -125,6 +125,10 @@ void TransAnimation_init(Animation* o, int sx, int sy, int ex, int ey, long duri
 	int tickCount = duringTime * 60 / 1000;
 	o->transXStep = (ex - sx) / tickCount;
 	o->transYStep = (ey - sy) / tickCount;
+	if (ex != sx && o->transXStep == 0)
+		o->transXStep = ex - sx;
+	if (ey != sy && o->transYStep == 0)
+		o->transYStep = ey - sy;
 }
 
 void TransAnimation_tick(Animation* o)
@@ -148,6 +152,16 @@ void TransAnimation_tick(Animation* o)
 
 	o->nx += o->transXStep;
 	o->ny += o->transYStep;
+	if ((o->transXStep > 0 && o->nx > o->ex)
+		|| (o->transXStep < 0 && o->nx < o->ex))
+	{
+		o->nx = o->ex;
+	}
+	if ((o->transYStep > 0 && o->ny > o->ey)
+		|| (o->transYStep < 0 && o->ny < o->ey))
+	{
+		o->ny = o->ey;
+	}
 }
 
 void TransAnimation_getXY(Animation* o, int* x, int* y)

@@ -43,9 +43,9 @@ SpiritType sptPrepare[7] = {
 // PlayingScene 里面需要绘制的内容
 SpiritType sptPlaying[7] = {
 	SpiritType_sky,
-	SpiritType_ground,
 	SpiritType_upPipes,
 	SpiritType_downPipes,
+	SpiritType_ground,
 	SpiritType_largeScore,
 	SpiritType_bird,
 	SpiritType_whiteFade
@@ -54,9 +54,9 @@ SpiritType sptPlaying[7] = {
 // GameOverScene 里面需要绘制的内容
 SpiritType sptGameOver[11] = {
 	SpiritType_sky,
-	SpiritType_ground,
 	SpiritType_upPipes,
 	SpiritType_downPipes,
+	SpiritType_ground,
 	SpiritType_bird,
 	SpiritType_txtGameOver,
 	SpiritType_scoreBoard,
@@ -119,7 +119,7 @@ void _Scene_initMainMenu()
 void _Scene_initPrepare()
 {
 	ImageManager_randomSkyAndBird();
-	PhysicEngine_fixBird();
+	PhysicEngine_floatingBird();
 	PhysicEngine_movingPipes(false);
 	PhysicEngine_showPipes(false);
 	PhysicEngine_movingGround(true);
@@ -268,8 +268,10 @@ void _SceneManager_drawFps()
 
 void _SceneManager_switchToGameOver()
 {
+	SceneManager* o = &g_sceMgr;
 	_SceneManager_fadeOut(false, 250);
 	Scene_init(SceneType_gameOver);
+	o->currentScene = SceneType_gameOver;
 	_SceneManager_fadeIn(false, 250);
 	while (!PhysicEngine_isBirdStopped())
 	{
@@ -405,15 +407,16 @@ void SceneManager_init(HINSTANCE hInstance, HDC hdc)
 	// 初始化场景
 	_SceneManager_initAllScene();
 	// 初始化按钮
+	Spirit* btPlay = ImageManager_getSpirit(SpiritType_btPlay);
 	Button_construct(&btMainMenuRate, 0, 0, 0, 0, MainMenuRate_click);
-	Button_construct(&btMainMenuPlay, 0, 0, 0, 0, MainMenuPlay_click);
+	Button_construct(&btMainMenuPlay, btPlay->cx - btPlay->halfWidth, btPlay->cx + btPlay->halfWidth, btPlay->cy - btPlay->halfHeight, btPlay->cy + btPlay->halfHeight, MainMenuPlay_click);
 	Button_construct(&btMainMenuRank, 0, 0, 0, 0, MainMenuRank_click);
 
 	Button_construct(&btPrepareStart, 0, SCENE_WIDTH, 0, SCENE_HEIGHT, PrepareStart_click);
 	
 	Button_construct(&btPlayFly, 0, SCENE_WIDTH, 0, SCENE_HEIGHT, PlayFly_click);
 	
-	Button_construct(&btGameOverReplay, 0, 0, 0, 0, GameOverReplay_click);
+	Button_construct(&btGameOverReplay, btPlay->cx - btPlay->halfWidth, btPlay->cx + btPlay->halfWidth, btPlay->cy - btPlay->halfHeight, btPlay->cy + btPlay->halfHeight, GameOverReplay_click);
 	Button_construct(&btGameOverRank, 0, 0, 0, 0, GameOverRank_click);
 	// 初始化需要显示的第一个场景
 	_Scene_initMainMenu();

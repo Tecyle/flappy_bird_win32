@@ -170,6 +170,10 @@ void Spirit_draw(Spirit* o)
 	Image* imgSrc = o->image;
 	if (!o->visiable)
 		return;
+	if (o->ani != NULL && o->ani->transEnable)
+	{
+		TransAnimation_getXY(o->ani, &o->cx, &o->cy);
+	}
 	TransparentBlt(dstHdc, o->cx - o->halfWidth, o->cy - o->halfHeight, imgSrc->width, imgSrc->height,
 		srcHdc, imgSrc->x, imgSrc->y, imgSrc->width, imgSrc->height, TRANSPRENT_COLOR);
 }
@@ -201,9 +205,9 @@ void Spirit_drawPipes(Spirit* o)
 	{
 		Spirit* sp = &o[i];
 		Image* imgSrc = sp->image;
-		if (!o->visiable)
+		if (!sp->visiable)
 			continue;
-		TransparentBlt(dstHdc, o->cx - o->halfWidth, o->cy - o->halfHeight, imgSrc->width, imgSrc->height,
+		TransparentBlt(dstHdc, sp->cx - sp->halfWidth, sp->cy - sp->halfHeight, imgSrc->width, imgSrc->height,
 			srcHdc, imgSrc->x, imgSrc->y, imgSrc->width, imgSrc->height, TRANSPRENT_COLOR);
 	}
 }
@@ -226,6 +230,7 @@ void Spirit_drawScoreBorad(Spirit* o)
 	if (!o->visiable)
 		return;
 
+	TransAnimation_getXY(o->ani, &o->cx, &o->cy);
 	// ÏÈ»æÖÆµ×°å
 	Image* imgSrc = &img_scorePane;
 	TransparentBlt(dstHdc, o->cx - o->halfWidth, o->cy - o->halfHeight, imgSrc->width, imgSrc->height,
