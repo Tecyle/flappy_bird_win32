@@ -9,6 +9,8 @@ void PhysicEngine_floatingBird();
 void PhysicEngine_fixBird();
 void PhysicEngine_freeBird();
 void PhysicEngine_birdFly();
+bool PhysicEngine_isBirdDead();
+bool PhysicEngine_isBirdStopped();
 
 typedef struct PEBirdObject
 {

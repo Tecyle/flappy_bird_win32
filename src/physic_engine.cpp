@@ -269,6 +269,17 @@ void PhysicEngine_tick()
 	_PhysicEngine_checkBirdState();
 }
 
+bool PhysicEngine_isBirdDead()
+{
+	PhysicEngine* o = &g_physicEngine;
+	return o->birdState == BirdState_dead;
+}
+
+bool PhysicEngine_isBirdStopped()
+{
+	PhysicEngine* o = &g_physicEngine;
+	return o->isBirdDropped;
+}
 
 void PhysicEngine_birdFly()
 {

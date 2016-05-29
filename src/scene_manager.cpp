@@ -132,6 +132,14 @@ void _Scene_initPlaying()
 
 void _Scene_initGameOver()
 {
+	Spirit* txtGameOver = ImageManager_getSpirit(SpiritType_txtGameOver);
+	Spirit* scoreBoard = ImageManager_getSpirit(SpiritType_scoreBoard);
+	Spirit* btReplay = ImageManager_getSpirit(SpiritType_btPlay);
+	Spirit* btRank = ImageManager_getSpirit(SpiritType_btRank);
+	txtGameOver->visiable = false;
+	scoreBoard->visiable = false;
+	btReplay->visiable = false;
+	btRank->visiable = false;
 	PhysicEngine_movingPipes(false);
 	PhysicEngine_movingGround(false);
 }
@@ -239,17 +247,62 @@ void _SceneManager_drawFps(SceneManager* o)
 	TextOutA(o->bufHdc, 5, 5, strFps, strlen(strFps));
 }
 
+void _SceneManager_switchToGameOver()
+{
+	_SceneManager_fadeOut(false, 250);
+	Scene_init(SceneType_gameOver);
+	_SceneManager_fadeIn(false, 250);
+	while (!PhysicEngine_isBirdStopped())
+	{
+		SceneManager_render();
+	}
+	// 菜单进入动画
+	// GameOver
+	Spirit* txtGameOver = ImageManager_getSpirit(SpiritType_txtGameOver);
+	Animation* transAnimation = txtGameOver->ani;
+	TransAnimation_init(transAnimation, 144, 110, 144, 150, 200, false);
+	txtGameOver->visiable = true;
+	while (!TransAnimation_finished(transAnimation))
+	{
+		SceneManager_render();
+	}
+	TransAnimation_init(transAnimation, 144, 150, 144, 140, 200, false);
+	while (!TransAnimation_finished(transAnimation))
+	{
+		SceneManager_render();
+	}
+	TransAnimation_init(transAnimation, 144, 140, 144, 150, 200, false);
+	while (!TransAnimation_finished(transAnimation))
+	{
+		SceneManager_render();
+	}
+	// 计分板
+	Spirit* scoreBoard = ImageManager_getSpirit(SpiritType_scoreBoard);
+	transAnimation = scoreBoard->ani;
+	scoreBoard->visiable = true;
+	TransAnimation_init(transAnimation, 144, 571, 144, 270, 500, false);
+	while (!TransAnimation_finished(transAnimation))
+	{
+		SceneManager_render();
+	}
+	// 显示按钮
+	Spirit* btReplay = ImageManager_getSpirit(SpiritType_btPlay);
+	btReplay->visiable = true;
+	Spirit* btRank = ImageManager_getSpirit(SpiritType_btRank);
+	btRank->visiable = true;
+}
+
 void _SceneManager_tick()
 {
+	SceneManager* o = &g_sceMgr;
 	// 执行游戏逻辑
 	PhysicEngine_tick();
 	// 更新动画
 	AnimationManager_tick();
-	// 执行游戏结束判断
-	if (PhysicEngine_isBirdDead())
+	// 执行游戏结束判断，为了防止间接递归调用，通过 onSwitching 进行标记
+	if (o->onSwitching && PhysicEngine_isBirdDead())
 	{
 		_SceneManager_switchToGameOver();
-		// TODO From here
 	}
 }
 
@@ -321,6 +374,7 @@ void SceneManager_init(HDC hdc)
 	o->drawCounter = 0;
 	o->showFps = true;
 	o->isFading = false;
+	o->onSwitching = false;
 	QueryPerformanceFrequency(&g_counterFrequency);
 	// 初始化游戏需要的各个部件，包括：
 	ImageManager_initAll(hdc);			///< 初始化图像资源管理器

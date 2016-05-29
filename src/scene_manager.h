@@ -36,6 +36,8 @@ typedef struct SceneManager
 	int windowWidth;
 	int windowHeight;
 
+	bool onSwitching;
+
 	size_t drawCounter;
 	bool showFps;
 	bool isFading;
