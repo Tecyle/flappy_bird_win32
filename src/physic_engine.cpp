@@ -10,7 +10,7 @@
 #define PIXEL_TO_REAL(x) ((x) * 10)
 
 static double g_gravity = 80.0;
-const int g_pipeInterval = 1400.0;
+const int g_pipeInterval = 1400;
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -65,7 +65,7 @@ void _PhysicEngine_birdFloating()
 	if (o->birdTickCount > 50.0)
 		o->birdTickCount = 0.0;
 	double dx = 50.0 * cos(2.0 * PI * 0.02 * o->birdTickCount);
-	bird->cy = REAL_TO_PIXEL(PIXEL_TO_REAL(bird->oy) + dx);
+	bird->cy = (int)(REAL_TO_PIXEL(PIXEL_TO_REAL(bird->oy) + dx));
 }
 
 // 计算自由飞行中小鸟的位置
@@ -83,13 +83,13 @@ void _PhysicEngine_birdFree()
 	o->birdVSpeed += g_gravity * tick;	// v1 = v0 + gt
 	o->birdVSpeed = o->birdVSpeed > 700.0 ? 700.0 : o->birdVSpeed;
 	double vs = 0.5 * (vvPre + o->birdVSpeed) * tick;	// s = 1/2 * (v0 + v1) * t
-	bird->cy += REAL_TO_PIXEL(vs);
+	bird->cy += (int)(REAL_TO_PIXEL(vs));
 	// 如果小鸟落地，则不再掉落
 	if (bird->cy + bird->halfHeight >= ground->cy - ground->halfHeight)
 		bird->cy = ground->cy - ground->halfHeight - bird->halfHeight;
 
 	// 小鸟的朝向就是合成速度的朝向
-	bird->angle = atan(pe_bird.vv / pe_bird.hv);
+	bird->angle = atan(o->birdVSpeed / o->birdHSpeed);
 	// TODO : 上升过程中的小鸟的朝向应该是个固定值
 }
 
@@ -279,7 +279,7 @@ void PhysicEngine_init()
 
 	ground->cx = 144;
 	ground->cy = SCENE_HEIGHT - 112;
-	srand(time(NULL));
+	srand((unsigned int)time(NULL));
 	for (size_t i = 0; i < 4; ++i)
 	{
 		o->pipePassed[i] = 0;

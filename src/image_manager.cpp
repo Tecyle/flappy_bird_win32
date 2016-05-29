@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "image_manager.h"
-#include "animation_manager.h"
+#include "score_manager.h"
 #include <math.h>
 #pragma comment(lib, "msimg32.lib")			// AlphaBlend 函数需要用到这个库
 
@@ -56,7 +56,7 @@ Spirit sp_btPlay;
 Spirit sp_btRank;
 Spirit sp_btRate;
 Spirit sp_scoreBoard;
-Spirit sp_balckFade;
+Spirit sp_blackFade;
 Spirit sp_whiteFade;
 
 ImageManager g_imgMgr;
@@ -77,7 +77,7 @@ Spirit* g_spirits[] = {
 	&sp_btRank,			///< SpiritType_btRank
 	&sp_btRate,			///< SpiritType_btRate
 	&sp_scoreBoard,		///< SpiritType_scoreBoard
-	&sp_balckFade,		///< SpiritType_blackFade
+	&sp_blackFade,		///< SpiritType_blackFade
 	&sp_whiteFade		///< SpiritType_whiteFade
 };
 
@@ -160,7 +160,7 @@ void Spirit_construct(Spirit* o, Image* img, int cx, int cy)
 	o->halfWidth = img->width / 2;
 	o->halfHeight = img->height / 2;
 	o->visiable = true;
-	o->ani = AnimationManager_allocAnimation();
+	o->ani = NULL;
 }
 
 void Spirit_draw(Spirit* o)
@@ -260,10 +260,6 @@ void Spirit_drawFade(Spirit* o)
 }
 
 //////////////////////////////////////////////////////////////////////////
-// Button 对象相关方法
-
-
-//////////////////////////////////////////////////////////////////////////
 // ImageManager 对象相关方法
 void ImageManager_construct(HINSTANCE hInstance, HDC dstHdc)
 {
@@ -272,11 +268,6 @@ void ImageManager_construct(HINSTANCE hInstance, HDC dstHdc)
 	o->dstHdc = dstHdc;
 	o->imgHdc = NULL;
 	o->imgScene = NULL;
-}
-
-void ImageManager_destruct()
-{
-	ImageManager* o = &g_imgMgr;
 }
 
 void ImageManager_drawSpirit(SpiritType spiritType)
@@ -412,9 +403,32 @@ bool ImageManager_initAll(HDC hdc)
 	Image_construct(&img_black, 584, 412, 32, 32);
 	Image_construct(&img_white, 584, 448, 32, 32);
 
-	Spirit_construct(&sp_bird, NULL, 0, 0);
-	Spirit_construct(&sp_sky, NULL, 144, 256);
+	Spirit_construct(&sp_bird, img_yellowBird, 0, 0);
+	sp_bird.ani = AnimationManager_allocAnimation();
+	Spirit_construct(&sp_sky, &img_dayBackground, 144, 256);
 	Spirit_construct(&sp_ground, &img_ground, 0, 456);
+	Spirit_construct(&sp_txtGetReady, &img_txtGetReady, 137, 145);
+	Spirit_construct(&sp_txtGameOver, &img_txtGameOver, 0, 0);
+	sp_txtGameOver.ani = AnimationManager_allocAnimation();
+	Spirit_construct(&sp_txtCopyright, &img_txtCopyright, 134, 430);
+	Spirit_construct(&sp_txtFlappyBird, &img_txtFlappyBird, 139, 144);
+// 	Spirit_construct(&sp_largeScore, NULL, 0, 0);
+	Spirit_construct(&sp_helpInfo, &img_help, 137, 249);
+	Spirit_construct(&sp_btPlay, &img_btPlay, 72, 371);
+	Spirit_construct(&sp_btRank, &img_btRank, 212, 371);
+	Spirit_construct(&sp_btRate, &img_btRate, 146, 278);
+	Spirit_construct(&sp_scoreBoard, &img_scorePane, 0, 0);
+	sp_scoreBoard.ani = AnimationManager_allocAnimation();
+	Spirit_construct(&sp_blackFade, &img_black, 0, 0);
+	sp_blackFade.ani = AnimationManager_allocAnimation();
+	Spirit_construct(&sp_whiteFade, &img_white, 0, 0);
+	sp_whiteFade.ani = AnimationManager_allocAnimation();
+	for (size_t i = 0; i < 4; ++i)
+	{
+		Spirit_construct(&sp_upPipes[i], &img_greenPipeUp, 0, 0);
+		Spirit_construct(&sp_downPipes[i], &img_greenPipeDown, 0, 0);
+	}
+	
 	ImageManager_randomSkyAndBird();
 
 	return true;

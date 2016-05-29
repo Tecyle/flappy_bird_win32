@@ -54,13 +54,3 @@ typedef struct AnimationManager
 void AnimationManager_init();
 Animation* AnimationManager_allocAnimation();
 void AnimationManager_tick();
-
-typedef enum BirdColor
-{
-	BirdColor_blue,
-	BirdColor_red,
-	BirdColor_yellow
-} BirdColor;
-
-Image* BirdAnimation_step(BirdColor color, bool inc);
-void GroundAnimation_step(HDC srcHdc, HDC dstHdc, int fps, bool moving);

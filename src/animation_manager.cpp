@@ -192,9 +192,9 @@ Animation* AnimationManager_allocAnimation()
 void AnimationManager_tick()
 {
 	AnimationManager* o = &g_aniMgr;
-	for (int i = 0; i < o->aniCount; ++i)
+	for (size_t i = 0; i < o->aniCount; ++i)
 	{
-		Animation* ani;
+		Animation* ani = &o->ani[i];
 		FadeAnimation_tick(ani);
 		FrameAnimation_tick(ani);
 		TransAnimation_tick(ani);

@@ -1,4 +1,5 @@
 #pragma once
+#include "animation_manager.h"
 //////////////////////////////////////////////////////////////////////////
 // ImageManager
 // 用来管理图片资源的子功能模块，提供图片的绘制功能
@@ -57,6 +58,7 @@ void Image_construct(Image* o, int x, int y, int width, int height, HDC srcHdc);
 
 // 游戏的角色
 // 除了定义了图像以外，还定义了在游戏中的位置信息
+typedef struct Animation Animation;
 typedef struct Spirit
 {
 	Image* image;		///< 精灵的绘制图像
@@ -73,12 +75,6 @@ typedef struct Spirit
 
 void Spirit_construct(Spirit* o, Image* img, int cx, int cy);
 void Spirit_draw(Spirit* o, HDC dstHdc);
-
-// 定义游戏中的按钮
-typedef struct Button
-{
-	Spirit* imgButton;
-};
 
 // 图像资源管理模块，用来管理所有可能用到的图像
 typedef struct ImageManager

@@ -61,7 +61,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	HDC hdc = GetDC(hWnd);
 	RECT windowRect;
 	GetClientRect(hWnd, &windowRect);
-	SceneManager_init();
+	SceneManager_init(hdc);
 	SceneManager_setViewSize(windowRect.right - windowRect.left, windowRect.bottom - windowRect.top);
 
 	ShowWindow(hWnd, SW_SHOW);

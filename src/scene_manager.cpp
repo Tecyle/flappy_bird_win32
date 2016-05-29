@@ -3,6 +3,7 @@
 #include "animation_manager.h"
 #include "physic_engine.h"
 #include "button.h"
+#include "score_manager.h"
 #include <math.h>
 
 //////////////////////////////////////////////////////////////////////////
@@ -147,7 +148,7 @@ void _Scene_initGameOver()
 
 void Scene_draw(Scene* o)
 {
-	for (int i = 0; i < o->spiritCount; ++i)
+	for (size_t i = 0; i < o->spiritCount; ++i)
 	{
 		ImageManager_drawSpirit(o->spirits[i]);
 	}
@@ -261,7 +262,7 @@ void _SceneManager_drawFps()
 {
 	SceneManager* o = &g_sceMgr;
 	char strFps[64] = { "FPS: " };
-	itoa(_SceneManager_getFps(), &strFps[5], 10);
+	_itoa_s(_SceneManager_getFps(), &strFps[5], 58, 10);
 	TextOutA(o->bufHdc, 5, 5, strFps, strlen(strFps));
 }
 
