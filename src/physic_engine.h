@@ -11,38 +11,8 @@ void PhysicEngine_freeBird();
 void PhysicEngine_birdFly();
 bool PhysicEngine_isBirdDead();
 bool PhysicEngine_isBirdStopped();
+bool PhysicEngine_passedPipe();
 
-typedef struct PEBirdObject
-{
-	double oy;
-	double cx;
-	double cy;
-	double angle;
-	double width;
-	double height;
-
-	double hv;
-	double vv;
-
-	bool isDead;
-	bool isStopped;
-	bool canBeHigher;
-} PEBirdObject;
-
-typedef struct PEPipeObject
-{
-	double cyUp;
-	double cyDown;
-	double cx;
-	double width;
-	bool pipePassed;
-} PEPipeObject;
-
-typedef struct PEGroundObject
-{
-	double height;
-	double cy;
-} PEGroundObject;
 
 void PhysicEngine_tick(int tickCount);  // tick = 1/20 s
 void PhysicEngine_setBirdPos(int ox, int oy);

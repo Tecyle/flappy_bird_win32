@@ -489,13 +489,3 @@ void ImageManager_drawNumber(size_t num, int cx, int cy, NumberSize size, Number
 			startX -= spNum[2].width - spNum[1].width;
 	}
 }
-
-
-
-bool Spirit_isPointInMe(Image* o, int x, int y, int dx, int dy)
-{
-	if (x > dx && x < dx + o->width)
-		if (y > dy && y < dy + o->height)
-			return true;
-	return false;
-}

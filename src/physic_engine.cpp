@@ -5,16 +5,11 @@
 #include <math.h>
 #include <time.h>
 
-PEBirdObject pe_bird;
-PEGroundObject pe_ground;
-PEPipeObject pe_pipes[4];
-
 #define PI 3.1415926
 #define REAL_TO_PIXEL(x) ((x) / 10)
 #define PIXEL_TO_REAL(x) ((x) * 10)
 
 static double g_gravity = 80.0;
-
 const int g_pipeInterval = 1400.0;
 
 //////////////////////////////////////////////////////////////////////////
@@ -229,6 +224,7 @@ void _PhysicEngine_checkBirdState()
 	if (bird->cy + bird->halfHeight >= ground->cy - ground->halfHeight)
 	{
 		o->birdState = BirdState_dead;
+		bird->ani->frameEnable = false;
 		o->isBirdDropped = true;
 	}
 	if (o->birdState == BirdState_dead)
@@ -247,6 +243,7 @@ void _PhysicEngine_checkBirdState()
 			&& bird->cx - bird->halfWidth <= upPipe->cx + upPipe->halfWidth)
 		{
 			o->birdState = BirdState_dead;
+			bird->ani->frameEnable = false;
 			break;
 		}
 	}
@@ -273,6 +270,20 @@ bool PhysicEngine_isBirdDead()
 {
 	PhysicEngine* o = &g_physicEngine;
 	return o->birdState == BirdState_dead;
+}
+
+void PhysicEngine_init()
+{
+	PhysicEngine* o = &g_physicEngine;
+	Spirit* ground = ImageManager_getSpirit(SpiritType_ground);
+
+	ground->cx = 144;
+	ground->cy = SCENE_HEIGHT - 112;
+	srand(time(NULL));
+	for (size_t i = 0; i < 4; ++i)
+	{
+		o->pipePassed[i] = 0;
+	}
 }
 
 bool PhysicEngine_isBirdStopped()
@@ -302,6 +313,7 @@ void PhysicEngine_floatingBird()
 	bird->oy = 210;
 	bird->angle = 0.0;
 	o->birdState = BirdState_floating;
+	o->isBirdDropped = false;
 	FrameAnimation_init(frameAnimation, 4, 1000, true);
 }
 
@@ -317,166 +329,37 @@ void PhysicEngine_fixBird()
 	bird->oy = 220;
 	bird->angle = 0.0;
 	o->birdState = BirdState_fixed;
+	o->isBirdDropped = false;
 	FrameAnimation_init(frameAnimation, 4, 1000, true);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void PhysicEngine_setBirdPos(int ox, int oy)
+void PhysicEngine_freeBird()
 {
-	pe_bird.angle = 0.0;
-	pe_bird.cx = ox;
-	pe_bird.cy = pe_bird.oy = oy;
-	pe_bird.hv = 200.0;
-	pe_bird.vv = 0.0;
-	pe_bird.width = 150.0;
-	pe_bird.height = 150.0;
-	pe_bird.isDead = false;
-	pe_bird.isStopped = false;
-	pe_bird.canBeHigher = true;
-}
+	PhysicEngine* o = &g_physicEngine;
+	Spirit* bird = ImageManager_getSpirit(SpiritType_bird);
 
-void PhysicEngine_reset()
-{
-	pe_ground.cy = PhysicEngine_pixelToRealCoord(SCENE_HEIGHT - 112);
-	srand(time(NULL));
-	_PhysicEngine_initPipes();
-}
-
-
-static void _PhysicEngine_pipeTick(double t)
-{
-	for (size_t idxPipe = 0; idxPipe < sizeof(pe_pipes) / sizeof(PEPipeObject); ++idxPipe)
-	{
-		PEPipeObject* pipe = &pe_pipes[idxPipe];
-		pipe->cx -= 30 * 20 / 60;
-	}
-}
-
-static void _PhysicEngine_circlePipe()
-{
-	for (size_t i = 0; i < sizeof(pe_pipes) / sizeof(PEPipeObject); ++i)
-	{
-		PEPipeObject* pipe = &pe_pipes[i];
-		if (pipe->cx + pipe->width < 0.0)
-		{
-			pipe->cx += 4.0 * g_pipeInterval;
-			pipe->cyUp = _getRandPipeUp();
-			pipe->cyDown = pipe->cyUp + 1200.0;
-			pipe->pipePassed = false;
-			break;
-		}
-	}
-}
-
-static void _PhysicEngine_checkHit()
-{
-	if (pe_bird.isStopped)
-		return;
-	// 检查小鸟有没有撞到地面
-	if (pe_bird.cy + pe_bird.height >= pe_ground.cy)
-	{
-		pe_bird.isDead = true;
-		pe_bird.isStopped = true;
-	}
-	if (pe_bird.isDead)
-		return;
-	// 检测小鸟有没有撞到水管
-	for (size_t idxPipe = 0; idxPipe < sizeof(pe_pipes) / sizeof(PEPipeObject); ++idxPipe)
-	{
-		PEPipeObject* pipe = &pe_pipes[idxPipe];
-		// 垂直高度，是否在两个管道之间
-		if (pe_bird.cy + pe_bird.height <= pipe->cyDown
-			&& pe_bird.cy - pe_bird.height >= pipe->cyUp)
-			continue;
-		// 水平检查，是否碰到管道
-		if (pe_bird.cx + pe_bird.width >= pipe->cx - pipe->width
-			&& pe_bird.cx - pe_bird.width <= pipe->cx + pipe->width)
-		{
-			pe_bird.isDead = true;
-			break;
-		}
-	}
-	// 检查小鸟有没有飞到最高
-	pe_bird.canBeHigher = pe_bird.cy > 40;
-}
-
-void PhysicEngine_tick(int tickCount)
-{
-	double t = tickCount * 0.15;
-	_PhysicEngine_birdTick(t);
-	_PhysicEngine_pipeTick(t);
-	_PhysicEngine_checkHit();
-	_PhysicEngine_circlePipe();
-}
-
-void PhysicEngine_dieTick(int tickCount)
-{
-	double t = tickCount * 0.15;
-	_PhysicEngine_birdTick(t);
-	_PhysicEngine_checkHit();
-}
-
-void PhysicEngine_float(int tickCount)
-{
-	// 浮动是一个简谐运动，其公式为： x = Acos(wt+p)
-	static double t = 0;
-	t += tickCount;
-	if (t > 50)
-		t = 0.0;
-	double dx = 50.0 * cos(2.0 * PI * 0.02 * t);
-	pe_bird.cy = pe_bird.oy + dx;
-}
-
-int PhysicEngine_realToPixelCoord(double x)
-{
-	return (int)(x / 10);
-}
-
-double PhysicEngine_pixelToRealCoord(int x)
-{
-	return x * 10.0;
-}
-
-void PhysicEngine_BirdFly()
-{
-	if (pe_bird.canBeHigher)
-		pe_bird.vv = -300.0;
+	bird->angle = 0.0;
+	o->birdState = BirdState_free;
+	o->birdHSpeed = 200.0;
+	o->birdVSpeed = 0.0;
+	o->isBirdDropped = false;
 }
 
 bool PhysicEngine_passedPipe()
 {
-	for (size_t i = 0; i < sizeof(pe_pipes) / sizeof(PEPipeObject); ++i)
+	PhysicEngine* o = &g_physicEngine;
+	Spirit* upPipes = ImageManager_getSpirit(SpiritType_upPipes);
+	Spirit* bird = ImageManager_getSpirit(SpiritType_bird);
+
+	for (size_t i = 0; i < 4; ++i)
 	{
-		PEPipeObject* pipe = &pe_pipes[i];
 		// 如果某个 pipe 已经通过小鸟的位置，但是没有标记，则说明是刚通过的
-		if (!pipe->pipePassed)
+		if (!o->pipePassed[i])
 		{
-			if (pipe->cx < pe_bird.cx)
+			Spirit* upPipe = upPipes + i;
+			if (upPipe->cx < bird->cx)
 			{
-				pipe->pipePassed = true;
+				o->pipePassed[i] = true;
 				return true;
 			}
 		}
@@ -484,3 +367,43 @@ bool PhysicEngine_passedPipe()
 	return false;
 }
 
+void PhysicEngine_showPipes(bool show)
+{
+	PhysicEngine* o = &g_physicEngine;
+	Spirit* upPipes = ImageManager_getSpirit(SpiritType_upPipes);
+	Spirit* downPipes = ImageManager_getSpirit(SpiritType_downPipes);
+
+	for (size_t i = 0; i < 4; ++i)
+	{
+		Spirit* upPipe = upPipes + i;
+		Spirit* downPipe = downPipes + i;
+		upPipe->visiable = show;
+		downPipe->visiable = show;
+	}
+
+	if (!show)
+		o->pipeState = PipeState_unset;
+}
+
+void PhysicEngine_movingPipes(bool moving)
+{
+	PhysicEngine* o = &g_physicEngine;
+	if (moving)
+	{
+		if (o->pipeState != PipeState_moving)
+		{
+			o->pipeState = PipeState_moving;
+			_PhysicEngine_initPipes();
+		}
+	}
+	else
+	{
+		o->pipeState = PipeState_stop;
+	}
+}
+
+void PhysicEngine_movingGround(bool moving)
+{
+	PhysicEngine* o = &g_physicEngine;
+	o->groundState = moving ? GroundState_moving : GroundState_stop;
+}
