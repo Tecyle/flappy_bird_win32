@@ -206,6 +206,7 @@ void PrepareStart_click()
 {
 	g_sceMgr.currentScene = SceneType_playing;
 	Scene_init(SceneType_playing);
+	while (!SceneManager_render());
 	PlayFly_click();
 }
 
