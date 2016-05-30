@@ -9,7 +9,7 @@
 #define REAL_TO_PIXEL(x) ((x) / 10)
 #define PIXEL_TO_REAL(x) ((x) * 10)
 
-static double g_gravity = 80.0;
+static double g_gravity = 100.0;
 const int g_pipeInterval = 1400;
 
 //////////////////////////////////////////////////////////////////////////
@@ -119,7 +119,7 @@ void _PhysicEngine_groundTick()
 		return;
 
 	Spirit* ground = ImageManager_getSpirit(SpiritType_ground);
-	o->groundMovingLength = (o->groundMovingLength + 1) % 24;
+	o->groundMovingLength = (o->groundMovingLength + 2) % 24;
 	ground->cx = ground->ox - o->groundMovingLength;
 }
 
@@ -130,8 +130,8 @@ void _PhysicEngine_movingPipes()
 	Spirit* downPipes = ImageManager_getSpirit(SpiritType_downPipes);
 	for (size_t idxPipe = 0; idxPipe < 4; ++idxPipe)
 	{
-		upPipes[idxPipe].cx -= 1;
-		downPipes[idxPipe].cx -= 1;
+		upPipes[idxPipe].cx -= 2;
+		downPipes[idxPipe].cx -= 2;
 	}
 }
 
@@ -307,30 +307,30 @@ void PhysicEngine_floatingBird()
 	Spirit* bird = ImageManager_getSpirit(SpiritType_bird);
 	Animation* frameAnimation = bird->ani;
 
-	bird->cx = 130;
-	bird->cy = 210;
-	bird->ox = 130;
-	bird->oy = 210;
+	bird->cx = 144;
+	bird->cy = 230;
+	bird->ox = 144;
+	bird->oy = 230;
 	bird->angle = 0.0;
 	o->birdState = BirdState_floating;
 	o->isBirdDropped = false;
-	FrameAnimation_init(frameAnimation, 4, 1000, true);
+	FrameAnimation_init(frameAnimation, 4, 500, true);
 }
 
-void PhysicEngine_fixBird()
+void PhysicEngine_prepareBird()
 {
 	PhysicEngine* o = &g_physicEngine;
 	Spirit* bird = ImageManager_getSpirit(SpiritType_bird);
 	Animation* frameAnimation = bird->ani;
 
-	bird->cx = 80;
-	bird->cy = 220;
-	bird->ox = 80;
-	bird->oy = 220;
+	bird->cx = 90;
+	bird->cy = 230;
+	bird->ox = 90;
+	bird->oy = 230;
 	bird->angle = 0.0;
-	o->birdState = BirdState_fixed;
+	o->birdState = BirdState_floating;
 	o->isBirdDropped = false;
-	FrameAnimation_init(frameAnimation, 4, 1000, true);
+	FrameAnimation_init(frameAnimation, 4, 600, true);
 }
 
 void PhysicEngine_freeBird()

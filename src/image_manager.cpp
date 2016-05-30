@@ -416,11 +416,11 @@ bool ImageManager_initAll(HINSTANCE hInstance, HDC hdc)
 	sp_txtGameOver.ani = AnimationManager_allocAnimation();
 	Spirit_construct(&sp_txtCopyright, &img_txtCopyright, 134, 430);
 	Spirit_construct(&sp_txtFlappyBird, &img_txtFlappyBird, 139, 144);
-// 	Spirit_construct(&sp_largeScore, NULL, 0, 0);
+ 	Spirit_construct(&sp_largeScore, img_largeNum, 144, 80);
 	Spirit_construct(&sp_helpInfo, &img_help, 137, 249);
 	Spirit_construct(&sp_btPlay, &img_btPlay, 72, 371);
 	Spirit_construct(&sp_btRank, &img_btRank, 212, 371);
-	Spirit_construct(&sp_btRate, &img_btRate, 146, 278);
+	Spirit_construct(&sp_btRate, &img_btRate, 144, 285);
 	Spirit_construct(&sp_scoreBoard, &img_scorePane, 0, 0);
 	sp_scoreBoard.ani = AnimationManager_allocAnimation();
 	Spirit_construct(&sp_blackFade, &img_black, 0, 0);

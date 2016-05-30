@@ -119,10 +119,11 @@ void _Scene_initMainMenu()
 void _Scene_initPrepare()
 {
 	ImageManager_randomSkyAndBird();
-	PhysicEngine_floatingBird();
+	PhysicEngine_prepareBird();
 	PhysicEngine_movingPipes(false);
 	PhysicEngine_showPipes(false);
 	PhysicEngine_movingGround(true);
+	ScoreManager_resetCurrentScore();
 }
 
 void _Scene_initPlaying()
@@ -320,6 +321,12 @@ void _SceneManager_tick()
 	PhysicEngine_tick();
 	// 更新动画
 	AnimationManager_tick();
+	// 执行小鸟计分
+	if (o->currentScene == SceneType_playing)
+	{
+		if (PhysicEngine_passedPipe())
+			ScoreManager_increaseScore();
+	}
 	// 执行游戏结束判断，为了防止间接递归调用，通过 onSwitching 进行标记
 	if (!o->onSwitching && o->currentScene == SceneType_playing && PhysicEngine_isBirdDead())
 	{
@@ -475,9 +482,3 @@ void SceneManager_onClick(int x, int y)
 		break;
 	}
 }
-
-
-
-
-
-

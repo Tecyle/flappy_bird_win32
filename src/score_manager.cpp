@@ -43,3 +43,9 @@ size_t ScoreManager_increaseScore()
 		o->highScore = o->nowScore;
 	return o->nowScore;
 }
+
+void ScoreManager_resetCurrentScore()
+{
+	ScoreManager* o = &g_scoreManager;
+	o->nowScore = 0;
+}

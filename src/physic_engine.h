@@ -6,7 +6,7 @@ void PhysicEngine_movingGround(bool moving);
 void PhysicEngine_showPipes(bool show);
 void PhysicEngine_movingPipes(bool moving);
 void PhysicEngine_floatingBird();
-void PhysicEngine_fixBird();
+void PhysicEngine_prepareBird();
 void PhysicEngine_freeBird();
 void PhysicEngine_birdFly();
 bool PhysicEngine_isBirdDead();
