@@ -5,6 +5,7 @@
 #include "button.h"
 #include "score_manager.h"
 #include <math.h>
+#include "sound_manager.h"
 
 //////////////////////////////////////////////////////////////////////////
 // 全局变量
@@ -183,6 +184,7 @@ void MainMenuRate_click()
 
 void MainMenuPlay_click()
 {
+	SoundManager_playSound(SoundType_swooshing);
 	_SceneManager_fadeOut(true, 500);
 	g_sceMgr.currentScene = SceneType_prepare;
 	Scene_init(SceneType_prepare);
@@ -194,19 +196,22 @@ void MainMenuRank_click()
 	// undefined
 }
 
+void PlayFly_click()
+{
+	SoundManager_playSound(SoundType_wing);
+	PhysicEngine_birdFly();
+}
+
 void PrepareStart_click()
 {
 	g_sceMgr.currentScene = SceneType_playing;
 	Scene_init(SceneType_playing);
-}
-
-void PlayFly_click()
-{
-	PhysicEngine_birdFly();
+	PlayFly_click();
 }
 
 void GameOverReplay_click()
 {
+	SoundManager_playSound(SoundType_swooshing);
 	_SceneManager_fadeOut(true, 500);
 	g_sceMgr.currentScene = SceneType_prepare;
 	Scene_init(SceneType_prepare);
@@ -303,6 +308,7 @@ void _SceneManager_switchToGameOver()
 	transAnimation = scoreBoard->ani;
 	scoreBoard->visiable = true;
 	TransAnimation_init(transAnimation, 144, 571, 144, 270, 500, false);
+	SoundManager_playSound(SoundType_swooshing);
 	while (!TransAnimation_finished(transAnimation))
 	{
 		SceneManager_render();
@@ -325,12 +331,17 @@ void _SceneManager_tick()
 	if (o->currentScene == SceneType_playing)
 	{
 		if (PhysicEngine_passedPipe())
+		{
 			ScoreManager_increaseScore();
+			SoundManager_playSound(SoundType_point);
+		}
 	}
 	// 执行游戏结束判断，为了防止间接递归调用，通过 onSwitching 进行标记
 	if (!o->onSwitching && o->currentScene == SceneType_playing && PhysicEngine_isBirdDead())
 	{
 		o->onSwitching = true;
+		SoundManager_playSound(SoundType_hit);
+		SoundManager_playSound(SoundType_die);
 		_SceneManager_switchToGameOver();
 		o->onSwitching = false;
 	}
@@ -411,6 +422,7 @@ void SceneManager_init(HINSTANCE hInstance, HDC hdc)
 	AnimationManager_init();						///< 初始化动画引擎
 	ImageManager_initAll(hInstance, o->bufHdc);		///< 初始化图像资源管理器
 	PhysicEngine_init();							///< 初始化物理引擎
+	SoundManager_init(hInstance);
 	// 初始化场景
 	_SceneManager_initAllScene();
 	// 初始化按钮

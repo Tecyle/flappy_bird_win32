@@ -39,6 +39,9 @@
     <ClInclude Include="..\src\score_manager.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\sound_manager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\stdafx.cpp">
@@ -65,6 +68,9 @@
     <ClCompile Include="..\src\score_manager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\sound_manager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\assets\images\atlas.bmp">
@@ -72,25 +78,25 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\assets\sounds\sfx_die.ogg">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\assets\sounds\sfx_hit.ogg">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\assets\sounds\sfx_point.ogg">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\assets\sounds\sfx_swooshing.ogg">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\assets\sounds\sfx_wing.ogg">
-      <Filter>资源文件</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ResourceCompile Include="..\src\flappy_bird.rc">
       <Filter>资源文件</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="..\assets\sounds\sfx_die.wav">
+      <Filter>资源文件</Filter>
+    </Media>
+    <Media Include="..\assets\sounds\sfx_hit.wav">
+      <Filter>资源文件</Filter>
+    </Media>
+    <Media Include="..\assets\sounds\sfx_point.wav">
+      <Filter>资源文件</Filter>
+    </Media>
+    <Media Include="..\assets\sounds\sfx_swooshing.wav">
+      <Filter>资源文件</Filter>
+    </Media>
+    <Media Include="..\assets\sounds\sfx_wing.wav">
+      <Filter>资源文件</Filter>
+    </Media>
   </ItemGroup>
 </Project>

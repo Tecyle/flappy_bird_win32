@@ -88,6 +88,7 @@
     <ClInclude Include="..\src\resource.h" />
     <ClInclude Include="..\src\scene_manager.h" />
     <ClInclude Include="..\src\score_manager.h" />
+    <ClInclude Include="..\src\sound_manager.h" />
     <ClInclude Include="..\src\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
@@ -98,6 +99,7 @@
     <ClCompile Include="..\src\physic_engine.cpp" />
     <ClCompile Include="..\src\scene_manager.cpp" />
     <ClCompile Include="..\src\score_manager.cpp" />
+    <ClCompile Include="..\src\sound_manager.cpp" />
     <ClCompile Include="..\src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -107,14 +109,14 @@
     <Image Include="..\assets\images\atlas.bmp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\assets\sounds\sfx_die.ogg" />
-    <None Include="..\assets\sounds\sfx_hit.ogg" />
-    <None Include="..\assets\sounds\sfx_point.ogg" />
-    <None Include="..\assets\sounds\sfx_swooshing.ogg" />
-    <None Include="..\assets\sounds\sfx_wing.ogg" />
+    <ResourceCompile Include="..\src\flappy_bird.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\src\flappy_bird.rc" />
+    <Media Include="..\assets\sounds\sfx_die.wav" />
+    <Media Include="..\assets\sounds\sfx_hit.wav" />
+    <Media Include="..\assets\sounds\sfx_point.wav" />
+    <Media Include="..\assets\sounds\sfx_swooshing.wav" />
+    <Media Include="..\assets\sounds\sfx_wing.wav" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
