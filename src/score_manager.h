@@ -9,6 +9,7 @@ typedef enum MedalType
 } MedalType;
 
 void ScoreManager_init();
+void ScoreManager_save();
 void ScoreManager_resetCurrentScore();
 size_t ScoreManager_getCurrentScore();
 size_t ScoreManager_getHighScore();

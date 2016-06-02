@@ -56,6 +56,8 @@ typedef struct SceneManager
 */
 void SceneManager_init(HINSTANCE hInstance, HDC hdc);
 
+void SceneManager_destruct();
+
 /*
 	ªÊ÷∆”Œœ∑ª≠√Ê
 

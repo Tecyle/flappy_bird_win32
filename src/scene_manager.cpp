@@ -495,3 +495,8 @@ void SceneManager_onClick(int x, int y)
 		break;
 	}
 }
+
+void SceneManager_destruct()
+{
+	ScoreManager_save();
+}

@@ -84,6 +84,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		SceneManager_render();
 	}
 
+	SceneManager_destruct();
 	return (int)msg.wParam;
 }
 
