@@ -85,6 +85,8 @@
     <ClInclude Include="..\src\button.h" />
     <ClInclude Include="..\src\image_manager.h" />
     <ClInclude Include="..\src\physic_engine.h" />
+    <ClInclude Include="..\src\rank_dialog.h" />
+    <ClInclude Include="..\src\rename_dialog.h" />
     <ClInclude Include="..\src\resource.h" />
     <ClInclude Include="..\src\scene_manager.h" />
     <ClInclude Include="..\src\score_manager.h" />
@@ -97,6 +99,8 @@
     <ClCompile Include="..\src\image_manager.cpp" />
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\physic_engine.cpp" />
+    <ClCompile Include="..\src\rank_dialog.cpp" />
+    <ClCompile Include="..\src\rename_dialog.cpp" />
     <ClCompile Include="..\src\scene_manager.cpp" />
     <ClCompile Include="..\src\score_manager.cpp" />
     <ClCompile Include="..\src\sound_manager.cpp" />

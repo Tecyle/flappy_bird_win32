@@ -6,6 +6,7 @@
 #include "score_manager.h"
 #include <math.h>
 #include "sound_manager.h"
+#include "rank_dialog.h"
 
 //////////////////////////////////////////////////////////////////////////
 // 全局变量
@@ -193,7 +194,7 @@ void MainMenuPlay_click()
 
 void MainMenuRank_click()
 {
-	// undefined
+	RankDialog_doModal(g_sceMgr.hInstance, g_sceMgr.hWnd);
 }
 
 void PlayFly_click()
@@ -221,7 +222,7 @@ void GameOverReplay_click()
 
 void GameOverRank_click()
 {
-	// undefined
+	MainMenuRank_click();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -400,11 +401,13 @@ void _SceneManager_fadeIn(bool isBlack, long during)
 	}
 }
 
-void SceneManager_init(HINSTANCE hInstance, HDC hdc)
+void SceneManager_init(HINSTANCE hInstance, HWND hWnd, HDC hdc)
 {
 	// 初始化 SceneManager 对象
 	SceneManager* o = &g_sceMgr;
 	o->currentScene = SceneType_mainMenu;
+	o->hInstance = hInstance;
+	o->hWnd = hWnd;
 	o->scrHdc = hdc;
 	o->bufHdc = CreateCompatibleDC(hdc);
 	o->drawingBoard = CreateCompatibleBitmap(hdc, SCENE_WIDTH, SCENE_HEIGHT);
@@ -428,16 +431,17 @@ void SceneManager_init(HINSTANCE hInstance, HDC hdc)
 	_SceneManager_initAllScene();
 	// 初始化按钮
 	Spirit* btPlay = ImageManager_getSpirit(SpiritType_btPlay);
+	Spirit* btRank = ImageManager_getSpirit(SpiritType_btRank);
 	Button_construct(&btMainMenuRate, 0, 0, 0, 0, MainMenuRate_click);
 	Button_construct(&btMainMenuPlay, btPlay->cx - btPlay->halfWidth, btPlay->cx + btPlay->halfWidth, btPlay->cy - btPlay->halfHeight, btPlay->cy + btPlay->halfHeight, MainMenuPlay_click);
-	Button_construct(&btMainMenuRank, 0, 0, 0, 0, MainMenuRank_click);
+	Button_construct(&btMainMenuRank, btRank->cx - btRank->halfWidth, btRank->cx + btRank->halfWidth, btRank->cy - btRank->halfHeight, btRank->cy + btRank->halfHeight, MainMenuRank_click);
 
 	Button_construct(&btPrepareStart, 0, SCENE_WIDTH, 0, SCENE_HEIGHT, PrepareStart_click);
 	
 	Button_construct(&btPlayFly, 0, SCENE_WIDTH, 0, SCENE_HEIGHT, PlayFly_click);
 	
 	Button_construct(&btGameOverReplay, btPlay->cx - btPlay->halfWidth, btPlay->cx + btPlay->halfWidth, btPlay->cy - btPlay->halfHeight, btPlay->cy + btPlay->halfHeight, GameOverReplay_click);
-	Button_construct(&btGameOverRank, 0, 0, 0, 0, GameOverRank_click);
+	Button_construct(&btGameOverRank, btRank->cx - btRank->halfWidth, btRank->cx + btRank->halfWidth, btRank->cy - btRank->halfHeight, btRank->cy + btRank->halfHeight, GameOverRank_click);
 	// 初始化需要显示的第一个场景
 	_Scene_initMainMenu();
 }

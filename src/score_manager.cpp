@@ -67,6 +67,18 @@ size_t ScoreManager_getCurrentScore()
 	return o->myScore.score;
 }
 
+const char* ScoreManager_getCurrentName()
+{
+	ScoreManager* o = &g_scoreManager;
+	return o->myScore.name;
+}
+
+void ScoreManager_setCurrentName(const char * name)
+{
+	ScoreManager* o = &g_scoreManager;
+	strcpy(o->myScore.name, name);
+}
+
 size_t ScoreManager_getHighScore()
 {
 	ScoreManager* o = &g_scoreManager;
@@ -104,4 +116,25 @@ void ScoreManager_resetCurrentScore()
 	o->myScore.score = 0;
 	o->myRank = 10;
 	ScorePair_copy(&o->rankScore[9], &o->myScore);
+}
+
+void ScoreManager_clear()
+{
+	ScoreManager* o = &g_scoreManager;
+	memset(o->rankScore, 0, sizeof(o->rankScore));
+}
+
+const char* ScoreManager_getNameByRank(int rank)
+{
+	ScoreManager* o = &g_scoreManager;
+	if (rank < 1 || rank > 9)
+		return NULL;
+	return o->rankScore[rank - 1].name;
+}
+size_t ScoreManager_getScoreByRank(int rank)
+{
+	ScoreManager* o = &g_scoreManager;
+	if (rank < 1 || rank > 9)
+		return NULL;
+	return o->rankScore[rank - 1].score;
 }
