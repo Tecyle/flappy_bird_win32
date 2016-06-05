@@ -180,7 +180,7 @@ void Scene_init(SceneType scene)
 // Button onClick Functions
 void MainMenuRate_click()
 {
-	// undefined
+	g_sceMgr.showFps = !g_sceMgr.showFps;
 }
 
 void MainMenuPlay_click()
@@ -432,7 +432,8 @@ void SceneManager_init(HINSTANCE hInstance, HWND hWnd, HDC hdc)
 	// ³õÊ¼»¯°´Å¥
 	Spirit* btPlay = ImageManager_getSpirit(SpiritType_btPlay);
 	Spirit* btRank = ImageManager_getSpirit(SpiritType_btRank);
-	Button_construct(&btMainMenuRate, 0, 0, 0, 0, MainMenuRate_click);
+	Spirit* btRate = ImageManager_getSpirit(SpiritType_btRate);
+	Button_construct(&btMainMenuRate, btRate->cx - btRate->halfWidth, btRate->cx + btRate->halfWidth, btRate->cy - btRate->halfHeight, btRate->cy + btRate->halfHeight, MainMenuRate_click);
 	Button_construct(&btMainMenuPlay, btPlay->cx - btPlay->halfWidth, btPlay->cx + btPlay->halfWidth, btPlay->cy - btPlay->halfHeight, btPlay->cy + btPlay->halfHeight, MainMenuPlay_click);
 	Button_construct(&btMainMenuRank, btRank->cx - btRank->halfWidth, btRank->cx + btRank->halfWidth, btRank->cy - btRank->halfHeight, btRank->cy + btRank->halfHeight, MainMenuRank_click);
 
