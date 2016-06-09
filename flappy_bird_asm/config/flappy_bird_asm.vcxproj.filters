@@ -19,4 +19,9 @@
       <Filter>源文件</Filter>
     </MASM>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\inc\stdafx.inc">
+      <Filter>头文件</Filter>
+    </None>
+  </ItemGroup>
 </Project>

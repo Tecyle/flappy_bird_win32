@@ -60,7 +60,7 @@
       <SubSystem>Windows</SubSystem>
     </Link>
     <MASM>
-      <IncludePaths>$(MASM32DIR)\include;%(IncludePaths)</IncludePaths>
+      <IncludePaths>$(MASM32DIR)\include;..\inc;%(IncludePaths)</IncludePaths>
       <AdditionalOptions>/coff %(AdditionalOptions)</AdditionalOptions>
     </MASM>
   </ItemDefinitionGroup>
@@ -80,6 +80,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <MASM Include="../asm/main.asm" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\inc\stdafx.inc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
