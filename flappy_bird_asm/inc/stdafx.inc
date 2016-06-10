@@ -13,7 +13,7 @@ include		user32.inc
 include		gdi32.inc
 include		kernel32.inc
 include		msvcrt.inc
-;include		resource.inc
+include		resource.inc
 
 includelib	user32.lib
 includelib	gdi32.lib

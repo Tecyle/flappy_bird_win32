@@ -160,7 +160,7 @@ WinMain		proc uses ebx
 	sar		eax, 1
 	mov		@yWindow, eax
 	; 创建窗口
-	invoke	CreateWindow, offset szWindowClassName, offset szCaption, \
+	invoke	CreateWindowEx, 0, offset szWindowClassName, offset szCaption, \
 			WS_OVERLAPPED or WS_SYSMENU or WS_SIZEBOX or WS_MINIMIZEBOX, \
 			@xWindow, @yWindow, @wWindow, @hWindow, \
 			NULL, NULL, @hInstance, NULL
@@ -174,16 +174,39 @@ WinMain		proc uses ebx
 	invoke	GetDC, @hWnd
 	mov		@hdc, eax
 	invoke	GetClientRect, @hWnd, addr @windowRect
-	invoke	SceneManager_init, @hInstance, @hWnd, @hdc
+	;invoke	SceneManager_init, @hInstance, @hWnd, @hdc
 	mov		eax, @windowRect.right
 	sub		eax, @windowRect.left
 	mov		ebx, @windowRect.bottom
 	sub		ebx, @windowRect.top
-	invoke	SceneManager_setViewSize, eax, ebx
+	;invoke	SceneManager_setViewSize, eax, ebx
 	; 显示窗口
 	invoke	ShowWindow, @hWnd, SW_SHOW
+	invoke	UpdateWindow, @hWnd
+	; 消息循环
+	.while	TRUE
+		invoke	PeekMessage, addr @msg, NULL, 0, 0, PM_REMOVE
+		.if		eax != 0
+			.if		@msg.message == WM_QUIT
+				.break
+			.endif
+			invoke	TranslateMessage, addr @msg
+			invoke	DispatchMessage, addr @msg
+			.continue
+		.endif
+		;invoke	SceneManager_render
+	.endw
+	; 清理并结束程序
+	;invoke	SceneManager_destruct
+	mov		eax, @msg.wParam
+	ret
 WinMain		endp
 
+;/////////////////////////////////////////////////////////
+; 程序真正的开始位置，其实就是调用 WinMain，然后再利用 WinMain
+; 的返回值调用 ExitProcess 退出程序。
+;/////////////////////////////////////////////////////////
 start:
-	invoke ExitProcess, NULL
-	end start
+	invoke	WinMain
+	invoke	ExitProcess, eax
+	end		start
