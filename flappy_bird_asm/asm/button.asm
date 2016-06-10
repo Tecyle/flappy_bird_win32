@@ -1,17 +1,8 @@
 include		stdafx.inc
 include		button.inc
 
-Button		struct
-	left	DWORD		?
-	right	DWORD		?
-	top		DWORD		?
-	bottom	DWORD		?
-	enabled	DWORD		?
-	onClick	FuncOnClick	?
-Button		ends
-
 	.code
-Button_isHit		proc public uses ebx	o, x, y
+Button_isHit		proc public uses ebx	o : ButtonPtr, x : SDWORD, y : SDWORD
 	mov		ebx, o
 	assume	ebx : ptr Button
 	.if		[ebx].enabled == FALSE
@@ -31,7 +22,7 @@ Button_isHit		proc public uses ebx	o, x, y
 	ret
 Button_isHit		endp
 
-Button_construct	proc public uses ebx	o, left, right, top, bottom, onClickFunction : FuncOnClick
+Button_construct	proc public uses ebx	o : ButtonPtr, left : SDWORD, right : SDWORD, top : SDWORD, bottom : SDWORD, onClickFunction : FuncOnClick
 	mov		ebx, o
 	assume	ebx : ptr Button
 	push	left

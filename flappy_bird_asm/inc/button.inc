@@ -1,7 +1,17 @@
 fnFuncOnClick		typedef	proto stdcall
 FuncOnClick			typedef ptr fnFuncOnClick
 
-Button_construct	proto stdcall	o : DWORD, left : DWORD, right : DWORD, \
-					top : DWORD, bottom : DWORD, onClickFunction : FuncOnClick
+Button		struct
+	left	SDWORD		?
+	right	SDWORD		?
+	top		SDWORD		?
+	bottom	SDWORD		?
+	enabled	BOOLEAN		?
+	onClick	FuncOnClick	?
+Button		ends
+ButtonPtr	typedef ptr Button
 
-Button_isHit		proto stdcall	o : DWORD, x : DWORD, y : DWORD
+Button_construct	proto stdcall	o : ButtonPtr, left : SDWORD, right : SDWORD, \
+					top : SDWORD, bottom : SDWORD, onClickFunction : FuncOnClick
+
+Button_isHit		proto stdcall	o : ButtonPtr, x : SDWORD, y : SDWORD

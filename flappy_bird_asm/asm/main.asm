@@ -29,8 +29,8 @@ _ClearMessageQueue	endp
 ;/////////////////////////////////////////////////////////
 _WndProc	proc private uses ebx hWnd, msg, wParam, lParam
 	local	@windowRect : RECT
-	local	@rx : DWORD
-	local	@ry : DWORD
+	local	@rx : SDWORD
+	local	@ry : SDWORD
 
 	mov		eax, msg
 	; 关闭窗口时，确认退出
@@ -95,7 +95,7 @@ _WndProc	endp
 ;/////////////////////////////////////////////////////////
 WinMain		proc uses ebx
 	local	@wndClass : WNDCLASSEX
-	local	@hInstance : DWORD
+	local	@hInstance : HINSTANCE
 	local	@hWnd : HWND
 	local	@hdc : HDC
 	local	@msg : MSG

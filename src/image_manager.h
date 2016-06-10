@@ -53,8 +53,6 @@ typedef struct Image
 	int width;		///< 图像矩形区域的宽度
 	int height;		///< 图像矩形区域的高度
 } Image;
-// 初始化 Image 对象
-void Image_construct(Image* o, int x, int y, int width, int height, HDC srcHdc);
 
 // 游戏的角色
 // 除了定义了图像以外，还定义了在游戏中的位置信息
@@ -74,7 +72,6 @@ typedef struct Spirit
 } Spirit;
 
 void Spirit_construct(Spirit* o, Image* img, int cx, int cy);
-void Spirit_draw(Spirit* o, HDC dstHdc);
 
 // 图像资源管理模块，用来管理所有可能用到的图像
 typedef struct ImageManager

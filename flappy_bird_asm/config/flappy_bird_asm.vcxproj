@@ -81,10 +81,12 @@
   <ItemGroup>
     <MASM Include="../asm/main.asm" />
     <MASM Include="..\asm\button.asm" />
+    <MASM Include="..\asm\image_manager.asm" />
     <MASM Include="..\asm\sound_manager.asm" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\inc\button.inc" />
+    <None Include="..\inc\image_manager.inc" />
     <None Include="..\inc\resource.inc" />
     <None Include="..\inc\sound_manager.inc" />
     <None Include="..\inc\stdafx.inc" />

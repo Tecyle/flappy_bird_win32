@@ -24,6 +24,9 @@
     <MASM Include="..\asm\button.asm">
       <Filter>源文件</Filter>
     </MASM>
+    <MASM Include="..\asm\image_manager.asm">
+      <Filter>源文件</Filter>
+    </MASM>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\inc\stdafx.inc">
@@ -36,6 +39,9 @@
       <Filter>头文件</Filter>
     </None>
     <None Include="..\inc\button.inc">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\inc\image_manager.inc">
       <Filter>头文件</Filter>
     </None>
   </ItemGroup>

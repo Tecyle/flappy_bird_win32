@@ -40,3 +40,5 @@ bin
 /flappy_bird.VC.VC.opendb
 /config/*.scores
 /flappy_bird_asm/asm/*.aps
+/flappy_bird_asm/*.opendb
+/flappy_bird_asm/flappy_bird_asm.VC.db
