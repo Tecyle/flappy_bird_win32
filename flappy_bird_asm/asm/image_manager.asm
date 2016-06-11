@@ -79,6 +79,11 @@ g_spirits				SpiritPtr	offset sp_ground, \			; SpiritType_ground
 									offset sp_blackFade, \		; SpiritType_blackFade
 									offset sp_whiteFade			; SpiritType_whiteFade
 
+imgMedal				ImagePtr	offset img_goldenMedal, \
+									offset img_sliverMedal, \
+									offset img_copperMedal, \
+									NULL
+
 	.code
 _rotateHdc			proc private	hdc : HDC, angle : REAL8, _cx : SDWORD, cy : SDWORD
 	local	@xform : XFORM
@@ -266,5 +271,185 @@ Spirit_draw			proc public uses ebx ecx	o : SpiritPtr
 	assume	ecx : nothing
 	ret
 Spirit_draw			endp
+
+Spirit_drawBird		proc public uses ebx ecx	o : SpiritPtr
+	local	@srcHdc : HDC
+	local	@dstHdc : HDC
+	local	@frameIndex : SDWORD
+	local	@x : SDWORD
+	local	@y : SDWORD
+
+	assume	ebx : ptr Spirit
+	assume	ecx : ptr Image
+	mov		ebx, o
+	.if		[ebx].visiable == FALSE
+		ret
+	.endif
+	push	g_imgMgr.imgHdc
+	pop		@srcHdc
+	push	g_imgMgr.dstHdc
+	pop		@dstHdc
+	; 小鸟的扇动翅膀动画
+	invoke	FrameAnimation_getFrameIndex, [ebx].ani
+	.if		eax == 3
+		mov		eax, 1
+	.endif
+	mov		@frameIndex, eax
+	mov		ecx, [ebx].image
+	add		ecx, @frameIndex * (sizeof Image)
+	; 旋转小鸟
+	invoke	_rotateHdc, @dstHdc, [ebx].angle, [ebx]._cx, [ebx].cy
+	mov		eax, [ebx]._cx
+	sub		eax, [ebx].halfWidth
+	mov		@x, eax
+	mov		eax, [ebx].cy
+	mov		eax, [ebx].halfHeight
+	mov		@y, eax
+	invoke	TransparentBlt, @dstHdc, @x, @y, [ecx]._width, [ecx].height, \
+			@srcHdc, [ecx].x, [ecx].y, [ecx]._width, [ecx].height, TRANSPRENT_COLOR
+	invoke	_restoreHdc, dstHdc
+	assume	ebx : nothing
+	assume	ecx : nothing
+	ret
+Spirit_drawBird		endp
+
+Spirit_drawPipes	proc public uses ebx ecx edx	oword : SpiritPtr
+	local	@srcHdc : HDC
+	local	@dstHdc : HDC
+	local	@x : SDWORD
+	local	@y : SDWORD
+
+	push	g_imgMgr.imgHdc
+	pop		@srcHdc
+	push	g_imgMgr.dstHdc
+	pop		@dstHdc
+	assume	ebx : ptr Spirit
+	assume	edx : ptr Image
+	mov		ecx, 0
+	mov		ebx, o
+	.while	ecx < 4
+		mov		edx, [ebx].image
+		.if		[ebx].visiable != FALSE
+			mov		eax, [ebx]._cx
+			sub		eax, [ebx].halfWidth
+			mov		@x, eax
+			mov		eax, [ebx].cy
+			mov		eax, [ebx].halfHeight
+			mov		@y, eax
+			invoke	TransparentBlt, @dstHdc, @x, @y, [edx]._width, [edx].height, \
+					@srcHdc, [edx].x, [edx].y, [edx]._width, [edx].height, TRANSPRENT_COLOR		
+		.endif
+		inc		ecx
+		add		ebx, sizeof Spirit
+	.endw
+	assume	ebx : nothing
+	assume	edx : nothing
+	ret
+Spirit_drawPipes	endp
+
+Spirit_drawLargeScore	proc public uses ebx	o : SpiritPtr
+	local	srcHdc : HDC
+	local	dstHdc : HDC
+
+	push	g_imgMgr.imgHdc
+	pop		@srcHdc
+	push	g_imgMgr.dstHdc
+	pop		@dstHdc
+	assume	ebx : ptr Spirit
+	mov		ebx, o
+	.if		[ebx].visiable == FALSE
+		ret
+	.endif
+	invoke	ScoreManager_getCurrentScore
+	invoke	ImageManager_drawNumber, eax, [ebx]._cx, [ebx].cy, NumberSize_large, NumberAlign_center
+	assume	ebx : nothing
+	ret
+Spirit_drawLargeScore	endp
+
+Spirit_drawScoreBorad	proc public uses eax ebx ecx edx	o : SpiritPtr
+	local	@srcHdc : HDC
+	local	@dstHdc : HDC
+	local	@x : SDWORD
+	local	@y : SDWORD
+
+	push	g_imgMgr.imgHdc
+	pop		@srcHdc
+	push	g_imgMgr.dstHdc
+	pop		@dstHdc
+	assume	ebx : ptr Spirit
+	mov		ebx, o
+	.if		[ebx].visiable == FALSE
+		ret
+	.endif
+	invoke	TransAnimation_getXY, [ebx].ani, offset [ebx]._cx, offset [ebx].cy
+	; 先绘制底板
+	assume	ecx : ptr Image
+	mov		ecx, offset img_scorePane
+	mov		eax, [ebx]._cx
+	sub		eax, [ebx].halfWidth
+	mov		@x, eax
+	mov		eax, [ebx].cy
+	sub		eax, [ebx].halfHeight
+	mov		@y, eax
+	invoke	TransparentBlt, @dstHdc, @x, @y, [ecx]._width, [ecx].height, \
+			@srcHdc, [ecx].x, [ecx].y, [ecx]._width, [ecx].height, TRANSPRENT_COLOR
+	; 再绘制当前得分
+	mov		eax, [ebx]._cx
+	add		eax, 90
+	mov		@x, eax
+	mov		eax, [ebx].cy
+	sub		eax, 15
+	mov		@y, eax
+	invoke	ScoreManager_getCurrentScore
+	invoke	ImageManager_drawNumber, eax, @x, @y, NumberSize_middle, NumberAlign_right
+	; 再绘制最高得分
+	mov		eax, [ebx]._cx
+	add		eax, 90
+	mov		@x, eax
+	mov		eax, [ebx].cy
+	sub		eax, 28
+	mov		@y, eax
+	invoke	ScoreManager_getHighScore
+	invoke	ImageManager_drawNumber, eax, @x, @y, NumberSize_middle, NumberAlign_right
+	; 再决定绘制什么奖牌
+	invoke	ScoreManager_getMedalType
+	mov		edx, sizeof Image
+	mul		edx, eax
+	mov		ecx, imgMedal
+	add		ecx, edx
+	.if		ecx != NULL
+		mov		eax, [ebx]._cx
+		sub		eax, 88
+		mov		@x, eax
+		mov		eax, [ebx].cy
+		sub		eax, 14
+		mov		@y, eax
+		invoke	TransparentBlt, @dstHdc, @x, @y, [ecx]._width, [ecx].height, \
+				@srcHdc, [ecx].x, [ecx].y, [ecx]._width, [ecx].height, TRANSPRENT_COLOR
+	.endif
+
+	assume	ecx : nothing
+	assume	ebx : nothing
+	ret
+Spirit_drawScoreBorad	endp
+
+Spirit_drawFade		proc public uses eax ebx	o : SpiritPtr
+	local	@srcHdc : HDC
+	local	@dstHdc : HDC
+
+	push	g_imgMgr.imgHdc
+	pop		@srcHdc
+	push	g_imgMgr.dstHdc
+	pop		@dstHdc
+	assume	ebx : ptr Spirit
+	mov		ebx, o
+	.if		[ebx].visiable == FALSE
+		ret
+	.endif
+	invoke	FadeAnimation_getAlpha, [ebx].ani
+	invoke	ImageManager_drawFadeCover, [ebx].image, eax
+	assume	ebx : nothing
+	ret
+Spirit_drawFade		endp
 
 	end
