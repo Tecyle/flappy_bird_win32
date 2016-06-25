@@ -452,4 +452,340 @@ Spirit_drawFade		proc public uses eax ebx	o : SpiritPtr
 	ret
 Spirit_drawFade		endp
 
+ImageManager_drawSpirit	proc public uses eax ebx	spiritType : DWORD
+	assume	ebx : ptr Spirit
+	mov		ebx, g_spirit
+	mov		eax, sizeof SpiritPtr
+	mul		eax, spiritType
+	add		ebx, eax
+	mov		eax, spiritType
+	.if		eax == SpiritType_bird
+		invoke	Spirit_drawBird, ebx
+	.elseif	eax == SpiritType_upPipes || eax == SpiritType_downPipes
+		invoke	Spirit_drawPipes, ebx
+	.elseif	eax == SpiritType_largeScore
+		invoke	Spirit_drawLargeScore, ebx
+	.elseif	eax == SpiritType_scoreBoard
+		invoke	Spirit_drawScoreBorad, ebx
+	.elseif	eax == SpiritType_blackFade || eax == SpiritType_whiteFade
+		invoke	Spirit_drawFade, ebx
+	.else
+		invoke	Spirit_draw, ebx
+	.endif
+	assume	ebx : nothing
+	ret
+ImageManager_drawSpirit	endp
+
+ImageManager_getSpirit	proc public uses ebx	spirit : DWORD
+	assume	ebx : ptr Spirit
+	mov		ebx, g_spirits
+	mov		eax, sizeof Spirit
+	mul		eax, spirit
+	add		ebx, eax
+	mov		eax, ebx
+	assume	ebx, nothing
+	ret
+ImageManager_getSpirit	endp
+
+ImageManager_randomSkyAndBird	proc public uses eax edx
+	local	@d : DWORD
+
+	invoke	GetTickCount
+	xor		edx, edx
+	mov		@d, 3
+	div		@d
+	.if		edx == 0
+		push	offset img_blueBird
+	.elseif	edx == 1
+		push	offset img_yellowBird
+	.else
+		push	offset img_redBird
+	.endif
+	pop		sp_bird.image
+
+	invoke	GetTickCount
+	xor		edx, edx
+	mov		@d, 2
+	div		@d
+	.if		edx == 0
+		push	offset img_dayBackground
+	.else
+		push	offset img_nightBackground
+	.endif
+	pop		sp_sky.image
+	ret
+ImageManager_randomSkyAndBird	endp
+
+ImageManager_initAll	proc public uses ebx ecx edx	hInstance : HINSTANCE hInstance, hdc : HDC hdc
+	push	hInstance
+	pop		g_imgMgr.hInstance
+	push	hdc
+	pop		g_imgMgr.hdc
+	invoke	LoadBitmap, hInstance, IDB_SCENE
+	mov		g_imgMgr.imgScene, eax
+	.if		eax == NULL
+		mov		eax, FALSE
+		ret
+	.endif
+
+	invoke	CreateCompatibleDC, hdc
+	mov		g_imgMgr.imgHdc, eax
+	invoke	SelectObject, g_imgMgr.imgHdc, g_imgMgr.imgScene
+
+	invoke	Image_construct, offset img_dayBackground, 0, 0, SCENE_WIDTH, SCENE_HEIGHT
+	invoke	Image_construct, offset img_ground, 584, 0, 336, 112
+	invoke	Image_construct, offset img_txtFlappyBird, 702, 182, 178, 48
+	invoke	Image_construct, offset img_btRate, 930, 2, 62, 36
+	invoke	Image_construct, offset img_btMenu, 924, 52, 80, 28
+	invoke	Image_construct, offset img_btOk, 924, 84, 80, 28
+	invoke	Image_construct, offset img_txtGameOver, 790, 118, 192, 42
+	invoke	Image_construct, offset img_txtGetReady, 590, 118, 184, 50
+	invoke	Image_construct, offset img_help, 584, 182, 114, 98
+	invoke	Image_construct, offset img_btShare, 584, 284, 80, 28
+	invoke	Image_construct, offset img_btContinue, 668, 284, 26, 28
+	invoke	Image_construct, offset img_btPlay, 708, 236, 104, 58
+	invoke	Image_construct, offset img_btRank, 828, 236, 104, 58
+	invoke	Image_construct, offset img_nightBackground, 292, 0, SCENE_WIDTH, SCENE_HEIGHT
+	invoke	Image_construct, offset img_scorePane, 6, 518, 226, 114
+	invoke	Image_construct, offset img_sliverMedal, 242, 516, 44, 44
+	invoke	Image_construct, offset img_goldenMedal, 242, 564, 44, 44
+	invoke	Image_construct, offset img_copperMedal, 224, 954, 44, 44
+	invoke	Image_construct, offset img_btPause, 242, 612, 26, 28
+	invoke	Image_construct, offset img_orangePipeUp, 0, 646, 52, 320
+	invoke	Image_construct, offset img_orangePipeDown, 56, 646, 52, 320
+	invoke	Image_construct, offset img_greenPipeUp, 112, 646, 52, 320
+	invoke	Image_construct, offset img_greenPipeDown, 168, 646, 52, 320
+	mov		ebx, offset img_blueBird
+	mov		edx, sizeof Image
+	invoke	Image_construct, ebx, 174, 982, 34, 24
+	add		ebx, edx
+	invoke	Image_construct, ebx, 230, 658, 34, 24
+	add		ebx, edx
+	invoke	Image_construct, ebx, 230, 710, 34, 24
+	mov		ebx, offset img_redBird
+	invoke	Image_construct, ebx, 230, 762, 34, 24
+	add		ebx, edx
+	invoke	Image_construct, ebx, 230, 814, 34, 24
+	add		ebx, edx
+	invoke	Image_construct, ebx, 230, 866, 34, 24
+	mov		ebx, offset img_yellowBird
+	invoke	Image_construct, ebx, 6, 982, 34, 24
+	add		ebx, edx
+	invoke	Image_construct, ebx, 62, 982, 34, 24
+	add		ebx, edx
+	invoke	Image_construct, ebx, 118, 982, 34, 24
+	invoke	Image_construct, offset img_new, 224, 1002, 32, 14
+	mov		ebx, offset img_largeNum
+	invoke	Image_construct, ebx, 992, 120, 24, 36
+	add		ebx, edx
+	invoke	Image_construct, ebx, 272, 910, 16, 36
+	add		ebx, edx
+	invoke	Image_construct, ebx, 584, 320, 24, 36
+	add		ebx, edx
+	invoke	Image_construct, ebx, 612, 320, 24, 36
+	add		ebx, edx
+	invoke	Image_construct, ebx, 640, 320, 24, 36
+	add		ebx, edx
+	invoke	Image_construct, ebx, 668, 320, 24, 36
+	add		ebx, edx
+	invoke	Image_construct, ebx, 584, 368, 24, 36
+	add		ebx, edx
+	invoke	Image_construct, ebx, 612, 368, 24, 36
+	add		ebx, edx
+	invoke	Image_construct, ebx, 640, 368, 24, 36
+	add		ebx, edx
+	invoke	Image_construct, ebx, 668, 368, 24, 36
+	mov		ebx, offset img_middleNum
+	invoke	Image_construct, ebx, 274, 612, 14, 20
+	add		ebx, edx
+	invoke	Image_construct, ebx, 278, 954, 10, 20
+	add		ebx, edx
+	invoke	Image_construct, ebx, 274, 978, 14, 20
+	add		ebx, edx
+	invoke	Image_construct, ebx, 262, 1002, 14, 20
+	add		ebx, edx
+	invoke	Image_construct, ebx, 1004, 0, 14, 20
+	add		ebx, edx
+	invoke	Image_construct, ebx, 1004, 24, 14, 20
+	add		ebx, edx
+	invoke	Image_construct, ebx, 1010, 52, 14, 20
+	add		ebx, edx
+	invoke	Image_construct, ebx, 1010, 84, 14, 20
+	add		ebx, edx
+	invoke	Image_construct, ebx, 586, 484, 14, 20
+	add		ebx, edx
+	invoke	Image_construct, ebx, 622, 412, 14, 20
+	mov		ebx, offset img_smallNum
+	invoke	Image_construct, ebx, 276, 646, 12, 14
+	add		ebx, edx
+	invoke	Image_construct, ebx, 282, 664, 6, 14
+	add		ebx, edx
+	invoke	Image_construct, ebx, 276, 698, 12, 14
+	add		ebx, edx
+	invoke	Image_construct, ebx, 276, 716, 12, 14
+	add		ebx, edx
+	invoke	Image_construct, ebx, 276, 750, 12, 14
+	add		ebx, edx
+	invoke	Image_construct, ebx, 276, 768, 12, 14
+	add		ebx, edx
+	invoke	Image_construct, ebx, 276, 802, 12, 14
+	add		ebx, edx
+	invoke	Image_construct, ebx, 276, 820, 12, 14
+	add		ebx, edx
+	invoke	Image_construct, ebx, 276, 854, 12, 14
+	add		ebx, edx
+	invoke	Image_construct, ebx, 276, 872, 12, 14
+	invoke	Image_construct, offset img_txtCopyright, 886, 184, 134, 10
+	invoke	Image_construct, offset img_black, 584, 412, 32, 32
+	invoke	Image_construct, offset img_white, 584, 448, 32, 32
+
+	invoke	Spirit_construct, offset sp_bird, offset img_yellowBird, 0, 0
+	invoke	AnimationManager_allocAnimation
+	mov		sp_bird.ani, eax
+	invoke	Spirit_construct, offset sp_sky, offset img_dayBackground, 144, 256
+	invoke	Spirit_construct, offset sp_ground, offset img_ground, 144, 456
+	invoke	Spirit_construct, offset sp_txtGetReady, offset img_txtGetReady, 137, 145
+	invoke	Spirit_construct, offset sp_txtGameOver, offset img_txtGameOver, 0, 0
+	invoke	AnimationManager_allocAnimation
+	mov		sp_txtGameOver.ani, eax
+	invoke	Spirit_construct, offset sp_txtCopyright, offset img_txtCopyright, 134, 430
+	invoke	Spirit_construct, offset sp_txtFlappyBird, offset img_txtFlappyBird, 139, 144
+ 	invoke	Spirit_construct, offset sp_largeScore, offset img_largeNum, 144, 80
+	invoke	Spirit_construct, offset sp_helpInfo, offset img_help, 137, 249
+	invoke	Spirit_construct, offset sp_btPlay, offset img_btPlay, 72, 371
+	invoke	Spirit_construct, offset sp_btRank, offset img_btRank, 212, 371
+	invoke	Spirit_construct, offset sp_btRate, offset img_btRate, 144, 285
+	invoke	Spirit_construct, offset sp_scoreBoard, offset img_scorePane, 0, 0
+	invoke	nimationManager_allocAnimation
+	mov		sp_scoreBoard.ani, eax
+	invoke	Spirit_construct, offset sp_blackFade, offset img_black, 0, 0
+	invoke	AnimationManager_allocAnimation
+	mov		sp_blackFade.ani, eax
+	invoke	Spirit_construct, offset sp_whiteFade, offset img_white, 0, 0
+	invoke	AnimationManager_allocAnimation
+	mov		sp_whiteFade.ani, eax
+	mov		ecx, 0
+	mov		eax, offset sp_upPipes
+	mov		ebx, offset sp_downPipes
+	.while	ecx < 4
+		inc		ecx
+		invoke	Spirit_construct, eax, offset img_greenPipeUp, 0, 0
+		invoke	Spirit_construct, ebx, offset img_greenPipeDown, 0, 0
+		add		eax, sizeof Spirit
+		add		ebx, sizeof Spirit
+	.endw
+	
+	invoke	ImageManager_randomSkyAndBird
+
+	mov		eax, TRUE
+	ret
+ImageManager_initAll	endp
+
+ImageManager_drawFadeCover	proc public uses eax	img : ImagePtr, alpha : BYTE
+	local	@blend : BLENDFUNCTION
+
+	mov		@blend.AlphaFormat, 0
+	mov		@blend.BlendOp, AC_SRC_OVER
+	mov		@blend.BlendFlags, 0
+	push	alpha
+	pop		blend.SourceConstantAlpha
+	invoke	AlphaBlend, g_imgMgr.dstHdc, 0, 0, 288, 512, g_imgMgr.imgHdc, \
+			img + Image.x, img + Image.y, img + Image._width, img + Image.height, @blend
+ImageManager_drawFadeCover	endp
+
+ImageManager_drawNumber		proc public uses eax ebx ecx edx	num : DWORD, _cx : SDWORD, cy : SDWORD, _size : DWORD, _align DWORD
+	local	@digitNum : DWORD
+	local	@grap : DWORD
+	local	@halfHeight : DWORD
+	local	@halfWidth : DWORD
+	local	@digit : DWORD
+	local	@startX : SDWORD
+	local	@startY : SDWORD
+
+	invoke	_getDigitNum, num
+	mov		@digitNum, eax
+	assume	ebx : ptr Image
+	mov		ebx, NULL
+	mov		@grap, 2
+
+	.if		_size == NumberSize_large
+		mov		ebx, offset img_largeNum
+		mov		@grap, 0
+	.elseif	_size == NumberSize_middle
+		mov		ebx, offset img_middleNum
+	.elseif	_size == NumberSize_small
+		mov		ebx, offset img_smallNum
+	.endif
+	; 计算绘制位置
+	mov		eax, [ebx].height
+	sar		eax, 1
+	mov		@halfHeight, eax
+	mov		@halfWidth, 0
+	mov		ecx, 0
+	mov		edx, ebx
+	.while	ecx < @digitNum
+		invoke	_getDigit, num, ecx
+		mov		@digit, eax
+		mul		eax, sizeof Image
+		add		eax, edx
+		mov		ebx, eax
+		mov		eax, @halfWidth
+		add		eax, [ebx]._width
+		add		eax, @grap
+		.if		size != NumberSize_large && @digit == 1
+			mov		ebx, edx
+			add		ebx, sizeof Image
+			sub		eax, [ebx]._width
+			add		ebx, sizeof Image
+			add		eax, [ebx]._width
+		.endif
+		mov		@halfWidth, eax
+		inc		ecx
+	.endw
+	mov		eax, @halfWidth
+	sar		eax, 1
+	sub		eax, @grap
+	mov		@halfWidth, eax
+	mov		eax, cy
+	sub		eax, halfHeight
+	mov		@startY, eax
+	.if		_align == NumberAlign_left
+		mov		eax, @halfWidth
+		sal		eax, 1
+		add		eax, _cx
+	.elseif	_align == NumberAlign_center
+		mov		eax, @halfWidth
+		add		eax, _cx
+	.elseif _align == NumberAlign_right
+		mov		eax, _cx
+	.endif
+	mov		@startX, eax
+	; 绘制数字
+	mov		ecx, 0
+	.while	ecx < @digitNum
+		invoke	_getDigit, num, ecx
+		mov		@digit, eax
+		mul		eax, sizeof Image
+		add		eax, edx
+		mov		ebx, eax
+		mov		eax, @startX
+		.if		_size != NumberSize_large && ecx > 0
+			sub		eax, @grap
+		.endif
+		mov		@startX, eax
+		invoke	TransparentBlt, g_imgMgr.dstHdc, @startX, @startY, [ebx]._width, [ebx].height, \
+				g_imgMgr.imgHdc, [ebx].x, [ebx].y, [ebx]._width, [ebx].height, TRANSPRENT_COLOR
+		.if		_size != NumberSize_large && @digit == 1
+			mov		eax, @startX
+			mov		ebx, edx
+			add		ebx, sizeof Image
+			add		eax, [ebx]._width
+			add		ebx, sizeof Image
+			sub		eax, [ebx]._width
+			mov		@startX, eax
+		.endif
+	.endw
+	assume	ebx : nothing
+	ret
+ImageManager_drawNumber		endp
 	end

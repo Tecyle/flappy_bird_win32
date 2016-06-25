@@ -266,12 +266,6 @@ void Spirit_drawFade(Spirit* o)
 
 //////////////////////////////////////////////////////////////////////////
 // ImageManager 对象相关方法
-void ImageManager_construct(HINSTANCE hInstance, HDC dstHdc)
-{
-	ImageManager* o = &g_imgMgr;
-
-}
-
 void ImageManager_drawSpirit(SpiritType spiritType)
 {
 	// 绘制的精灵一共分为以下几种不同的类型

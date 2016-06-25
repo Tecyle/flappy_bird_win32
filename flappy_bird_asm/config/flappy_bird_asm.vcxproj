@@ -82,6 +82,8 @@
     <MASM Include="../asm/main.asm" />
     <MASM Include="..\asm\button.asm" />
     <MASM Include="..\asm\image_manager.asm" />
+    <MASM Include="..\asm\physic_engine.asm" />
+    <MASM Include="..\asm\scene_manager.asm" />
     <MASM Include="..\asm\sound_manager.asm" />
   </ItemGroup>
   <ItemGroup>

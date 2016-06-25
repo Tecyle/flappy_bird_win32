@@ -27,6 +27,12 @@
     <MASM Include="..\asm\image_manager.asm">
       <Filter>源文件</Filter>
     </MASM>
+    <MASM Include="..\asm\physic_engine.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="..\asm\scene_manager.asm">
+      <Filter>源文件</Filter>
+    </MASM>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\inc\stdafx.inc">
