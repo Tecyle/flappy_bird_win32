@@ -33,6 +33,18 @@
     <MASM Include="..\asm\scene_manager.asm">
       <Filter>源文件</Filter>
     </MASM>
+    <MASM Include="..\asm\score_manager.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="..\asm\animation_manager.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="..\asm\rank_dialog.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="..\asm\rename_dialog.asm">
+      <Filter>源文件</Filter>
+    </MASM>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\inc\stdafx.inc">
@@ -48,6 +60,12 @@
       <Filter>头文件</Filter>
     </None>
     <None Include="..\inc\image_manager.inc">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\inc\scene_manager.inc">
+      <Filter>头文件</Filter>
+    </None>
+    <None Include="..\inc\physic_engine.inc">
       <Filter>头文件</Filter>
     </None>
   </ItemGroup>

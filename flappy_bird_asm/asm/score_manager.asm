@@ -107,58 +107,99 @@ ScoreManager_getHighScore		proc stdcall public
 	ret
 ScoreManager_getHighScore		endp
 
-MedalType ScoreManager_getMedalType()
-{
-	ScoreManager* o = &g_scoreManager;
-	if (o->myRank == 1)
-		return MedalType_golden;
-	if (o->myRank == 2)
-		return MedalType_sliver;
-	if (o->myRank == 3)
-		return MedalType_copper;
-	return MedalType_none;
-}
+ScoreManager_getMedalType		proc stdcall public
+	.if		g_scoreManager.myRank == 1
+		mov		eax, MedalType_golden
+	.elseif	g_scoreManager.myRank == 2
+		mov		eax, MedalType_sliver
+	.elseif	g_scoreManager.myRnak == 3
+		mov		eax, MedalType_copper
+	.else
+		mov		eax, MedalType_none
+	.endif
+	ret
+ScoreManager_getMedalType		endp
 
-size_t ScoreManager_increaseScore()
-{
-	ScoreManager* o = &g_scoreManager;
-	o->myScore.score++;
-	o->rankScore[o->myRank - 1].score++;
-	while (o->myRank > 1 && o->myScore.score > o->rankScore[o->myRank - 2].score)
-	{
-		ScorePair_swap(&o->rankScore[o->myRank - 1], &o->rankScore[o->myRank - 2]);
-		o->myRank--;
-	}
-	return o->myScore.score;
-}
+ScoreManager_increaseScore		proc stdcall public uses ebx ecx edx
+	assume	ebx : ScorePairPtr
+	inc		g_scoreManager.myScore.score
+	mov		eax, sizeof ScorePair
+	mov		edx, 0
+	mov		ecx, g_scoreManager.myRank
+	dec		ecx
+	mul		ecx
+	add		eax, offset g_scoreManager.rankScore
+	mov		ebx, eax
+	inc		[ebx].score
 
-void ScoreManager_resetCurrentScore()
-{
-	ScoreManager* o = &g_scoreManager;
-	o->myScore.score = 0;
-	o->myRank = 10;
-	ScorePair_copy(&o->rankScore[9], &o->myScore);
-}
+	mov		eax, sizeof ScorePair
+	mov		edx, 0
+	mov		ecx, g_scoreManager.myRank
+	dec		ecx
+	dec		ecx
+	mul		ecx
+	add		eax, offset g_scoreManager.rankScore
+	mov		ebx, eax
+	.while	g_scoreManager.myRank > 1 && g_scoreManager.myScore.score > [ebx].score
+		mov		eax, sizeof ScorePair
+		add		eax, ebx
+		invoke	ScorePair_swap, eax, ebx
+		dec		g_scoreManager.myRank
+		mov		eax, sizeof ScorePair
+		sub		ebx, eax
+	.endw
 
-void ScoreManager_clear()
-{
-	ScoreManager* o = &g_scoreManager;
-	memset(o->rankScore, 0, sizeof(o->rankScore));
-}
+	assume	ebx : nothing
+	mov		eax, g_scoreManager.myScore.score
+	ret
+ScoreManager_increaseScore		endp
 
-const char* ScoreManager_getNameByRank(int rank)
-{
-	ScoreManager* o = &g_scoreManager;
-	if (rank < 1 || rank > 9)
-		return NULL;
-	return o->rankScore[rank - 1].name;
-}
-size_t ScoreManager_getScoreByRank(int rank)
-{
-	ScoreManager* o = &g_scoreManager;
-	if (rank < 1 || rank > 9)
-		return NULL;
-	return o->rankScore[rank - 1].score;
-}
+ScoreManager_resetCurrentScore	proc stdcall public uses eax
+	mov		g_scoreManager.myScore.score, 0
+	mov		g_scoreManager.myRank, 10
+	invoke	ScorePair_copy, (offset g_scoreManager.rankScore) + 9 * (sizeof ScorePair), offset g_scoreManager,myScore
+	ret
+ScoreManager_resetCurrentScore	endp
+
+ScoreManager_clear				proc stdcall public uses eax
+	invoke	RtlZeroMemory, offset g_scoreManager.rankScore, 10 * (sizeof ScorePair)
+	ret
+ScoreManager_clear				endp
+
+ScoreManager_getNameByRank		proc stdcall public uses ebx edx	rank : SDWORD
+	.if		rank < 1 || rank > 9
+		mov		eax, NULL
+	.else
+		mov		eax, sizeof ScorePair
+		mov		edx, 0
+		mov		ebx, rank
+		dec		ebx
+		mul		ebx
+		add		eax, offset g_scoreManager.rankScore
+		mov		ebx, eax
+		assume	ebx : ScorePairPtr
+		mov		eax, [ebx]._name
+		assume	ebx : nothing
+	.endif
+	ret
+ScoreManager_getNameByRank		endp
+
+ScoreManager_getScoreByRank		proc stdcall public uses ebx edx	rank : SDWORD
+	.if		rank < 1 || rank > 9
+		mov		eax, NULL
+	.else
+		mov		eax, sizeof ScorePair
+		mov		edx, 0
+		mov		ebx, rank
+		dec		ebx
+		mul		ebx
+		add		eax, offset g_scoreManager.rankScore
+		mov		ebx, eax
+		assume	ebx : ScorePairPtr
+		mov		eax, [ebx].score
+		assume	ebx : nothing
+	.endif
+	ret
+ScoreManager_getScoreByRank		endp
 
 	end

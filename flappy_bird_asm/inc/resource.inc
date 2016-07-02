@@ -2,6 +2,8 @@
 ; resource.inc
 ; 类似于 VC 的 resource.h，用来定义所有需要用到的资源符号
 ;/////////////////////////////////////////////////////////
+ifndef		_STDAFX_H_
+
 IDB_RENAME			equ  3
 IDB_SCENE			equ  101
 IDR_SFX_DIE			equ  107
