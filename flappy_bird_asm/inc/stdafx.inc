@@ -4,6 +4,9 @@
 ; 和通用声明，本项目的所有 asm 文件第一行都必须是：
 ; include stdafx.inc
 ;/////////////////////////////////////////////////////////
+IFNDEF	_STDAFX_INC_
+_STDAFX_INC_	equ	<1>
+
 	.387
 	.model	flat, stdcall
 	option casemap:none
@@ -22,3 +25,5 @@ includelib	msvcrt.lib
 
 SCENE_WIDTH		equ	288
 SCENE_HEIGHT	equ	512
+
+ENDIF

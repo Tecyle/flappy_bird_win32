@@ -6,7 +6,8 @@
 ; 2. 在需要播放声音的地方，调用 SoundManager_playSound 来播
 ;    放声音
 ;/////////////////////////////////////////////////////////
-
+IFNDEF	_SOUND_MANAGER_INC_
+_SOUND_MANAGER_INC_	equ	<1>
 ;/////////////////////////////////////////////////////////
 ; 定义游戏中所有用到的声音类型
 SoundType_die		equ 0	; 小鸟死亡的声音
@@ -25,3 +26,5 @@ SoundManager_init		proto stdcall	hInstance : DWORD
 ; 播放指定的声音，比如，想要播放小鸟死亡的声音，应该：
 ; invoke	SoundManager_playSound, SoundType_die
 SoundManager_playSound	proto stdcall	sound : DWORD
+
+ENDIF
