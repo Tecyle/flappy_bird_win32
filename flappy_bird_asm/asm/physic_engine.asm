@@ -97,7 +97,6 @@ _PhysicEngine_birdFloating	endp
 _PhysicEngine_birdFree		proc stdcall private uses eax ebx edx
 	local	@vvPre : DOUBLE
 	local	@tp : SDWORD
-	local	@tpdbl : DOUBLE
 
 	assume	ebx : ptr Spirit
 	assume	edx : ptr Spirit
@@ -152,8 +151,6 @@ _PhysicEngine_birdFree		proc stdcall private uses eax ebx edx
 	fdiv	g_physicEngine.birdHSpeed
 	fstp	@vvPre
 	invoke	crt_atan, @vvPre
-	qqmov		DWORD ptr @tpdbl, eax
-	fld		@tpdbl
 	fstp	[ebx].angle
 	assume	ebx : nothing
 	assume	edx : nothing
@@ -645,7 +642,8 @@ PhysicEngine_passedPipe		proc stdcall public uses ebx ecx edx
 			mul		ecx
 			add		eax, @upPipes
 			mov		edx, eax
-			.if		[ebx]._cx > [edx]._cx
+			mov		eax, [ebx]._cx
+			.if		eax > [edx]._cx
 				mov		[@pipePassed], TRUE
 				mov		eax, TRUE
 				ret

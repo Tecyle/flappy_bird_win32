@@ -14,6 +14,7 @@ _RenameDialog_initDialog	proc stdcall private	hWnd : HWND
 _RenameDialog_initDialog	endp
 
 reNameDlgProc				proc stdcall private	hWnd : HWND, msg : UINT, wParam : WPARAM, lParam : LPARAM
+	mov		eax, lParam
 	.if		msg == WM_INITDIALOG
 		invoke	_RenameDialog_initDialog, hWnd
 	.elseif	msg == WM_CLOSE
@@ -36,7 +37,7 @@ reNameDlgProc				proc stdcall private	hWnd : HWND, msg : UINT, wParam : WPARAM, 
 reNameDlgProc				endp
 
 RenameDialog_getName		proc stdcall public	hInstance : HINSTANCE, parent : HWND
-	invoke	DialogBox, hInstance, IDD_RENAME, parent, reNameDlgProc
+	invoke	DialogBoxParamA, hInstance, IDD_RENAME, parent, reNameDlgProc, 0
 	mov		eax, offset newName
 	ret
 RenameDialog_getName		endp

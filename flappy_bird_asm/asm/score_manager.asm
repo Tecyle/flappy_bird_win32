@@ -21,15 +21,15 @@ g_scoreFileName	db				"flappy_bird.scores", 0
 g_scoreManager	ScoreManager	<>
 
 	.code
-ScorePair_copy			proc stdcall public uses eax ebx	dst : ScorePairPtr, src : ScorePairPtr
-	assume	eax : ScorePairPtr
+ScorePair_copy			proc stdcall public uses eax ebx edx	dst : ScorePairPtr, src : ScorePairPtr
+	assume	edx : ScorePairPtr
 	assume	ebx : ScorePairPtr
-	mov		eax, dst
+	mov		edx, dst
 	mov		ebx, src
 	push	[ebx].score
-	pop		[eax].score
-	invoke	crt_strcpy, offset [eax]._name, offset [ebx]._name
-	assume	eax : nothing
+	pop		[edx].score
+	invoke	crt_strcpy, addr [edx]._name, addr [ebx]._name
+	assume	edx : nothing
 	assume	ebx : nothing
 	ret
 ScorePair_copy			endp
@@ -93,11 +93,11 @@ ScoreManager_getCurrentScore	proc stdcall public
 ScoreManager_getCurrentScore	endp
 
 ScoreManager_getCurrentName		proc stdcall public
-	mov		eax, offset g_scoreManager.myScore.name
+	mov		eax, offset g_scoreManager.myScore._name
 	ret
 ScoreManager_getCurrentName		endp
 
-ScoreManager_setCurrentName		proc stdcall public uses eax	_name : ptr BYTE
+ScoreManager_setCurrentName		proc stdcall public uses eax	_name : DWORD
 	invoke	crt_strcpy, offset g_scoreManager.myScore._name, _name
 	ret
 ScoreManager_setCurrentName		endp
@@ -112,7 +112,7 @@ ScoreManager_getMedalType		proc stdcall public
 		mov		eax, MedalType_golden
 	.elseif	g_scoreManager.myRank == 2
 		mov		eax, MedalType_sliver
-	.elseif	g_scoreManager.myRnak == 3
+	.elseif	g_scoreManager.myRank == 3
 		mov		eax, MedalType_copper
 	.else
 		mov		eax, MedalType_none
@@ -140,13 +140,15 @@ ScoreManager_increaseScore		proc stdcall public uses ebx ecx edx
 	mul		ecx
 	add		eax, offset g_scoreManager.rankScore
 	mov		ebx, eax
-	.while	g_scoreManager.myRank > 1 && g_scoreManager.myScore.score > [ebx].score
+	mov		eax, g_scoreManager.myScore.score
+	.while	g_scoreManager.myRank > 1 && eax > [ebx].score
 		mov		eax, sizeof ScorePair
 		add		eax, ebx
 		invoke	ScorePair_swap, eax, ebx
 		dec		g_scoreManager.myRank
 		mov		eax, sizeof ScorePair
 		sub		ebx, eax
+		mov		eax, g_scoreManager.myScore.score
 	.endw
 
 	assume	ebx : nothing
@@ -157,7 +159,7 @@ ScoreManager_increaseScore		endp
 ScoreManager_resetCurrentScore	proc stdcall public uses eax
 	mov		g_scoreManager.myScore.score, 0
 	mov		g_scoreManager.myRank, 10
-	invoke	ScorePair_copy, (offset g_scoreManager.rankScore) + 9 * (sizeof ScorePair), offset g_scoreManager,myScore
+	invoke	ScorePair_copy, (offset g_scoreManager.rankScore) + 9 * (sizeof ScorePair), offset g_scoreManager.myScore
 	ret
 ScoreManager_resetCurrentScore	endp
 
@@ -178,7 +180,7 @@ ScoreManager_getNameByRank		proc stdcall public uses ebx edx	rank : SDWORD
 		add		eax, offset g_scoreManager.rankScore
 		mov		ebx, eax
 		assume	ebx : ScorePairPtr
-		mov		eax, [ebx]._name
+		lea		eax, [ebx]._name
 		assume	ebx : nothing
 	.endif
 	ret

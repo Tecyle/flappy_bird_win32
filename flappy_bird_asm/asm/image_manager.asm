@@ -484,12 +484,12 @@ ImageManager_drawSpirit	endp
 
 ImageManager_getSpirit	proc public uses ebx edx	spirit : DWORD
 	assume	ebx : ptr Spirit
-	mov		ebx, g_spirits
-	mov		eax, sizeof Spirit
+	mov		ebx, offset g_spirits
+	mov		eax, sizeof SpiritPtr
 	mov		edx, 0
 	mul		spirit
 	add		ebx, eax
-	mov		eax, ebx
+	mov		eax, SpiritPtr ptr [ebx]
 	assume	ebx : nothing
 	ret
 ImageManager_getSpirit	endp

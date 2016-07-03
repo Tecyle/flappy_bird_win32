@@ -17,7 +17,7 @@ g_clearTitle		DB				"Are you sure?", 0
 
 	.data
 g_hInstance			HINSTANCE		?
-g_buff				DB				64 dup(?)
+g_buffer			DB				64 dup(?)
 
 	.code
 _RankDialog_onInitDialog			proc stdcall private uses eax ebx ecx edx	hWnd : HWND
@@ -53,6 +53,7 @@ _RankDialog_onInitDialog			proc stdcall private uses eax ebx ecx edx	hWnd : HWND
 _RankDialog_onInitDialog			endp
 
 rankDialogFunc						proc stdcall private	hWnd : HWND, msg : UINT, wParam : WPARAM, lParam : LPARAM
+	mov		eax, lParam
 	.if		msg == WM_INITDIALOG
 		invoke	_RankDialog_onInitDialog, hWnd
 	.elseif	msg == WM_CLOSE
@@ -83,8 +84,9 @@ rankDialogFunc						endp
 
 
 RankDialog_doModal					proc stdcall public	hInstance : HINSTANCE, parent : HWND
-	mov		g_hInstance, hInstancce
-	invoke	DialogBoxA, hInstance, IDD_RANK, parent, rankDialogFunc
+	push	hInstance
+	pop		g_hInstance
+	invoke	DialogBoxParamA, hInstance, IDD_RANK, parent, rankDialogFunc, 0
 	mov		eax, 0
 	ret
 RankDialog_doModal					endp
