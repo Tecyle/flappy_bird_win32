@@ -91,11 +91,15 @@
     <MASM Include="..\asm\sound_manager.asm" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\inc\animation_manager.inc" />
     <None Include="..\inc\button.inc" />
     <None Include="..\inc\image_manager.inc" />
     <None Include="..\inc\physic_engine.inc" />
+    <None Include="..\inc\rank_dialog.inc" />
+    <None Include="..\inc\rename_dialog.inc" />
     <None Include="..\inc\resource.inc" />
     <None Include="..\inc\scene_manager.inc" />
+    <None Include="..\inc\score_manager.inc" />
     <None Include="..\inc\sound_manager.inc" />
     <None Include="..\inc\stdafx.inc" />
   </ItemGroup>

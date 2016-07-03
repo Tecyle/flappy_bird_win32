@@ -1,3 +1,6 @@
+IFNDEF	_SCENE_MANAGER_INC_
+_SCENE_MANAGER_INC_	equ	<1>
+
 include		image_manager.inc
 ;// 定义游戏场景类型
 ;// 游戏一共只有以下 4 个场景：
@@ -71,3 +74,5 @@ SceneManager_setViewSize	proto stdcall  _width:SDWORD,height:SDWORD
 	;本游戏用户的输入只有单击事件，通过这个函数来响应不同场景
 	;下的单击事件。
 SceneManager_onClick        proto stdcall  x:SDWORD, y:SDWORD
+
+ENDIF

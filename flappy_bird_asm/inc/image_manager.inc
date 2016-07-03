@@ -1,4 +1,7 @@
-;include		animation_manager.inc
+IFNDEF	_IMAGE_MANAGER_INC_
+_IMAGE_MANAGER_INC_	equ <1>
+
+include		animation_manager.inc
 
 NumberSize_large			equ  0		; 大号字，用于游戏过程中显示当前分数
 NumberSize_middle			equ  1		; 中号字，用于游戏结束后显示分数
@@ -64,3 +67,5 @@ ImageManager_drawFadeCover		proto stdcall	img : ImagePtr, alpha : BYTE
 ImageManager_drawNumber			proto stdcall	num : DWORD, _cx : SDWORD, cy : SDWORD, _size : DWORD, _align : DWORD
 
 ImageManager_getSpirit			proto stdcall	spirit : DWORD
+
+ENDIF

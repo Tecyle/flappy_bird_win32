@@ -233,7 +233,7 @@ Spirit_construct	proc public uses eax ebx ecx	o : SpiritPtr, img : ImagePtr, _cx
 	sal		eax, 1
 	mov		[ebx].halfHeight, eax
 	mov		[ebx].visiable, TRUE
-	;mov		[ebx].ani, NULL
+	mov		[ebx].ani, NULL
 	assume	ebx : nothing
 	assume	ecx : nothing
 	ret
@@ -246,15 +246,15 @@ Spirit_draw			proc public uses ebx ecx	o : SpiritPtr
 	local	@y : SDWORD
 
 	assume	ebx : ptr Spirit
-	;assume	ecx : ptr Animation
+	assume	ecx : ptr Animation
 	mov		ebx, o
 	.if		[ebx].visiable == FALSE
 		ret
 	.endif
-	;mov		ecx, [ebx].ani
-	;.if		ecx != NULL && [ecx].transEnable
-		;invoke	TransAnimation_getXY, ecx, offset [ebx]._cx, offset [ebx].cy
-	;.endif
+	mov		ecx, [ebx].ani
+	.if		ecx != NULL && [ecx].transEnable
+		invoke	TransAnimation_getXY, ecx, offset [ebx]._cx, offset [ebx].cy
+	.endif
 	assume	ecx : ptr Image
 	mov		ecx, [ebx].image
 	push	[ebx]._cx

@@ -1,4 +1,5 @@
 include		stdafx.inc
+include		scene_manager.inc
 
 	.data
 szCaption			db	'Flappy Bird', 0
@@ -49,8 +50,8 @@ _WndProc	proc private uses ebx hWnd, msg, wParam, lParam
 		sub		eax, @windowRect.left
 		mov		ebx, @windowRect.bottom
 		sub		ebx, @windowRect.top
-		;invoke	SceneManager_setViewSize, eax, ebx
-		;invoke	SceneManager_render
+		invoke	SceneManager_setViewSize, eax, ebx
+		invoke	SceneManager_render
 	; 鼠标左键单击时，变换窗口坐标为游戏坐标，并传递坐标进行单击事件判断
 	.elseif	eax == WM_LBUTTONDOWN
 		invoke	GetClientRect, hWnd, addr @windowRect
@@ -76,7 +77,7 @@ _WndProc	proc private uses ebx hWnd, msg, wParam, lParam
 		mov		@ry, eax
 		fidiv	@ry
 		fistp	@ry
-		;invoke	SceneManager_onClick, @rx, @ry
+		invoke	SceneManager_onClick, @rx, @ry
 		invoke	_ClearMessageQueue
 	; 其他情况交由默认的消息处理程序进行处理
 	.else
@@ -174,12 +175,12 @@ WinMain		proc uses ebx
 	invoke	GetDC, @hWnd
 	mov		@hdc, eax
 	invoke	GetClientRect, @hWnd, addr @windowRect
-	;invoke	SceneManager_init, @hInstance, @hWnd, @hdc
+	invoke	SceneManager_init, @hInstance, @hWnd, @hdc
 	mov		eax, @windowRect.right
 	sub		eax, @windowRect.left
 	mov		ebx, @windowRect.bottom
 	sub		ebx, @windowRect.top
-	;invoke	SceneManager_setViewSize, eax, ebx
+	invoke	SceneManager_setViewSize, eax, ebx
 	; 显示窗口
 	invoke	ShowWindow, @hWnd, SW_SHOW
 	invoke	UpdateWindow, @hWnd
@@ -194,10 +195,10 @@ WinMain		proc uses ebx
 			invoke	DispatchMessage, addr @msg
 			.continue
 		.endif
-		;invoke	SceneManager_render
+		invoke	SceneManager_render
 	.endw
 	; 清理并结束程序
-	;invoke	SceneManager_destruct
+	invoke	SceneManager_destruct
 	mov		eax, @msg.wParam
 	ret
 WinMain		endp

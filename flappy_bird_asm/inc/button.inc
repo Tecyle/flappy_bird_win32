@@ -1,3 +1,6 @@
+IFNDEF	_BUTTON_INC_
+_BUTTON_INC_	equ	<1>
+
 fnFuncOnClick		typedef	proto stdcall
 FuncOnClick			typedef ptr fnFuncOnClick
 
@@ -15,3 +18,5 @@ Button_construct	proto stdcall	o : ButtonPtr, left : SDWORD, right : SDWORD, \
 					top : SDWORD, bottom : SDWORD, onClickFunction : FuncOnClick
 
 Button_isHit		proto stdcall	o : ButtonPtr, x : SDWORD, y : SDWORD
+
+ENDIF
