@@ -13,6 +13,7 @@ SceneType_prepare	equ 2				;///< 准备开始界面
 SceneType_playing	equ 3				;///< 游戏界面
 SceneType_gameOver	equ 4				;///< 游戏结束界面
 SceneType			typedef DWORD
+SceneTypePtr		typedef ptr SceneType
 
 ;// 定义游戏场景
 ;// 游戏场景指明了一个场景中需要绘制哪些东西

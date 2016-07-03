@@ -6,10 +6,12 @@ include		animation_manager.inc
 NumberSize_large			equ  0		; 大号字，用于游戏过程中显示当前分数
 NumberSize_middle			equ  1		; 中号字，用于游戏结束后显示分数
 NumberSize_small			equ  2		; 小号字，本程序中没有用到
+NumberSize		typedef DWORD
 
 NumberAlign_left			equ  0		; 左对齐，游戏中没有用到这种对其方式
 NumberAlign_center			equ  1		; 居中对齐
 NumberAlign_right			equ  2		; 右对齐
+NumberAlign		typedef DWORD
 
 SpiritType_ground			equ  0		; 地面
 SpiritType_sky				equ  1		; 背景天空
@@ -28,6 +30,8 @@ SpiritType_btRate			equ 13		; Rate 按钮
 SpiritType_scoreBoard		equ 14		; 记分牌
 SpiritType_blackFade		equ 15		; 黑色渐变遮罩
 SpiritType_whiteFade		equ 16		; 白色渐变遮罩
+SpiritType		typedef DWORD
+SpiritTypePtr	typedef ptr SpiritType
 
 Image			struct
 	x			SDWORD			?	; 图像矩形区域的 x 坐标
@@ -46,8 +50,8 @@ Spirit			struct
 	angle		REAL8			?	; 精灵的旋转角度，目前仅小鸟有效
 	halfWidth	SDWORD			?	; 精灵的宽度的一半
 	halfHeight	SDWORD			?	; 精灵的高度的一半
-	visiable	BOOLEAN			?	; 精灵是否可见
-	;ani			AnimationPtr	?	; 控制精灵的动画
+	visiable	BOOL			?	; 精灵是否可见
+	ani			DWORD			?	; 控制精灵的动画
 Spirit			ends
 SpiritPtr		typedef	ptr Spirit
 
@@ -63,7 +67,7 @@ Spirit_construct				proto stdcall	o : SpiritPtr, img : ImagePtr, _cx : SDWORD, c
 ImageManager_initAll			proto stdcall	hInstance : HINSTANCE, hdc : HDC
 ImageManager_randomSkyAndBird	proto stdcall
 ImageManager_drawSpirit			proto stdcall	spirit : DWORD
-ImageManager_drawFadeCover		proto stdcall	img : ImagePtr, alpha : BYTE
+ImageManager_drawFadeCover		proto stdcall	img : ImagePtr, alpha : DWORD
 ImageManager_drawNumber			proto stdcall	num : DWORD, _cx : SDWORD, cy : SDWORD, _size : DWORD, _align : DWORD
 
 ImageManager_getSpirit			proto stdcall	spirit : DWORD

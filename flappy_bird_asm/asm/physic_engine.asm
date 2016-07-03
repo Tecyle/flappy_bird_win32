@@ -23,25 +23,25 @@ PhysicEngine		struct
 	groundState			GroundState	?
 	pipeState			PipeState	?
 
-	birdTickCount		double		?		; 小鸟的计时器
-	isBirdDropped		bool		?		; 小鸟是否已经死在地板上了
-	canBeHigher			bool		?
-	birdVSpeed			double		?		; 小鸟的横向速度
-	birdHSpeed			double		?		; 小鸟的纵向速度
+	birdTickCount		DOUBLE		?		; 小鸟的计时器
+	isBirdDropped		BOOL		?		; 小鸟是否已经死在地板上了
+	canBeHigher			BOOL		?
+	birdVSpeed			DOUBLE		?		; 小鸟的横向速度
+	birdHSpeed			DOUBLE		?		; 小鸟的纵向速度
 
 	groundMovingLength	SDWORD		?
 
-	pipePassed			bool		4 dup(?)
+	pipePassed			BOOL		4 dup(?)
 PhysicEngine		ends
 
 	.const
-g_gravity				double		100.0
+g_gravity				DOUBLE		100.0
 g_pipeInterval			SDWORD		1400
-g_fb_w					double		0.04
-g_fb_A					double		50.0
-g_scale					double		10.0
-g_bf_tick				double		0.15
-g_bf_maxVSpeed			double		700.0
+g_fb_w					DOUBLE		0.04
+g_fb_A					DOUBLE		50.0
+g_scale					DOUBLE		10.0
+g_bf_tick				DOUBLE		0.15
+g_bf_maxVSpeed			DOUBLE		700.0
 
 	.data
 g_physicEngine			PhysicEngine	<>
@@ -49,7 +49,7 @@ g_physicEngine			PhysicEngine	<>
 	.code
 ; 计算浮动中的小鸟的位置
 _PhysicEngine_birdFloating	proc stdcall private uses eax ebx
-	local	@tpf : double
+	local	@tpf : DOUBLE
 	local	@tp : DWORD
 
 	assume	ebx : ptr Spirit
@@ -59,25 +59,26 @@ _PhysicEngine_birdFloating	proc stdcall private uses eax ebx
 	; 在游戏中，仅改变小鸟的 y 坐标，而不改变小鸟的 x 坐标
 	finit
 	fld1
-	fld		g_sceMgr.birdTickCount
+	fld		g_physicEngine.birdTickCount
 	fadd
-	fstp	g_sceMgr.birdTickCount
+	fstp	g_physicEngine.birdTickCount
+	fld		g_physicEngine.birdTickCount
 	mov		@tp, 50
 	fild	@tp
 	;	ZF	PF	CF
 	;>	0	0	0
 	;<	0	0	1
 	;=	1	0	0
-	fcomi	g_sceMgr.birdTickCount
+	fcomi	st(0), st(1)
 	.if		CARRY?
 		fldz
-		fstp	g_sceMgr.birdTickCount
+		fstp	g_physicEngine.birdTickCount
 	.endif
 	
 	finit
 	fldpi
 	fmul	g_fb_w
-	fmul	g_sceMgr.birdTickCount
+	fmul	g_physicEngine.birdTickCount
 	fcos
 	fstp	@tpf
 	fld		g_fb_A
@@ -94,8 +95,9 @@ _PhysicEngine_birdFloating	endp
 
 ; 计算自由飞行中小鸟的位置
 _PhysicEngine_birdFree		proc stdcall private uses eax ebx edx
-	local	@vvPre : double
+	local	@vvPre : DOUBLE
 	local	@tp : SDWORD
+	local	@tpdbl : DOUBLE
 
 	assume	ebx : ptr Spirit
 	assume	edx : ptr Spirit
@@ -108,19 +110,20 @@ _PhysicEngine_birdFree		proc stdcall private uses eax ebx edx
 		ret
 	.endif
 
-	push	g_physicEngine.isBirdDropped
-	pop		@vvPre
+	fld		g_physicEngine.birdVSpeed
+	fstp	@vvPre
 
 	finit
 	fld		g_gravity
 	fmul	g_bf_tick
 	fadd	g_physicEngine.birdVSpeed
-	fcomi	g_bf_maxVSpeed
-	.if		!CARRY? && !ZERO
+	fld		g_bf_maxVSpeed
+	fcomi	st(0), st(1)
+	.if		CARRY?
+		fstp	g_bf_maxVSpeed
 		fstp	g_physicEngine.birdVSpeed
 	.else
-		push	g_bf_maxVSpeed
-		pop		g_physicEngine.birdVSpeed
+		fstp	g_physicEngine.birdVSpeed
 	.endif
 	mov		@tp, 2
 	finit
@@ -128,7 +131,7 @@ _PhysicEngine_birdFree		proc stdcall private uses eax ebx edx
 	fld		g_physicEngine.birdVSpeed
 	fadd	@vvPre
 	fmul	g_bf_tick
-	fdiv	st(1)
+	fdiv
 	fdiv	g_scale
 	fiadd	[ebx].cy
 	fistp	[ebx].cy
@@ -149,7 +152,9 @@ _PhysicEngine_birdFree		proc stdcall private uses eax ebx edx
 	fdiv	g_physicEngine.birdHSpeed
 	fstp	@vvPre
 	invoke	crt_atan, @vvPre
-	mov		[ebx].angle, eax
+	qqmov		DWORD ptr @tpdbl, eax
+	fld		@tpdbl
+	fstp	[ebx].angle
 	assume	ebx : nothing
 	assume	edx : nothing
 	ret
@@ -202,8 +207,11 @@ _PhysicEngine_movingPipes	proc stdcall private uses eax ebx ecx edx
 	mov		edx, eax
 	mov		ecx, 0
 	.while	ecx < 4
-		sub		[ebx]._cx, @cxInc
-		sub		[edx]._cx, @cxInc
+		push	ecx
+		mov		ecx, @cxInc
+		sub		[ebx]._cx, ecx
+		sub		[edx]._cx, ecx
+		pop		ecx
 		inc		ecx
 		add		ebx, sizeof SpiritPtr
 		add		edx, sizeof SpiritPtr
@@ -215,7 +223,7 @@ _PhysicEngine_movingPipes	endp
 
 _PhysicEngine_getRandPipeUp	proc stdcall private uses ebx edx
 	; 上端管子的开口坐标应该是 40 ~ ground - 40
-	local	@res : double
+	local	@res : DOUBLE
 	local	@tp : SDWORD
 
 	invoke	crt_rand
@@ -232,7 +240,7 @@ _PhysicEngine_getRandPipeUp	proc stdcall private uses ebx edx
 	finit
 	fild	@tp
 	fstp	@res
-	mov		eax, @res
+	fld		@res
 	ret
 _PhysicEngine_getRandPipeUp	endp
 
@@ -240,7 +248,7 @@ _PhysicEngine_initPipes		proc stdcall private uses eax ebx ecx edx
 	local	@r2pFactor : SDWORD
 	local	@cxPipe : SDWORD
 	local	@pixelPipeInterval : SDWORD
-	local	@tp : double
+	local	@tp : DOUBLE
 
 	assume	ebx : ptr Spirit
 	assume	edx : ptr Spirit
@@ -268,7 +276,7 @@ _PhysicEngine_initPipes		proc stdcall private uses eax ebx ecx edx
 		add		eax, @pixelPipeInterval
 		mov		@cxPipe, eax
 		invoke	_PhysicEngine_getRandPipeUp
-		mov		@tp, eax
+		fstp	@tp
 		finit
 		fild	@r2pFactor
 		fld		@tp
@@ -285,8 +293,8 @@ _PhysicEngine_initPipes		proc stdcall private uses eax ebx ecx edx
 		mov		[edx].cy, eax
 
 		pop		eax
-		mov		[eax], false
-		add		eax, sizeof bool
+		mov		[eax], BOOL ptr FALSE
+		add		eax, sizeof BOOL
 		push	eax
 
 		inc		ecx
@@ -303,7 +311,7 @@ _PhysicEngine_loopPipes		proc stdcall private uses eax ebx ecx edx
 	local	@upPipes : SpiritPtr
 	local	@downPipes : SpiritPtr
 	local	@pixelPipeInterval : SDWORD	; todo
-	local	@tp : double
+	local	@tp : DOUBLE
 	local	@r2pFactor : SDWORD
 	
 	mov		edx, 0
@@ -334,7 +342,7 @@ _PhysicEngine_loopPipes		proc stdcall private uses eax ebx ecx edx
 			mov		[ebx]._cx, eax
 			finit
 			invoke	_PhysicEngine_getRandPipeUp
-			mov		@tp, eax
+			fstp	@tp
 			fild	@r2pFactor
 			fld		@tp
 			fdiv
@@ -359,7 +367,7 @@ _PhysicEngine_loopPipes		proc stdcall private uses eax ebx ecx edx
 			mul		ecx
 			mov		edx, offset g_physicEngine.pipePassed
 			add		edx, eax
-			mov		[edx], false
+			mov		[edx], BOOL ptr FALSE
 
 			ret
 		.endif
@@ -481,9 +489,9 @@ _PhysicEngine_checkBirdState	proc stdcall private uses eax ebx ecx edx
 	.endw
 	mov		ebx, @bird
 	.if		[ebx].cy > 40
-		mov		g_phyiscEngine.canBeHigher, TRUE
+		mov		g_physicEngine.canBeHigher, TRUE
 	.else
-		mov		g_phyiscEngine.canBeHigher, FALSE
+		mov		g_physicEngine.canBeHigher, FALSE
 	.endif
 	assume	ebx : nothing
 	ret
@@ -496,7 +504,7 @@ _PhysicEngine_checkBirdState	endp
 ; * 小鸟：主要有浮动、自由、死亡三种状态
 ; * 地面：主要有移动、停止两种状态
 ; * 管道：主要有未出现、移动和停止三种状态
-PhysicEngine_tick			proc public stdcall uses eax
+PhysicEngine_tick			proc stdcall public uses eax
 	invoke	_PhysicEngine_birdTick
 	invoke	_PhysicEngine_groundTick
 	invoke	_PhysicEngine_pipesTick
@@ -504,7 +512,7 @@ PhysicEngine_tick			proc public stdcall uses eax
 	ret
 PhysicEngine_tick			endp
 
-PhysicEngine_isBirdDead		proc public stdcall
+PhysicEngine_isBirdDead		proc stdcall public
 	.if		g_physicEngine.birdState == BirdState_dead
 		mov		eax, TRUE
 	.else
@@ -520,12 +528,12 @@ PhysicEngine_init			proc stdcall public uses eax ebx ecx
 	mov		[ebx]._cx, 144
 	mov		[ebx].cy, 456
 	invoke	GetTickCount
-	invoke	ctr_srand, eax
+	invoke	crt_srand, eax
 	assume	ebx : nothing
 	mov		ecx, 0
 	mov		ebx, offset g_physicEngine.pipePassed
 	.while	ecx < 4
-		mov		[ebx], FALSE
+		mov		[ebx], BOOL ptr FALSE
 		add		ebx, sizeof BOOL
 		inc		ecx
 	.endw
@@ -629,7 +637,8 @@ PhysicEngine_passedPipe		proc stdcall public uses ebx ecx edx
 		mov		edx, 0
 		mul		ecx
 		add		eax, offset g_physicEngine.pipePassed
-		.if		[eax] == FALSE
+		mov		eax, [eax]
+		.if		eax == FALSE
 			mov		@pipePassed, eax
 			mov		eax, sizeof SpiritPtr
 			mov		edx, 0

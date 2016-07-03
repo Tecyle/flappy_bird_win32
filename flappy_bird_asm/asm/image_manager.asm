@@ -1,5 +1,6 @@
 include		stdafx.inc
 include		image_manager.inc
+include		score_manager.inc
 include		msimg32.inc
 
 includelib	msimg32.lib			; AlphaBlend 函数需要用到这个库
@@ -253,7 +254,7 @@ Spirit_draw			proc public uses ebx ecx	o : SpiritPtr
 	.endif
 	mov		ecx, [ebx].ani
 	.if		ecx != NULL && [ecx].transEnable
-		invoke	TransAnimation_getXY, ecx, offset [ebx]._cx, offset [ebx].cy
+		invoke	TransAnimation_getXY, ecx, addr [ebx]._cx, addr [ebx].cy
 	.endif
 	assume	ecx : ptr Image
 	mov		ecx, [ebx].image
@@ -272,7 +273,7 @@ Spirit_draw			proc public uses ebx ecx	o : SpiritPtr
 	ret
 Spirit_draw			endp
 
-Spirit_drawBird		proc public uses ebx ecx	o : SpiritPtr
+Spirit_drawBird		proc public uses ebx ecx edx	o : SpiritPtr
 	local	@srcHdc : HDC
 	local	@dstHdc : HDC
 	local	@frameIndex : SDWORD
@@ -296,7 +297,10 @@ Spirit_drawBird		proc public uses ebx ecx	o : SpiritPtr
 	.endif
 	mov		@frameIndex, eax
 	mov		ecx, [ebx].image
-	add		ecx, @frameIndex * (sizeof Image)
+	mov		edx, 0
+	mov		eax, sizeof Image
+	mul		@frameIndex
+	add		ecx, eax
 	; 旋转小鸟
 	invoke	_rotateHdc, @dstHdc, [ebx].angle, [ebx]._cx, [ebx].cy
 	mov		eax, [ebx]._cx
@@ -307,13 +311,13 @@ Spirit_drawBird		proc public uses ebx ecx	o : SpiritPtr
 	mov		@y, eax
 	invoke	TransparentBlt, @dstHdc, @x, @y, [ecx]._width, [ecx].height, \
 			@srcHdc, [ecx].x, [ecx].y, [ecx]._width, [ecx].height, TRANSPRENT_COLOR
-	invoke	_restoreHdc, dstHdc
+	invoke	_restoreHdc, @dstHdc
 	assume	ebx : nothing
 	assume	ecx : nothing
 	ret
 Spirit_drawBird		endp
 
-Spirit_drawPipes	proc public uses ebx ecx edx	oword : SpiritPtr
+Spirit_drawPipes	proc public uses ebx ecx edx	o : SpiritPtr
 	local	@srcHdc : HDC
 	local	@dstHdc : HDC
 	local	@x : SDWORD
@@ -348,8 +352,8 @@ Spirit_drawPipes	proc public uses ebx ecx edx	oword : SpiritPtr
 Spirit_drawPipes	endp
 
 Spirit_drawLargeScore	proc public uses ebx	o : SpiritPtr
-	local	srcHdc : HDC
-	local	dstHdc : HDC
+	local	@srcHdc : HDC
+	local	@dstHdc : HDC
 
 	push	g_imgMgr.imgHdc
 	pop		@srcHdc
@@ -381,7 +385,7 @@ Spirit_drawScoreBorad	proc public uses eax ebx ecx edx	o : SpiritPtr
 	.if		[ebx].visiable == FALSE
 		ret
 	.endif
-	invoke	TransAnimation_getXY, [ebx].ani, offset [ebx]._cx, offset [ebx].cy
+	invoke	TransAnimation_getXY, [ebx].ani, addr [ebx]._cx, addr [ebx].cy
 	; 先绘制底板
 	assume	ecx : ptr Image
 	mov		ecx, offset img_scorePane
@@ -413,10 +417,11 @@ Spirit_drawScoreBorad	proc public uses eax ebx ecx edx	o : SpiritPtr
 	invoke	ImageManager_drawNumber, eax, @x, @y, NumberSize_middle, NumberAlign_right
 	; 再决定绘制什么奖牌
 	invoke	ScoreManager_getMedalType
-	mov		edx, sizeof Image
-	mul		edx, eax
-	mov		ecx, imgMedal
-	add		ecx, edx
+	mov		ecx, sizeof Image
+	mov		edx, 0
+	mul		ecx
+	mov		ecx, offset imgMedal
+	add		ecx, eax
 	.if		ecx != NULL
 		mov		eax, [ebx]._cx
 		sub		eax, 88
@@ -452,11 +457,12 @@ Spirit_drawFade		proc public uses eax ebx	o : SpiritPtr
 	ret
 Spirit_drawFade		endp
 
-ImageManager_drawSpirit	proc public uses eax ebx	spiritType : DWORD
+ImageManager_drawSpirit	proc public uses eax ebx edx	spiritType : DWORD
 	assume	ebx : ptr Spirit
-	mov		ebx, g_spirit
+	mov		ebx, offset g_spirits
 	mov		eax, sizeof SpiritPtr
-	mul		eax, spiritType
+	mov		edx, 0
+	mul		spiritType
 	add		ebx, eax
 	mov		eax, spiritType
 	.if		eax == SpiritType_bird
@@ -476,14 +482,15 @@ ImageManager_drawSpirit	proc public uses eax ebx	spiritType : DWORD
 	ret
 ImageManager_drawSpirit	endp
 
-ImageManager_getSpirit	proc public uses ebx	spirit : DWORD
+ImageManager_getSpirit	proc public uses ebx edx	spirit : DWORD
 	assume	ebx : ptr Spirit
 	mov		ebx, g_spirits
 	mov		eax, sizeof Spirit
-	mul		eax, spirit
+	mov		edx, 0
+	mul		spirit
 	add		ebx, eax
 	mov		eax, ebx
-	assume	ebx, nothing
+	assume	ebx : nothing
 	ret
 ImageManager_getSpirit	endp
 
@@ -516,11 +523,11 @@ ImageManager_randomSkyAndBird	proc public uses eax edx
 	ret
 ImageManager_randomSkyAndBird	endp
 
-ImageManager_initAll	proc public uses ebx ecx edx	hInstance : HINSTANCE hInstance, hdc : HDC hdc
+ImageManager_initAll	proc public uses ebx ecx edx	hInstance : HINSTANCE, hdc : HDC
 	push	hInstance
 	pop		g_imgMgr.hInstance
 	push	hdc
-	pop		g_imgMgr.hdc
+	pop		g_imgMgr.dstHdc
 	invoke	LoadBitmap, hInstance, IDB_SCENE
 	mov		g_imgMgr.imgScene, eax
 	.if		eax == NULL
@@ -656,7 +663,7 @@ ImageManager_initAll	proc public uses ebx ecx edx	hInstance : HINSTANCE hInstanc
 	invoke	Spirit_construct, offset sp_btRank, offset img_btRank, 212, 371
 	invoke	Spirit_construct, offset sp_btRate, offset img_btRate, 144, 285
 	invoke	Spirit_construct, offset sp_scoreBoard, offset img_scorePane, 0, 0
-	invoke	nimationManager_allocAnimation
+	invoke	AnimationManager_allocAnimation
 	mov		sp_scoreBoard.ani, eax
 	invoke	Spirit_construct, offset sp_blackFade, offset img_black, 0, 0
 	invoke	AnimationManager_allocAnimation
@@ -681,19 +688,20 @@ ImageManager_initAll	proc public uses ebx ecx edx	hInstance : HINSTANCE hInstanc
 	ret
 ImageManager_initAll	endp
 
-ImageManager_drawFadeCover	proc public uses eax	img : ImagePtr, alpha : BYTE
+ImageManager_drawFadeCover	proc public uses eax	img : ImagePtr, alpha : DWORD
 	local	@blend : BLENDFUNCTION
 
 	mov		@blend.AlphaFormat, 0
 	mov		@blend.BlendOp, AC_SRC_OVER
 	mov		@blend.BlendFlags, 0
-	push	alpha
-	pop		blend.SourceConstantAlpha
+	mov		al, BYTE ptr alpha
+	mov		@blend.SourceConstantAlpha, al
 	invoke	AlphaBlend, g_imgMgr.dstHdc, 0, 0, 288, 512, g_imgMgr.imgHdc, \
-			img + Image.x, img + Image.y, img + Image._width, img + Image.height, @blend
+			img + Image.x, img + Image.y, img + Image._width, img + Image.height, addr @blend
+	ret
 ImageManager_drawFadeCover	endp
 
-ImageManager_drawNumber		proc public uses eax ebx ecx edx	num : DWORD, _cx : SDWORD, cy : SDWORD, _size : DWORD, _align DWORD
+ImageManager_drawNumber		proc public uses eax ebx ecx edx	num : DWORD, _cx : SDWORD, cy : SDWORD, _size : DWORD, _align : DWORD
 	local	@digitNum : DWORD
 	local	@grap : DWORD
 	local	@halfHeight : DWORD
@@ -726,13 +734,19 @@ ImageManager_drawNumber		proc public uses eax ebx ecx edx	num : DWORD, _cx : SDW
 	.while	ecx < @digitNum
 		invoke	_getDigit, num, ecx
 		mov		@digit, eax
-		mul		eax, sizeof Image
+		push	edx
+		push	ecx
+		mov		edx, 0
+		mov		ecx, sizeof Image
+		mul		ecx
+		pop		ecx
+		pop		edx
 		add		eax, edx
 		mov		ebx, eax
 		mov		eax, @halfWidth
 		add		eax, [ebx]._width
 		add		eax, @grap
-		.if		size != NumberSize_large && @digit == 1
+		.if		_size != NumberSize_large && @digit == 1
 			mov		ebx, edx
 			add		ebx, sizeof Image
 			sub		eax, [ebx]._width
@@ -747,7 +761,7 @@ ImageManager_drawNumber		proc public uses eax ebx ecx edx	num : DWORD, _cx : SDW
 	sub		eax, @grap
 	mov		@halfWidth, eax
 	mov		eax, cy
-	sub		eax, halfHeight
+	sub		eax, @halfHeight
 	mov		@startY, eax
 	.if		_align == NumberAlign_left
 		mov		eax, @halfWidth
@@ -765,7 +779,13 @@ ImageManager_drawNumber		proc public uses eax ebx ecx edx	num : DWORD, _cx : SDW
 	.while	ecx < @digitNum
 		invoke	_getDigit, num, ecx
 		mov		@digit, eax
-		mul		eax, sizeof Image
+		push	edx
+		push	ecx
+		mov		edx, 0
+		mov		ecx, sizeof Image
+		mul		ecx
+		pop		ecx
+		pop		edx
 		add		eax, edx
 		mov		ebx, eax
 		mov		eax, @startX

@@ -28,7 +28,8 @@ FadeAnimation_init		proc stdcall uses eax ebx ecx edx	o : AnimationPtr, from : S
 	mov		ecx, 1000
 	div		ecx
 	mov		@tickCount, eax
-	.if		to > from
+	mov		eax, to
+	.if		eax > from
 		mov		eax, to
 		sub		eax, from
 	.else
@@ -49,7 +50,8 @@ FadeAnimation_tick		proc stdcall public uses eax ebx	o : AnimationPtr
 		ret
 	.endif
 
-	.if		[ebx].nowAlpha == [ebx].alphaEnd
+	mov		eax, [ebx].nowAlpha
+	.if		eax == [ebx].alphaEnd
 		.if		[ebx].fadeLoop
 			push	[ebx].alphaStart
 			pop		[ebx].nowAlpha
@@ -59,7 +61,8 @@ FadeAnimation_tick		proc stdcall public uses eax ebx	o : AnimationPtr
 		ret
 	.endif
 
-	.if		[ebx].alphaEnd > [ebx].alphaStart
+	mov		eax, [ebx].alphaEnd
+	.if		eax > [ebx].alphaStart
 		mov		eax, [ebx].nowAlpha
 		add		eax, [ebx].fadeStep
 		mov		[ebx].nowAlpha, eax
@@ -88,10 +91,13 @@ FadeAnimation_getAlpha	proc stdcall public uses ebx	o : AnimationPtr
 	ret
 FadeAnimation_getAlpha	endp
 
-FadeAnimation_finished	proc stdcall public uses ebx	o : AnimationPtr
+FadeAnimation_finished	proc stdcall public uses ebx ecx	o : AnimationPtr
 	assume	ebx : AnimationPtr
 	mov		ebx, o
-	.if		[ebx].fadeLoop == FALSE && [ebx].nowAlpha == [ebx].alphaEnd
+	
+	mov		eax, [ebx].fadeLoop
+	mov		ecx, [ebx].nowAlpha
+	.if		eax == FALSE && ecx == [ebx].alphaEnd
 		mov		eax, TRUE
 	.else
 		mov		eax, FALSE
@@ -102,7 +108,7 @@ FadeAnimation_finished	endp
 
 ;////////////////////////////////////////////////////////////////////////
 ; FrameAniamtion
-FrameAnimation_init		proc stdcall public uses eax ebx ecx edx	o : AnimationPtr, frameCount : SDWORD, duringTime : SDWORD, _loop BOOL
+FrameAnimation_init		proc stdcall public uses eax ebx ecx edx	o : AnimationPtr, frameCount : SDWORD, duringTime : SDWORD, _loop : BOOL
 	local	@tickCount : SDWORD
 
 	assume	ebx : AnimationPtr
@@ -136,7 +142,8 @@ FrameAnimation_tick		proc stdcall public uses eax ebx	o : AnimationPtr
 	.endif
 
 	inc		[ebx].frameTickCount
-	.if		[ebx].frameTickCount < [ebx].frameStep
+	mov		eax, [ebx].frameTickCount
+	.if		eax < [ebx].frameStep
 		ret
 	.else
 		mov		[ebx].frameTickCount, 0
@@ -205,7 +212,7 @@ TransAnimation_init		proc stdcall public uses eax ebx ecx edx	o : AnimationPtr, 
 	pop		[ebx].transLoop
 	mov		eax, 60
 	mov		edx, 0
-	mul		[ebx].duringTime
+	mul		duringTime
 	mov		ecx, 1000
 	div		ecx
 	mov		@tickCount, eax
@@ -218,13 +225,15 @@ TransAnimation_init		proc stdcall public uses eax ebx ecx edx	o : AnimationPtr, 
 	sub		eax, sy
 	mov		edx, 0
 	div		@tickCount
-	mov		[ebx].transYStep
-	.if		ex != sx && [ebx].transXStep == 0
+	mov		[ebx].transYStep, eax
+	mov		eax, ex
+	.if		eax != sx && [ebx].transXStep == 0
 		mov		eax, ex
 		sub		eax, sx
 		mov		[ebx].transXStep, eax
 	.endif
-	.if		ey != sy && [ebx].transYStep == 0
+	mov		eax, ey
+	.if		eax != sy && [ebx].transYStep == 0
 		mov		eax, ey
 		sub		eax, sy
 		mov		[ebx].transYStep, eax
@@ -233,14 +242,16 @@ TransAnimation_init		proc stdcall public uses eax ebx ecx edx	o : AnimationPtr, 
 	ret
 TransAnimation_init		endp
 
-TransAnimation_tick		proc stdcall public uses eax ebx	o : AnimationPtr
+TransAnimation_tick		proc stdcall public uses eax ebx ecx	o : AnimationPtr
 	assume	ebx : AnimationPtr
 	mov		ebx, o
 	.if		[ebx].transEnable == FALSE
 		ret
 	.endif
 
-	.if		[ebx].nx == [ebx].ex && [ebx].ny == [ebx].ey
+	mov		eax, [ebx].nx
+	mov		ecx, [ebx].ny
+	.if		eax == [ebx].ex && ecx == [ebx].ey
 		.if		[ebx].transLoop == TRUE
 			push	[ebx].sx
 			pop		[ebx].nx
@@ -258,13 +269,15 @@ TransAnimation_tick		proc stdcall public uses eax ebx	o : AnimationPtr
 	mov		eax, [ebx].ny
 	add		eax, [ebx].transYStep
 	mov		[ebx].ny, eax
-	.if		([ebx].transXStep > 0 && [ebx].nx > [ebx].ex) || ([ebx].transXStep < 0 && [ebx].nx < [ebx].ex)
+	mov		eax, [ebx].nx
+	.if		([ebx].transXStep > 0 && eax > [ebx].ex) || ([ebx].transXStep < 0 && eax < [ebx].ex)
 		push	[ebx].ex
 		pop		[ebx].nx
 	.endif
-	.if		([ebx].transXStep > 0 && [ebx].nx > [ebx].ex) || ([ebx].transXStep < 0 && [ebx].nx < [ebx].ex)
-		push	[ebx].ex
-		pop		[ebx].nx
+	mov		eax, [ebx].ny
+	.if		([ebx].transYStep > 0 && eax > [ebx].ey) || ([ebx].transYStep < 0 && eax < [ebx].ey)
+		push	[ebx].ey
+		pop		[ebx].ny
 	.endif
 
 	assume	ebx : nothing
@@ -282,10 +295,12 @@ TransAnimation_getXY	proc stdcall public uses ebx	o : AnimationPtr, x : ptr SDWO
 	ret
 TransAnimation_getXY	endp
 
-TransAnimation_finished	proc stdcall public uses ebx	o : AnimationPtr
+TransAnimation_finished	proc stdcall public uses ebx ecx	o : AnimationPtr
 	assume	ebx : AnimationPtr
 	mov		ebx, o
-	.if		[ebx].transLoop == FALSE && [ebx].nx == [ebx].ex && [ebx].ny == [ebx].ey
+	mov		eax, [ebx].nx
+	mov		ecx, [ebx].ny
+	.if		[ebx].transLoop == FALSE && eax == [ebx].ex && ecx == [ebx].ey
 		mov		eax, TRUE
 	.else
 		mov		eax, FALSE

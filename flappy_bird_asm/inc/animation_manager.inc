@@ -33,7 +33,7 @@ Animation		ends
 AnimationPtr	typedef	ptr Animation
 
 ; µ­Èëµ­³ö¶¯»­
-FadeAnimation_init					proto stdcall	o : AnimationPtr, from : DWORD, to : DWORD, duringTime : SDWORD, _loop : BOOL
+FadeAnimation_init					proto stdcall	o : AnimationPtr, from : SDWORD, to : SDWORD, duringTime : SDWORD, _loop : BOOL
 FadeAnimation_tick					proto stdcall	o : AnimationPtr
 FadeAnimation_getAlpha				proto stdcall	o : AnimationPtr
 FadeAnimation_finished				proto stdcall	o : AnimationPtr
@@ -51,7 +51,7 @@ TransAnimation_getXY				proto stdcall	o : AnimationPtr, x : ptr SDWORD, y : ptr 
 TransAnimation_finished				proto stdcall	o : AnimationPtr
 
 AnimationManager	struct 
-	ani			Animation		32 dup(?)
+	ani			Animation		32 dup(<>)
 	aniCount	DWORD			?
 AnimationManager	ends
 AnimationManagerPtr	typedef ptr Animation
