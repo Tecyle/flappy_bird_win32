@@ -25,8 +25,12 @@ SoundManager_init		proc public uses eax hInstance : DWORD
 	ret
 SoundManager_init	endp
 
-SoundManager_playSound	proc public uses eax sound : DWORD
-	mov		eax, [soundNames + sound]
+SoundManager_playSound	proc public uses eax edx sound : DWORD
+	mov		edx, 0
+	mov		eax, sizeof DWORD
+	mul		sound
+	add		eax, offset soundNames
+	mov		eax, DWORD ptr [eax]
 	invoke	PlaySound, eax, g_soundManager.hInstance, SND_RESOURCE or SND_ASYNC
 	ret
 SoundManager_playSound	endp

@@ -8,10 +8,10 @@ include		image_manager.inc
 ;// 2. 准备开始界面
 ;// 3. 游戏界面
 ;// 4. 游戏结束界面
-SceneType_mainMenu	equ 1				;///< 主菜单
-SceneType_prepare	equ 2				;///< 准备开始界面
-SceneType_playing	equ 3				;///< 游戏界面
-SceneType_gameOver	equ 4				;///< 游戏结束界面
+SceneType_mainMenu	equ 0				;///< 主菜单
+SceneType_prepare	equ 1				;///< 准备开始界面
+SceneType_playing	equ 2				;///< 游戏界面
+SceneType_gameOver	equ 3				;///< 游戏结束界面
 SceneType			typedef DWORD
 SceneTypePtr		typedef ptr SceneType
 

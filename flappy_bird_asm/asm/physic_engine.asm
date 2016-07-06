@@ -95,8 +95,8 @@ _PhysicEngine_birdFloating	endp
 
 ; 计算自由飞行中小鸟的位置
 _PhysicEngine_birdFree		proc stdcall private uses eax ebx edx
-	local	@vvPre : DOUBLE
-	local	@tp : SDWORD
+	local	vvPre : DOUBLE
+	local	tp : SDWORD
 
 	assume	ebx : ptr Spirit
 	assume	edx : ptr Spirit
@@ -109,8 +109,9 @@ _PhysicEngine_birdFree		proc stdcall private uses eax ebx edx
 		ret
 	.endif
 
+	finit
 	fld		g_physicEngine.birdVSpeed
-	fstp	@vvPre
+	fstp	vvPre
 
 	finit
 	fld		g_gravity
@@ -118,29 +119,28 @@ _PhysicEngine_birdFree		proc stdcall private uses eax ebx edx
 	fadd	g_physicEngine.birdVSpeed
 	fld		g_bf_maxVSpeed
 	fcomi	st(0), st(1)
-	.if		CARRY?
-		fstp	g_bf_maxVSpeed
+	.if		CARRY? || ZERO?
 		fstp	g_physicEngine.birdVSpeed
 	.else
 		fstp	g_physicEngine.birdVSpeed
+		fstp	g_physicEngine.birdVSpeed
 	.endif
-	mov		@tp, 2
+	mov		tp, 2
 	finit
-	fild	@tp
 	fld		g_physicEngine.birdVSpeed
-	fadd	@vvPre
+	fadd	vvPre
 	fmul	g_bf_tick
-	fdiv
+	fidiv	tp
 	fdiv	g_scale
 	fiadd	[ebx].cy
 	fistp	[ebx].cy
 	; 如果小鸟落地，则不再掉落
 	mov		eax, [ebx].cy
 	add		eax, [ebx].halfHeight
-	mov		@tp, eax
+	mov		tp, eax
 	mov		eax, [edx].cy
 	sub		eax, [edx].halfHeight
-	.if		@tp >= eax
+	.if		tp >= eax
 		mov		eax, [edx].cy
 		sub		eax, [edx].halfHeight
 		sub		eax, [ebx].halfHeight
@@ -149,8 +149,8 @@ _PhysicEngine_birdFree		proc stdcall private uses eax ebx edx
 	; // 小鸟的朝向就是合成速度的朝向
 	fld		g_physicEngine.birdVSpeed
 	fdiv	g_physicEngine.birdHSpeed
-	fstp	@vvPre
-	invoke	crt_atan, @vvPre
+	fstp	vvPre
+	invoke	crt_atan, vvPre
 	fstp	[ebx].angle
 	assume	ebx : nothing
 	assume	edx : nothing
@@ -184,7 +184,7 @@ _PhysicEngine_groundTick	proc stdcall private uses eax ebx edx
 	mov		g_physicEngine.groundMovingLength, edx
 	invoke	ImageManager_getSpirit, SpiritType_ground
 	mov		ebx, eax
-	mov		eax, [ebx]._cx
+	mov		eax, [ebx].ox
 	sub		eax, g_physicEngine.groundMovingLength
 	mov		[ebx]._cx, eax
 	assume	ebx : nothing
@@ -193,11 +193,11 @@ _PhysicEngine_groundTick	endp
 
 ; 移动管道
 _PhysicEngine_movingPipes	proc stdcall private uses eax ebx ecx edx
-	local	@cxInc : SDWORD
+	local	cxInc : SDWORD
 
 	assume	ebx : ptr Spirit
 	assume	edx : ptr Spirit
-	mov		@cxInc, 2
+	mov		cxInc, 2
 	invoke	ImageManager_getSpirit, SpiritType_upPipes
 	mov		ebx, eax
 	invoke	ImageManager_getSpirit, SpiritType_downPipes
@@ -205,7 +205,7 @@ _PhysicEngine_movingPipes	proc stdcall private uses eax ebx ecx edx
 	mov		ecx, 0
 	.while	ecx < 4
 		push	ecx
-		mov		ecx, @cxInc
+		mov		ecx, cxInc
 		sub		[ebx]._cx, ecx
 		sub		[edx]._cx, ecx
 		pop		ecx
@@ -220,43 +220,39 @@ _PhysicEngine_movingPipes	endp
 
 _PhysicEngine_getRandPipeUp	proc stdcall private uses ebx edx
 	; 上端管子的开口坐标应该是 40 ~ ground - 40
-	local	@res : DOUBLE
 	local	@tp : SDWORD
 
 	invoke	crt_rand
 	mov		edx, 0
 	mov		ebx, 200
 	div		ebx
-	div		ebx
 	add		edx, 40
-	mov		edx, eax
+	mov		eax, edx
 	mov		edx, 0
 	mov		ebx, 10
 	mul		ebx
 	mov		@tp, eax
 	finit
 	fild	@tp
-	fstp	@res
-	fld		@res
 	ret
 _PhysicEngine_getRandPipeUp	endp
 
 _PhysicEngine_initPipes		proc stdcall private uses eax ebx ecx edx
-	local	@r2pFactor : SDWORD
-	local	@cxPipe : SDWORD
-	local	@pixelPipeInterval : SDWORD
-	local	@tp : DOUBLE
+	local	r2pFactor : SDWORD
+	local	cxPipe : SDWORD
+	local	pixelPipeInterval : SDWORD
+	local	tp : DOUBLE
 
 	assume	ebx : ptr Spirit
 	assume	edx : ptr Spirit
+	mov		r2pFactor, 10
 	mov		edx, 0
 	mov		eax, g_pipeInterval
-	div		@r2pFactor
-	mov		@pixelPipeInterval, eax
+	div		r2pFactor
+	mov		pixelPipeInterval, eax
 	mov		edx, 288
 	add		eax, edx
-	mov		@cxPipe, eax
-	mov		@r2pFactor, 10
+	mov		cxPipe, eax
 	invoke	ImageManager_getSpirit, SpiritType_upPipes
 	mov		ebx, eax
 	invoke	ImageManager_getSpirit, SpiritType_downPipes
@@ -267,18 +263,19 @@ _PhysicEngine_initPipes		proc stdcall private uses eax ebx ecx edx
 	push	eax
 
 	.while	ecx < 4
-		push	@cxPipe
+		push	cxPipe
 		pop		[ebx]._cx
-		mov		eax, @cxPipe
-		add		eax, @pixelPipeInterval
-		mov		@cxPipe, eax
+		mov		eax, cxPipe
+		add		eax, pixelPipeInterval
+		mov		cxPipe, eax
 		invoke	_PhysicEngine_getRandPipeUp
-		fstp	@tp
+		fstp	tp
 		finit
-		fild	@r2pFactor
-		fld		@tp
-		fdiv
+		fld		tp
+		fidiv	r2pFactor
+		fst		tp
 		fisub	[ebx].halfHeight
+		fst		tp
 		fistp	[ebx].cy
 
 		push	[ebx]._cx

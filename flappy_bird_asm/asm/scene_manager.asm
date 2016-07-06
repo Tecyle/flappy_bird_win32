@@ -147,8 +147,8 @@ Scene_draw				proc stdcall public uses eax ebx ecx edx	o : ScenePtr
 	assume	ebx : ptr Scene
 	mov		ebx, o
 	mov		ecx, 0
+	mov		edx, [ebx].spirits
 	.while	ecx < [ebx].spiritCount
-		lea		edx, [ebx].spirits
 		invoke	ImageManager_drawSpirit, [edx]
 		add		edx, sizeof SpiritPtr
 		inc		ecx
@@ -228,37 +228,37 @@ GameOverRank_click		endp
 ;////////////////////////////////////////////////////////////////////////
 ; SceneManager
 _SceneManager_needRedraw	proc stdcall public uses edx
-	local	@frameInterval : SDWORD
-	local	@nowCount : LARGE_INTEGER
-	local	@tpCount : LARGE_INTEGER
+	local	frameInterval : SDWORD
+	local	nowCount : LARGE_INTEGER
+	local	tpCount : LARGE_INTEGER
 	
 	mov		edx, g_counterFrequency.HighPart
 	mov		eax, g_counterFrequency.LowPart
 	div		g_sceMgr.fps
-	mov		@frameInterval, eax
-	invoke	QueryPerformanceCounter, addr @nowCount
-	push	@nowCount.HighPart
-	pop		@tpCount.HighPart
-	push	@nowCount.LowPart
-	pop		@tpCount.LowPart
-	mov		edx, @tpCount.LowPart
+	mov		frameInterval, eax
+	invoke	QueryPerformanceCounter, addr nowCount
+	push	nowCount.HighPart
+	pop		tpCount.HighPart
+	push	nowCount.LowPart
+	pop		tpCount.LowPart
+	mov		edx, tpCount.LowPart
 	mov		eax, lastCount.LowPart
 	sub		edx, eax
-	mov		@tpCount.LowPart, edx
+	mov		tpCount.LowPart, edx
 	.if		CARRY?
-		mov		edx, @tpCount.HighPart
+		mov		edx, tpCount.HighPart
 		dec		edx
-		mov		@tpCount.HighPart, edx
+		mov		tpCount.HighPart, edx
 	.endif
-	mov		edx, @tpCount.HighPart
+	mov		edx, tpCount.HighPart
 	mov		eax, lastCount.HighPart
 	sub		edx, eax
-	mov		@tpCount.HighPart, edx
-	mov		eax, @tpCount.LowPart
-	.if		@tpCount.HighPart > 0 || eax > @frameInterval
-		push	@nowCount.HighPart
+	mov		tpCount.HighPart, edx
+	mov		eax, tpCount.LowPart
+	.if		tpCount.HighPart > 0 || eax > frameInterval
+		push	nowCount.HighPart
 		pop		lastCount.HighPart
-		push	@nowCount.LowPart
+		push	nowCount.LowPart
 		pop		lastCount.LowPart
 		mov		eax, TRUE
 		ret
@@ -304,7 +304,8 @@ _SceneManager_getFps		endp
 _SceneManager_drawFps		proc stdcall private uses eax
 	invoke	_SceneManager_getFps
 	invoke	wsprintfA, addr fps_strFps, addr fps_strFpsFormat, eax
-	invoke	TextOutA, g_sceMgr.bufHdc, 5, 5, fps_strFps, -1
+	invoke	crt_strlen, addr fps_strFps
+	invoke	TextOutA, g_sceMgr.bufHdc, 5, 5, addr fps_strFps, eax
 	ret
 _SceneManager_drawFps		endp
 
@@ -394,13 +395,13 @@ _SceneManager_tick				endp
 _SceneManager_initAllScene	proc stdcall private uses eax ebx ecx edx
 	assume	ebx : ptr Scene
 	mov		ecx, 0
-	mov		ebx, g_scenes
 	.while	ecx < 4
 		mov		eax, sizeof ScenePtr
 		mov		edx, 0
 		mul		ecx
 		mov		ebx, offset g_scenes
-		add		ebx, eax
+		add		ebx, eax							; ebx 是指向 g_scenes 的指针
+		mov		ebx, ScenePtr ptr [ebx]				; ebx 是指向 g_scenes[i] 的指针
 
 		mov		eax, sizeof SpiritTypePtr
 		mov		edx, 0
@@ -427,11 +428,14 @@ _SceneManager_checkOnClickButtons	proc stdcall private uses eax ebx ecx	buttons 
 	assume	ebx : ptr Button
 	mov		ebx, buttons
 	.while	ecx < btNum
+		push	ebx
+		mov		ebx, ButtonPtr ptr [ebx]
 		invoke	Button_isHit, ebx, x, y
 		.if		[ebx].enabled != FALSE && eax
 			invoke	[ebx].onClick
 			ret
 		.endif
+		pop		ebx
 		inc		ecx
 		add		ebx, sizeof ButtonPtr
 	.endw
@@ -527,7 +531,7 @@ SceneManager_init			proc stdcall public uses eax	hInstance : HINSTANCE, hWnd : H
 	ret
 SceneManager_init			endp
 
-SceneManager_render			proc stdcall public
+SceneManager_render			proc stdcall public uses eax ebx ecx edx
 	; 判断是否需要重绘，如果没有到达绘制时间，则不进行绘制
 	; 这样可以保证帧速率稳定
 	invoke	_SceneManager_needRedraw
@@ -555,7 +559,7 @@ SceneManager_render			proc stdcall public
 	ret
 SceneManager_render			endp
 
-SceneManager_setViewSize	proc stdcall public	_width : SDWORD, height : SDWORD
+SceneManager_setViewSize	proc stdcall public uses eax	_width : SDWORD, height : SDWORD
 	push	_width
 	pop		g_sceMgr.windowWidth
 	push	height
@@ -565,13 +569,13 @@ SceneManager_setViewSize	endp
 
 SceneManager_onClick		proc stdcall public uses eax	x : SDWORD, y : SDWORD
 	.if		g_sceMgr.currentScene == SceneType_mainMenu
-		invoke	_SceneManager_checkOnClickButtons, btInMainMenu, 3, x, y
+		invoke	_SceneManager_checkOnClickButtons, addr btInMainMenu, 3, x, y
 	.elseif	g_sceMgr.currentScene == SceneType_prepare
-		invoke	_SceneManager_checkOnClickButtons, btInPrepare, 1, x, y
+		invoke	_SceneManager_checkOnClickButtons, addr btInPrepare, 1, x, y
 	.elseif	g_sceMgr.currentScene == SceneType_playing
-		invoke	_SceneManager_checkOnClickButtons, btInPlay, 1, x, y
+		invoke	_SceneManager_checkOnClickButtons, addr btInPlay, 1, x, y
 	.elseif	g_sceMgr.currentScene == SceneType_gameOver
-		invoke	_SceneManager_checkOnClickButtons, btInGameOver, 2, x, y
+		invoke	_SceneManager_checkOnClickButtons, addr btInGameOver, 2, x, y
 	.endif
 	ret
 SceneManager_onClick		endp

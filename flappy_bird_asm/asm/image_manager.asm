@@ -86,7 +86,7 @@ imgMedal				ImagePtr	offset img_goldenMedal, \
 									NULL
 
 	.code
-_rotateHdc			proc private	hdc : HDC, angle : REAL8, _cx : SDWORD, cy : SDWORD
+_rotateHdc			proc private uses eax ebx ecx edx	hdc : HDC, angle : REAL8, _cx : SDWORD, cy : SDWORD
 	local	@xform : XFORM
 	local	@tpv : REAL8
 
@@ -128,7 +128,7 @@ _rotateHdc			proc private	hdc : HDC, angle : REAL8, _cx : SDWORD, cy : SDWORD
 	ret
 _rotateHdc			endp
 
-_restoreHdc			proc private	hdc : HDC
+_restoreHdc			proc private uses eax ebx ecx edx	hdc : HDC
 	local	@xform : XFORM
 
 	finit
@@ -228,10 +228,10 @@ Spirit_construct	proc public uses eax ebx ecx	o : SpiritPtr, img : ImagePtr, _cx
 	pop		[ebx].oy
 	mov		ecx, img
 	mov		eax, [ecx]._width
-	sal		eax, 1
+	sar		eax, 1
 	mov		[ebx].halfWidth, eax
 	mov		eax, [ecx].height
-	sal		eax, 1
+	sar		eax, 1
 	mov		[ebx].halfHeight, eax
 	mov		[ebx].visiable, TRUE
 	mov		[ebx].ani, NULL
@@ -241,13 +241,17 @@ Spirit_construct	proc public uses eax ebx ecx	o : SpiritPtr, img : ImagePtr, _cx
 Spirit_construct	endp
 
 Spirit_draw			proc public uses ebx ecx	o : SpiritPtr
-	local	@srcHdc : HDC
-	local	@dstHdc : HDC
-	local	@x : SDWORD
-	local	@y : SDWORD
+	local	srcHdc : HDC
+	local	dstHdc : HDC
+	local	x : SDWORD
+	local	y : SDWORD
 
 	assume	ebx : ptr Spirit
 	assume	ecx : ptr Animation
+	push	g_imgMgr.imgHdc
+	pop		srcHdc
+	push	g_imgMgr.dstHdc
+	pop		dstHdc
 	mov		ebx, o
 	.if		[ebx].visiable == FALSE
 		ret
@@ -259,26 +263,26 @@ Spirit_draw			proc public uses ebx ecx	o : SpiritPtr
 	assume	ecx : ptr Image
 	mov		ecx, [ebx].image
 	push	[ebx]._cx
-	pop		@x
+	pop		x
 	mov		eax, [ebx].halfWidth
-	sub		@x, eax
+	sub		x, eax
 	push	[ebx].cy
-	pop		@y
+	pop		y
 	mov		eax, [ebx].halfHeight
-	sub		@y, eax
-	invoke	TransparentBlt, @dstHdc, @x, @y, [ecx]._width, [ecx].height, \
-			@srcHdc, [ecx].x, [ecx].y, [ecx]._width, [ecx].height, TRANSPRENT_COLOR
+	sub		y, eax
+	invoke	TransparentBlt, dstHdc, x, y, [ecx]._width, [ecx].height, \
+			srcHdc, [ecx].x, [ecx].y, [ecx]._width, [ecx].height, TRANSPRENT_COLOR
 	assume	ebx : nothing
 	assume	ecx : nothing
 	ret
 Spirit_draw			endp
 
 Spirit_drawBird		proc public uses ebx ecx edx	o : SpiritPtr
-	local	@srcHdc : HDC
-	local	@dstHdc : HDC
-	local	@frameIndex : SDWORD
-	local	@x : SDWORD
-	local	@y : SDWORD
+	local	srcHdc : HDC
+	local	dstHdc : HDC
+	local	frameIndex : SDWORD
+	local	x : SDWORD
+	local	y : SDWORD
 
 	assume	ebx : ptr Spirit
 	assume	ecx : ptr Image
@@ -287,31 +291,31 @@ Spirit_drawBird		proc public uses ebx ecx edx	o : SpiritPtr
 		ret
 	.endif
 	push	g_imgMgr.imgHdc
-	pop		@srcHdc
+	pop		srcHdc
 	push	g_imgMgr.dstHdc
-	pop		@dstHdc
+	pop		dstHdc
 	; 小鸟的扇动翅膀动画
 	invoke	FrameAnimation_getFrameIndex, [ebx].ani
 	.if		eax == 3
 		mov		eax, 1
 	.endif
-	mov		@frameIndex, eax
+	mov		frameIndex, eax
 	mov		ecx, [ebx].image
 	mov		edx, 0
 	mov		eax, sizeof Image
-	mul		@frameIndex
+	mul		frameIndex
 	add		ecx, eax
 	; 旋转小鸟
-	invoke	_rotateHdc, @dstHdc, [ebx].angle, [ebx]._cx, [ebx].cy
+	invoke	_rotateHdc, dstHdc, [ebx].angle, [ebx]._cx, [ebx].cy
 	mov		eax, [ebx]._cx
 	sub		eax, [ebx].halfWidth
-	mov		@x, eax
+	mov		x, eax
 	mov		eax, [ebx].cy
-	mov		eax, [ebx].halfHeight
-	mov		@y, eax
-	invoke	TransparentBlt, @dstHdc, @x, @y, [ecx]._width, [ecx].height, \
-			@srcHdc, [ecx].x, [ecx].y, [ecx]._width, [ecx].height, TRANSPRENT_COLOR
-	invoke	_restoreHdc, @dstHdc
+	sub		eax, [ebx].halfHeight
+	mov		y, eax
+	invoke	TransparentBlt, dstHdc, x, y, [ecx]._width, [ecx].height, \
+			srcHdc, [ecx].x, [ecx].y, [ecx]._width, [ecx].height, TRANSPRENT_COLOR
+	invoke	_restoreHdc, dstHdc
 	assume	ebx : nothing
 	assume	ecx : nothing
 	ret
@@ -464,6 +468,7 @@ ImageManager_drawSpirit	proc public uses eax ebx edx	spiritType : DWORD
 	mov		edx, 0
 	mul		spiritType
 	add		ebx, eax
+	mov		ebx, SpiritPtr ptr [ebx]
 	mov		eax, spiritType
 	.if		eax == SpiritType_bird
 		invoke	Spirit_drawBird, ebx
@@ -688,16 +693,19 @@ ImageManager_initAll	proc public uses ebx ecx edx	hInstance : HINSTANCE, hdc : H
 	ret
 ImageManager_initAll	endp
 
-ImageManager_drawFadeCover	proc public uses eax	img : ImagePtr, alpha : DWORD
-	local	@blend : BLENDFUNCTION
+ImageManager_drawFadeCover	proc public uses eax ebx	img : ImagePtr, alpha : DWORD
+	local	blend : BLENDFUNCTION
 
-	mov		@blend.AlphaFormat, 0
-	mov		@blend.BlendOp, AC_SRC_OVER
-	mov		@blend.BlendFlags, 0
+	mov		blend.AlphaFormat, 0
+	mov		blend.BlendOp, AC_SRC_OVER
+	mov		blend.BlendFlags, 0
 	mov		al, BYTE ptr alpha
-	mov		@blend.SourceConstantAlpha, al
+	mov		blend.SourceConstantAlpha, al
+	assume	ebx : ImagePtr
+	mov		ebx, img
 	invoke	AlphaBlend, g_imgMgr.dstHdc, 0, 0, 288, 512, g_imgMgr.imgHdc, \
-			img + Image.x, img + Image.y, img + Image._width, img + Image.height, addr @blend
+			[ebx].x, [ebx].y, [ebx]._width, [ebx].height, DWORD ptr blend
+	assume	ebx : nothing
 	ret
 ImageManager_drawFadeCover	endp
 
