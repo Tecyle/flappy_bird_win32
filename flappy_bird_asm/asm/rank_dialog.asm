@@ -21,32 +21,36 @@ g_buffer			DB				64 dup(?)
 
 	.code
 _RankDialog_onInitDialog			proc stdcall private uses eax ebx ecx edx	hWnd : HWND
-	local	@player : DWORD
-	local	@score : DWORD
+	local	player : DWORD
+	local	score : DWORD
 
 	mov		ecx, 0
 	.while	ecx < 9
 		inc		ecx
 		invoke	ScoreManager_getNameByRank, ecx
-		mov		@player, eax
+		mov		player, eax
 		invoke	ScoreManager_getScoreByRank, ecx
-		mov		@score, eax
-		.if		@player == NULL || [@player] == NULL
-			mov		@player, offset g_noName
-			mov		@score, 0
+		mov		score, eax
+		.if		player == NULL || [player] == NULL
+			mov		player, offset g_noName
+			mov		score, 0
 		.endif
 		dec		ecx
 		mov		eax, sizeof DWORD
 		mov		edx, 0
 		mul		ecx
 		add		eax, offset g_idNames
-		invoke	SetDlgItemTextA, hWnd, [eax], @player
-		invoke	wsprintfA, offset g_buffer, offset g_format, @score
+		push	ecx
+		invoke	SetDlgItemTextA, hWnd, [eax], player
+		invoke	wsprintfA, offset g_buffer, offset g_format, score
+		pop		ecx
 		mov		eax, sizeof DWORD
 		mov		edx, 0
 		mul		ecx
 		add		eax, offset g_idScores
+		push	ecx
 		invoke	SetDlgItemTextA, hWnd, [eax], offset g_buffer
+		pop		ecx
 		inc		ecx
 	.endw
 	ret

@@ -240,7 +240,7 @@ Spirit_construct	proc public uses eax ebx ecx	o : SpiritPtr, img : ImagePtr, _cx
 	ret
 Spirit_construct	endp
 
-Spirit_draw			proc public uses ebx ecx	o : SpiritPtr
+Spirit_draw			proc public uses eax ebx ecx edx	o : SpiritPtr
 	local	srcHdc : HDC
 	local	dstHdc : HDC
 	local	x : SDWORD
@@ -277,7 +277,7 @@ Spirit_draw			proc public uses ebx ecx	o : SpiritPtr
 	ret
 Spirit_draw			endp
 
-Spirit_drawBird		proc public uses ebx ecx edx	o : SpiritPtr
+Spirit_drawBird		proc public uses eax ebx ecx edx	o : SpiritPtr
 	local	srcHdc : HDC
 	local	dstHdc : HDC
 	local	frameIndex : SDWORD
@@ -321,16 +321,16 @@ Spirit_drawBird		proc public uses ebx ecx edx	o : SpiritPtr
 	ret
 Spirit_drawBird		endp
 
-Spirit_drawPipes	proc public uses ebx ecx edx	o : SpiritPtr
-	local	@srcHdc : HDC
-	local	@dstHdc : HDC
-	local	@x : SDWORD
-	local	@y : SDWORD
+Spirit_drawPipes	proc public uses eax ebx ecx edx	o : SpiritPtr
+	local	srcHdc : HDC
+	local	dstHdc : HDC
+	local	x : SDWORD
+	local	y : SDWORD
 
 	push	g_imgMgr.imgHdc
-	pop		@srcHdc
+	pop		srcHdc
 	push	g_imgMgr.dstHdc
-	pop		@dstHdc
+	pop		dstHdc
 	assume	ebx : ptr Spirit
 	assume	edx : ptr Image
 	mov		ecx, 0
@@ -340,12 +340,16 @@ Spirit_drawPipes	proc public uses ebx ecx edx	o : SpiritPtr
 		.if		[ebx].visiable != FALSE
 			mov		eax, [ebx]._cx
 			sub		eax, [ebx].halfWidth
-			mov		@x, eax
+			mov		x, eax
 			mov		eax, [ebx].cy
-			mov		eax, [ebx].halfHeight
-			mov		@y, eax
-			invoke	TransparentBlt, @dstHdc, @x, @y, [edx]._width, [edx].height, \
-					@srcHdc, [edx].x, [edx].y, [edx]._width, [edx].height, TRANSPRENT_COLOR		
+			sub		eax, [ebx].halfHeight
+			mov		y, eax
+			push	ecx
+			push	edx
+			invoke	TransparentBlt, dstHdc, x, y, [edx]._width, [edx].height, \
+					srcHdc, [edx].x, [edx].y, [edx]._width, [edx].height, TRANSPRENT_COLOR
+			pop		edx
+			pop		ecx		
 		.endif
 		inc		ecx
 		add		ebx, sizeof Spirit

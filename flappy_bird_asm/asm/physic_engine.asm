@@ -210,15 +210,15 @@ _PhysicEngine_movingPipes	proc stdcall private uses eax ebx ecx edx
 		sub		[edx]._cx, ecx
 		pop		ecx
 		inc		ecx
-		add		ebx, sizeof SpiritPtr
-		add		edx, sizeof SpiritPtr
+		add		ebx, sizeof Spirit
+		add		edx, sizeof Spirit
 	.endw
 	assume	ebx : nothing
 	assume	edx : nothing
 	ret
 _PhysicEngine_movingPipes	endp
 
-_PhysicEngine_getRandPipeUp	proc stdcall private uses ebx edx
+_PhysicEngine_getRandPipeUp	proc stdcall private uses ebx ecx edx
 	; 上端管子的开口坐标应该是 40 ~ ground - 40
 	local	@tp : SDWORD
 
@@ -273,9 +273,7 @@ _PhysicEngine_initPipes		proc stdcall private uses eax ebx ecx edx
 		finit
 		fld		tp
 		fidiv	r2pFactor
-		fst		tp
 		fisub	[ebx].halfHeight
-		fst		tp
 		fistp	[ebx].cy
 
 		push	[ebx]._cx
@@ -292,8 +290,8 @@ _PhysicEngine_initPipes		proc stdcall private uses eax ebx ecx edx
 		push	eax
 
 		inc		ecx
-		add		ebx, sizeof SpiritPtr
-		add		edx, sizeof SpiritPtr
+		add		ebx, sizeof Spirit
+		add		edx, sizeof Spirit
 	.endw
 	pop		eax
 	assume	ebx : nothing
@@ -323,7 +321,7 @@ _PhysicEngine_loopPipes		proc stdcall private uses eax ebx ecx edx
 	mov		ecx, 0
 	.while	ecx < 4
 		mov		ebx, @upPipes
-		mov		eax, sizeof SpiritPtr
+		mov		eax, sizeof Spirit
 		mul		ecx
 		add		ebx, eax
 		
@@ -344,7 +342,7 @@ _PhysicEngine_loopPipes		proc stdcall private uses eax ebx ecx edx
 			fistp	[ebx].cy
 
 			assume	edx : ptr Spirit
-			mov		eax, sizeof SpiritPtr
+			mov		eax, sizeof Spirit
 			mul		ecx
 			mov		edx, @downPipes
 			add		edx, eax
@@ -428,7 +426,7 @@ _PhysicEngine_checkBirdState	proc stdcall private uses eax ebx ecx edx
 	; 检测小鸟有没有撞到水管
 	mov		ecx, 0
 	.while	ecx < 4
-		mov		eax, sizeof SpiritPtr
+		mov		eax, sizeof Spirit
 		mov		edx, 0
 		mul		ecx
 		mov		ebx, @upPipes
@@ -634,7 +632,7 @@ PhysicEngine_passedPipe		proc stdcall public uses ebx ecx edx
 		mov		eax, [eax]
 		.if		eax == FALSE
 			mov		@pipePassed, eax
-			mov		eax, sizeof SpiritPtr
+			mov		eax, sizeof Spirit
 			mov		edx, 0
 			mul		ecx
 			add		eax, @upPipes
@@ -666,7 +664,7 @@ PhysicEngine_showPipes		proc stdcall public uses ebx ecx edx	show : BOOL
 
 	mov		ecx, 0
 	.while	ecx < 4
-		mov		eax, sizeof SpiritPtr
+		mov		eax, sizeof Spirit
 		mov		edx, 0
 		mul		ecx
 		mov		ebx, @upPipes

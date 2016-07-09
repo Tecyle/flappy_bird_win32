@@ -228,7 +228,7 @@ GameOverRank_click		endp
 ;////////////////////////////////////////////////////////////////////////
 ; SceneManager
 _SceneManager_needRedraw	proc stdcall public uses edx
-	local	frameInterval : SDWORD
+	local	frameInterval : DWORD
 	local	nowCount : LARGE_INTEGER
 	local	tpCount : LARGE_INTEGER
 	
