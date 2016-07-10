@@ -21,7 +21,7 @@ g_scoreFileName	db				"flappy_bird.scores", 0
 g_scoreManager	ScoreManager	<>
 
 	.code
-ScorePair_copy			proc stdcall public uses eax ebx edx	dst : ScorePairPtr, src : ScorePairPtr
+ScorePair_copy			proc stdcall public uses eax ebx ecx edx	dst : ScorePairPtr, src : ScorePairPtr
 	assume	edx : ScorePairPtr
 	assume	ebx : ScorePairPtr
 	mov		edx, dst
@@ -42,7 +42,7 @@ ScorePair_swap			proc stdcall public uses eax	o : ScorePairPtr, r : ScorePairPtr
 	ret
 ScorePair_swap			endp
 
-ScoreManager_init		proc stdcall public uses eax ecx edx
+ScoreManager_init		proc stdcall public uses eax ebx ecx edx
 	local	@hFile : HANDLE
 	
 	invoke	RtlZeroMemory, offset g_scoreManager.rankScore, 10 * (sizeof ScorePair)
@@ -61,7 +61,9 @@ ScoreManager_init		proc stdcall public uses eax ecx edx
 		mov		edx, 0
 		mul		ecx
 		add		eax, offset g_scoreManager.rankScore
+		push	ecx
 		invoke	ReadFile, @hFile, eax, sizeof ScorePair, NULL, NULL
+		pop		ecx
 		inc		ecx
 	.endw
 
@@ -69,7 +71,7 @@ ScoreManager_init		proc stdcall public uses eax ecx edx
 	ret
 ScoreManager_init		endp
 
-ScoreManager_save		proc stdcall public uses eax ecx edx
+ScoreManager_save		proc stdcall public uses eax ebx ecx edx
 	local	@hFile : HANDLE
 
 	invoke	CreateFileA, offset g_scoreFileName, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL
@@ -80,7 +82,9 @@ ScoreManager_save		proc stdcall public uses eax ecx edx
 		mov		edx, 0
 		mul		ecx
 		add		eax, offset g_scoreManager.rankScore
+		push	ecx
 		invoke	WriteFile, @hFile, eax, sizeof ScorePair, NULL, NULL
+		pop		ecx
 		inc		ecx
 	.endw
 	invoke	CloseHandle, @hFile
@@ -97,7 +101,7 @@ ScoreManager_getCurrentName		proc stdcall public
 	ret
 ScoreManager_getCurrentName		endp
 
-ScoreManager_setCurrentName		proc stdcall public uses eax	_name : DWORD
+ScoreManager_setCurrentName		proc stdcall public uses eax ebx ecx edx	_name : DWORD
 	invoke	crt_strcpy, offset g_scoreManager.myScore._name, _name
 	ret
 ScoreManager_setCurrentName		endp
@@ -163,7 +167,7 @@ ScoreManager_resetCurrentScore	proc stdcall public uses eax
 	ret
 ScoreManager_resetCurrentScore	endp
 
-ScoreManager_clear				proc stdcall public uses eax
+ScoreManager_clear				proc stdcall public uses eax ebx ecx edx
 	invoke	RtlZeroMemory, offset g_scoreManager.rankScore, 10 * (sizeof ScorePair)
 	ret
 ScoreManager_clear				endp

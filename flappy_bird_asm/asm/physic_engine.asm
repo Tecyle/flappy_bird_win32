@@ -300,51 +300,51 @@ _PhysicEngine_initPipes		proc stdcall private uses eax ebx ecx edx
 _PhysicEngine_initPipes		endp
 
 _PhysicEngine_loopPipes		proc stdcall private uses eax ebx ecx edx
-	local	@upPipes : SpiritPtr
-	local	@downPipes : SpiritPtr
-	local	@pixelPipeInterval : SDWORD	; todo
-	local	@tp : DOUBLE
-	local	@r2pFactor : SDWORD
+	local	upPipes : SpiritPtr
+	local	downPipes : SpiritPtr
+	local	pixelPipeInterval : SDWORD	; todo
+	local	tp : DOUBLE
+	local	r2pFactor : SDWORD
 	
 	mov		edx, 0
 	mov		eax, g_pipeInterval
 	mov		ecx, 10
 	div		ecx
-	mov		@pixelPipeInterval, eax
-	mov		@r2pFactor, 10
+	mov		pixelPipeInterval, eax
+	mov		r2pFactor, 10
 
 	assume	ebx : ptr Spirit
 	invoke	ImageManager_getSpirit, SpiritType_upPipes
-	mov		@upPipes, eax
+	mov		upPipes, eax
 	invoke	ImageManager_getSpirit, SpiritType_downPipes
-	mov		@downPipes, eax
+	mov		downPipes, eax
 	mov		ecx, 0
 	.while	ecx < 4
-		mov		ebx, @upPipes
+		mov		ebx, upPipes
 		mov		eax, sizeof Spirit
 		mul		ecx
 		add		ebx, eax
 		
 		mov		eax, [ebx]._cx
 		add		eax, [ebx].halfWidth
+		assume	eax : SDWORD
 		.if		eax < 0
-			mov		eax, @pixelPipeInterval
+			mov		eax, pixelPipeInterval
 			shl		eax, 2
 			add		eax, [ebx]._cx
 			mov		[ebx]._cx, eax
 			finit
 			invoke	_PhysicEngine_getRandPipeUp
-			fstp	@tp
-			fild	@r2pFactor
-			fld		@tp
-			fdiv
+			fstp	tp
+			fld		tp
+			fidiv	r2pFactor
 			fisub	[ebx].halfHeight
 			fistp	[ebx].cy
 
 			assume	edx : ptr Spirit
 			mov		eax, sizeof Spirit
 			mul		ecx
-			mov		edx, @downPipes
+			mov		edx, downPipes
 			add		edx, eax
 			push	[ebx]._cx
 			pop		[edx]._cx
@@ -363,6 +363,7 @@ _PhysicEngine_loopPipes		proc stdcall private uses eax ebx ecx edx
 
 			ret
 		.endif
+		assume	eax : nothing
 		inc		ecx
 	.endw
 	ret

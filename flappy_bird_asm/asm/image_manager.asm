@@ -403,9 +403,11 @@ Spirit_drawScoreBorad	proc public uses eax ebx ecx edx	o : SpiritPtr
 	mov		eax, [ebx].cy
 	sub		eax, [ebx].halfHeight
 	mov		@y, eax
+	push	ebx
 	invoke	TransparentBlt, @dstHdc, @x, @y, [ecx]._width, [ecx].height, \
 			@srcHdc, [ecx].x, [ecx].y, [ecx]._width, [ecx].height, TRANSPRENT_COLOR
 	; 再绘制当前得分
+	pop		ebx
 	mov		eax, [ebx]._cx
 	add		eax, 90
 	mov		@x, eax
@@ -503,13 +505,13 @@ ImageManager_getSpirit	proc public uses ebx edx	spirit : DWORD
 	ret
 ImageManager_getSpirit	endp
 
-ImageManager_randomSkyAndBird	proc public uses eax edx
-	local	@d : DWORD
+ImageManager_randomSkyAndBird	proc public uses eax ebx ecx edx
+	local	td : DWORD
 
 	invoke	GetTickCount
 	xor		edx, edx
-	mov		@d, 3
-	div		@d
+	mov		td, 3
+	div		td
 	.if		edx == 0
 		push	offset img_blueBird
 	.elseif	edx == 1
@@ -521,8 +523,8 @@ ImageManager_randomSkyAndBird	proc public uses eax edx
 
 	invoke	GetTickCount
 	xor		edx, edx
-	mov		@d, 2
-	div		@d
+	mov		td, 2
+	div		td
 	.if		edx == 0
 		push	offset img_dayBackground
 	.else
@@ -697,7 +699,7 @@ ImageManager_initAll	proc public uses ebx ecx edx	hInstance : HINSTANCE, hdc : H
 	ret
 ImageManager_initAll	endp
 
-ImageManager_drawFadeCover	proc public uses eax ebx	img : ImagePtr, alpha : DWORD
+ImageManager_drawFadeCover	proc public uses eax ebx ecx edx	img : ImagePtr, alpha : DWORD
 	local	blend : BLENDFUNCTION
 
 	mov		blend.AlphaFormat, 0
@@ -714,23 +716,24 @@ ImageManager_drawFadeCover	proc public uses eax ebx	img : ImagePtr, alpha : DWOR
 ImageManager_drawFadeCover	endp
 
 ImageManager_drawNumber		proc public uses eax ebx ecx edx	num : DWORD, _cx : SDWORD, cy : SDWORD, _size : DWORD, _align : DWORD
-	local	@digitNum : DWORD
-	local	@grap : DWORD
-	local	@halfHeight : DWORD
-	local	@halfWidth : DWORD
-	local	@digit : DWORD
-	local	@startX : SDWORD
-	local	@startY : SDWORD
+	local	digitNum : DWORD
+	local	grap : DWORD
+	local	halfHeight : DWORD
+	local	halfWidth : DWORD
+	local	digit : DWORD
+	local	startX : SDWORD
+	local	startY : SDWORD
 
 	invoke	_getDigitNum, num
-	mov		@digitNum, eax
+	mov		digitNum, eax
 	assume	ebx : ptr Image
+	assume	edx : ImagePtr
 	mov		ebx, NULL
-	mov		@grap, 2
+	mov		grap, 2
 
 	.if		_size == NumberSize_large
 		mov		ebx, offset img_largeNum
-		mov		@grap, 0
+		mov		grap, 0
 	.elseif	_size == NumberSize_middle
 		mov		ebx, offset img_middleNum
 	.elseif	_size == NumberSize_small
@@ -739,85 +742,87 @@ ImageManager_drawNumber		proc public uses eax ebx ecx edx	num : DWORD, _cx : SDW
 	; 计算绘制位置
 	mov		eax, [ebx].height
 	sar		eax, 1
-	mov		@halfHeight, eax
-	mov		@halfWidth, 0
+	mov		halfHeight, eax
+	mov		halfWidth, 0
 	mov		ecx, 0
-	mov		edx, ebx
-	.while	ecx < @digitNum
+	.while	ecx < digitNum
 		invoke	_getDigit, num, ecx
-		mov		@digit, eax
-		push	edx
-		push	ecx
+		mov		digit, eax
 		mov		edx, 0
-		mov		ecx, sizeof Image
+		mov		eax, sizeof Image
 		mul		ecx
-		pop		ecx
-		pop		edx
-		add		eax, edx
-		mov		ebx, eax
-		mov		eax, @halfWidth
-		add		eax, [ebx]._width
-		add		eax, @grap
-		.if		_size != NumberSize_large && @digit == 1
-			mov		ebx, edx
-			add		ebx, sizeof Image
+		add		eax, ebx
+		mov		edx, eax
+		mov		eax, halfWidth
+		add		eax, [edx]._width
+		add		eax, grap
+		mov		halfWidth, eax
+		.if		_size != NumberSize_large && digit == 1
+			push	ebx
+			add		ebx, sizeof Image	; spNum[1]
+			mov		edx, ebx
+			add		edx, sizeof Image	; spNum[2]
+			mov		eax, [edx]._width
 			sub		eax, [ebx]._width
-			add		ebx, sizeof Image
-			add		eax, [ebx]._width
+			add		halfWidth, eax
+			pop		ebx
 		.endif
-		mov		@halfWidth, eax
 		inc		ecx
 	.endw
-	mov		eax, @halfWidth
+	mov		eax, halfWidth
 	sar		eax, 1
-	sub		eax, @grap
-	mov		@halfWidth, eax
+	sub		eax, grap
+	mov		halfWidth, eax
 	mov		eax, cy
-	sub		eax, @halfHeight
-	mov		@startY, eax
+	sub		eax, halfHeight
+	mov		startY, eax
 	.if		_align == NumberAlign_left
-		mov		eax, @halfWidth
+		mov		eax, halfWidth
 		sal		eax, 1
 		add		eax, _cx
 	.elseif	_align == NumberAlign_center
-		mov		eax, @halfWidth
+		mov		eax, halfWidth
 		add		eax, _cx
 	.elseif _align == NumberAlign_right
 		mov		eax, _cx
 	.endif
-	mov		@startX, eax
+	mov		startX, eax
 	; 绘制数字
 	mov		ecx, 0
-	.while	ecx < @digitNum
+	.while	ecx < digitNum
 		invoke	_getDigit, num, ecx
-		mov		@digit, eax
-		push	edx
-		push	ecx
+		mov		digit, eax
 		mov		edx, 0
-		mov		ecx, sizeof Image
+		mov		eax, sizeof Image
 		mul		ecx
-		pop		ecx
-		pop		edx
-		add		eax, edx
-		mov		ebx, eax
-		mov		eax, @startX
+		add		eax, ebx
+		mov		edx, eax
+		mov		eax, startX
+		sub		eax, [edx]._width
 		.if		_size != NumberSize_large && ecx > 0
-			sub		eax, @grap
+			sub		eax, grap
 		.endif
-		mov		@startX, eax
-		invoke	TransparentBlt, g_imgMgr.dstHdc, @startX, @startY, [ebx]._width, [ebx].height, \
-				g_imgMgr.imgHdc, [ebx].x, [ebx].y, [ebx]._width, [ebx].height, TRANSPRENT_COLOR
-		.if		_size != NumberSize_large && @digit == 1
-			mov		eax, @startX
-			mov		ebx, edx
-			add		ebx, sizeof Image
-			add		eax, [ebx]._width
-			add		ebx, sizeof Image
+		mov		startX, eax
+		push	ecx
+		push	edx
+		invoke	TransparentBlt, g_imgMgr.dstHdc, startX, startY, [edx]._width, [edx].height, \
+				g_imgMgr.imgHdc, [edx].x, [edx].y, [edx]._width, [edx].height, TRANSPRENT_COLOR
+		pop		edx
+		pop		ecx
+		.if		_size != NumberSize_large && digit == 1
+			push	ebx
+			add		ebx, sizeof Image	; spNum[1]
+			mov		edx, ebx
+			add		edx, sizeof Image	; spNum[2]
+			mov		eax, [edx]._width
 			sub		eax, [ebx]._width
-			mov		@startX, eax
+			sub		startX, eax
+			pop		ebx
 		.endif
+		inc		ecx
 	.endw
 	assume	ebx : nothing
+	assume	edx : nothing
 	ret
 ImageManager_drawNumber		endp
 	end
